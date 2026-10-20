@@ -1,11 +1,11 @@
-import logo from '../assets/iconsSidebar/logo.png'
-import BotaoMenu from './botaoMenu.jsx'
-import homeIcon from '../assets/iconsSidebar/home.png'
-import chamadosIcon from '../assets/iconsSidebar/chamados.png'
-import coletaIcon from '../assets/iconsSidebar/coleta.png'
-import categoriasIcon from '../assets/iconsSidebar/categorias.png'
-import pontosIcon from '../assets/iconsSidebar/pontos.png'
-import dashboardIcon from '../assets/iconsSidebar/dashboard.png'
+import logo from '../../assets/icons/imagens/logo-sidebar.png'
+import BotaoMenu from '../ui/botaoMenu.jsx'
+import homeIcon from "../../assets/icons/menu/home.png";
+import chamadosIcon from '../../assets/icons/menu/chamados.png'
+import coletaIcon from '../../assets/icons/menu/coleta.png'
+import categoriasIcon from '../../assets/icons/menu/categorias.png'
+import pontosIcon from '../../assets/icons/menu/pontos.png'
+import dashboardIcon from '../../assets/icons/menu/dashboard.png'
 
 export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
   return (

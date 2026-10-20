@@ -1,5 +1,5 @@
 import { useState } from "react"
-import barra from '../assets/iconsLogin/barra.png'
+import barra from '../../assets/icons/imagens/barra-input.png'
 
 export default function InputLogin({ label, icone, placeholder, tipo, iconeDireita }) {
   const [mostrarSenha, setMostrarSenha] = useState(false)

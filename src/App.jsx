@@ -1,13 +1,14 @@
 import { useState } from "react"
 import Login from "./pages/Login.jsx"
-import Sidebar from "./components/sidebar.jsx"
 import Home from "./pages/Home.jsx"
 import Chamados from "./pages/Chamados.jsx"
 import Coleta from "./pages/Coleta.jsx"
 import Categorias from "./pages/Categorias.jsx"
 import Pontos from "./pages/Pontos.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
-import CardSair from "./components/CardSair.jsx"
+
+import Sidebar from "./components/layout/sidebar.jsx"
+import CardSair from "./components/layout/cardSair.jsx"
 
 export default function App() {
   // estado para controlar se o usuário está logado ou não, o setLogado atualiza esse valor e o react redesenha a tela automaticamente quando ele muda

@@ -1,12 +1,12 @@
-import Titulo from "../components/titulo.jsx"
-import CardStatus from "../components/cardStatus.jsx"
+import Titulo from "../components/ui/titulo.jsx"
+import CardStatus from "../components/cards/cardStatus.jsx"
 
 export default function Pontos(){
   return (
     <div>
       <Titulo texto = "Pontos" />
 
-      <div className = "flex flex-row gap-5 mt-5 items-center justify-center">
+      <div className = "flex flex-row gap-3.75 mt-5 items-center justify-center">
         <CardStatus 
           titulo = "Taxa de Conversão" 
           valor = "2.500" 

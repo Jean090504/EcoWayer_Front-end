@@ -1,9 +1,9 @@
-import logoIcon from '../assets/iconsLogin/logo.png'
-import banner from '../assets/iconsLogin/banner.png'
-import emailIcon from '../assets/iconsLogin/email.png'
-import cadeadoIcon from '../assets/iconsLogin/cadeado.png'
-import verSenha from '../assets/iconsLogin/olho.png'
-import InputLogin from '../components/inputLogin.jsx'
+import logoIcon from '../assets/icons/imagens/logo-login.png'
+import banner from '../assets/icons/imagens/banner-login.png'
+import emailIcon from '../assets/icons/ui/email.png'
+import cadeadoIcon from '../assets/icons/ui/cadeado.png'
+import verSenha from '../assets/icons/ui/olho.png'
+import InputLogin from '../components/ui/inputLogin.jsx'
 
 export default function Login({ aoLogar }){ 
     return (

@@ -1,5 +1,6 @@
-import Titulo from "../components/titulo.jsx"
-import CardStatus from "../components/cardStatus.jsx"
+import Titulo from "../components/ui/titulo.jsx"
+import CardStatus from "../components/cards/cardStatus.jsx"
+import GraficoCss from "../components/descartavel/graficoCss.jsx"
 
 export default function Dashboard(){
   return (
@@ -52,6 +53,16 @@ export default function Dashboard(){
               maxAltura = "2xl:h-[200px]"
             />
 
+          </div>
+
+          <div className = "flex flex-row gap-5 mt-5 items-center justify-center">
+            <GraficoCss 
+              titulo = "Usuários Ativos"
+              largura = "w-[550px]"
+              altura = "h-[400px]"
+              maxLargura = "2xl:w-[600px]"
+              maxAltura = "2xl:h-[450px]"
+            />  
           </div>
 
     </div>

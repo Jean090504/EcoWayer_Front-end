@@ -1,4 +1,4 @@
-import Titulo from "../components/titulo.jsx"
+import Titulo from "../components/ui/titulo.jsx"
 
 export default function Coleta(){
   return (
