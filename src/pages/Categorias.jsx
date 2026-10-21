@@ -7,11 +7,12 @@ import filtro from "../assets/icons/ui/filtro.png"
 
 export default function Categorias() {
   return (
-    <div className = "flex flex-col gap-4">
+    <div>
       <Titulo texto = "Categorias" />
 
-      <div className = "flex flex-col gap-4 mt-5 overflow-y-auto h-screen w-[1050px] mx-auto">
+      <div className = "flex flex-col gap-4 mt-5 overflow-y-auto w-[1050px] mx-auto">
 
+      <div className = "flex flex-row items-center w-full mb-9">
         <div className = "relative w-[500px]">
           <img src = {IconSearch} alt = "Ícone de busca" className = "absolute left-0 top-[25px] -translate-y-1/2 w-[15px] h-[15px] ml-4 cursor-pointer"/>
                     
@@ -25,26 +26,28 @@ export default function Categorias() {
           <button className = "bg-[#65BA69] text-[#FFFFFF] text-[18px] w-[200px] h-[50px] rounded-[10px] ml-auto cursor-pointer">
             Adicionar Categoria
           </button>
-            
         </div>
 
-        <CardCategoria 
-          titulo = "Móveis"
-          quantidade = "25"
-          imagem = ""
-        />
+        <div className="space-y-4 overflow-y-auto overflow-x-hidden h-[775px]">
+            <CardCategoria 
+              titulo = "Móveis"
+              quantidade = "25"
+              imagem = ""
+            />
 
-        <CardCategoria 
-          titulo = "Eletrônicos"
-          quantidade = "12"
-          imagem = ""
-        />
-        
-        <CardCategoria 
-          titulo = "Roupas"
-          quantidade = "45"
-          imagem = ""
-        />
+            <CardCategoria 
+              titulo = "Eletrônicos"
+              quantidade = "12"
+              imagem = ""
+            />
+            
+            <CardCategoria 
+              titulo = "Roupas"
+              quantidade = "45"
+              imagem = ""
+            />
+          </div>           
+        </div>
       </div>
   )
 }
