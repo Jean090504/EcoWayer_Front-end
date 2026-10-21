@@ -6,10 +6,8 @@ import TabelaPontuacao from "../components/dashboard/tabelaPontuacao.jsx"
 
 export default function Pontos(){
   return (
-    <div className = "flex flex-col w-full min-h-screen">
-      <div className = "pt-5 px-8">
-        <Titulo texto = "Pontos" />
-      </div>
+    <div>
+      <Titulo texto = "Pontos" />
 
       <div className = "flex flex-row gap-4 mt-5 px-8 justify-center">
         <CardStatus 
@@ -17,10 +15,10 @@ export default function Pontos(){
           valor = "2.500" 
           porcentagem = "+3%" 
           textoRodape = "no último mês"
-          largura = "w-[250px]"
-          altura = "h-[180px]"
-          maxLargura = "2xl:w-[275px]"
-          maxAltura = "2xl:h-[200px]"
+          largura = "w-full max-w-[17rem]"
+          altura = "min-h-[11rem]"
+          maxLargura = ""
+          maxAltura = ""
         />
 
         <CardStatus 
@@ -28,10 +26,10 @@ export default function Pontos(){
           valor = "275" 
           porcentagem = "+5%" 
           textoRodape = "no último mês"
-          largura = "w-[250px]"
-          altura = "h-[180px]"
-          maxLargura = "2xl:w-[275px]"
-          maxAltura = "2xl:h-[200px]"
+          largura = "w-full max-w-[17rem]"
+          altura = "min-h-[11rem]"
+          maxLargura = ""
+          maxAltura = ""
         />
           
         <CardStatus 
@@ -39,29 +37,29 @@ export default function Pontos(){
           valor = "1.000" 
           porcentagem = "+10%" 
           textoRodape = "no último mês"
-          largura = "w-[250px]"
-          altura = "h-[180px]"
-          maxLargura = "2xl:w-[275px]"
-          maxAltura = "2xl:h-[200px]"
+          largura = "w-full max-w-[17rem]"
+          altura = "min-h-[11rem]"
+          maxLargura = ""
+          maxAltura = ""
         />
           
         <CardStatus 
           titulo = "Regras Ativas" 
           valor = "5"
-          largura = "w-[250px]"
-          altura = "h-[180px]"
-          maxLargura = "2xl:w-[275px]"
-          maxAltura = "2xl:h-[200px]"
+          largura = "w-full max-w-[17rem]"
+          altura = "min-h-[11rem]"
+          maxLargura = ""
+          maxAltura = ""
         />
       </div>
 
-      <div className = "flex flex-row gap-6 w-full max-w-[1200px] mx-auto mt-8 px-8 pb-8">
-        <div className = "flex flex-col gap-5 w-[350px] shrink-0">
+      <div className = "flex flex-row gap-6 w-full max-w-[75rem] mx-auto mt-8 px-8 pb-8">
+        <div className = "flex flex-col gap-5 w-[22rem] shrink-0 min-w-0">
           <CardConversao />
           <CardValidador />
         </div>
 
-        <div className = "flex-1">
+        <div className = "flex-1 min-w-0">
           <TabelaPontuacao />
         </div>
       </div>

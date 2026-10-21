@@ -31,25 +31,21 @@ export default function Home(){
     }
   return (
     <div>
-
       <Titulo texto = "Home" />
 
-      <div className = "flex flex-col items-center w-full">
+      <div className = "flex flex-col items-center justify-center">
         
-        {/* Container principal travado em 1050px */}
-        <div className = "w-[1050px]"> 
+        <div className = "w-[95%] h-[85vh]"> 
 
           {/* Cards de cima */}
           <div className = "flex flex-row gap-5 mt-5 justify-between w-full">
-            <CardStatus 
-              titulo = "Usuários Ativos" 
-              valor = "250" 
-              porcentagem = "+57%" 
-              textoRodape = "no último mês"
-              largura = "w-[330px]"
-              altura = "h-[180px]"
-              maxLargura = "2xl:w-[330px]"
-              maxAltura = "2xl:h-[180px]"
+            <CardStatus
+              titulo = "Valor"
+              valor = "150"
+              porcentagem = "+10%"
+              textoRodape = "em relação ao mês anterior"
+              largura = "w-full"
+              altura = "h-[25vh] min-h-[180px]"
             />
 
             <CardStatus 
@@ -57,10 +53,8 @@ export default function Home(){
               valor = "2.502" 
               porcentagem = "+10%" 
               textoRodape = "no último mês" 
-              largura = "w-[330px]"
-              altura = "h-[180px]"
-              maxLargura = "2xl:w-[330px]"
-              maxAltura = "2xl:h-[180px]"
+              largura = "w-full"
+              altura = "h-[25vh] min-h-[180px]"
             />
 
             <CardStatus 
@@ -68,15 +62,13 @@ export default function Home(){
               valor = "4.067" 
               porcentagem = "+50%" 
               textoRodape = "no último mês" 
-              largura = "w-[330px]"
-              altura = "h-[180px]"
-              maxLargura = "2xl:w-[330px]"
-              maxAltura = "2xl:h-[180px]"
+              largura="w-full"
+              altura = "h-[25vh] min-h-[180px]"
             />
           </div>
 
           {/* Gráfico e Ranking embaixo */}
-          <div className = "flex flex-row gap-5 mt-5 justify-between w-full">
+          <div className = "flex flex-row gap-5 mt-5 justify-between w-full h-[55vh]">
             <GraficoHome />
             <RankingPontos 
               // usuarios = {dadosRanking[filtroRanking]} 
@@ -84,8 +76,8 @@ export default function Home(){
               aoMudarFiltro = {setFiltroRanking} 
             />
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   )

@@ -10,7 +10,7 @@ import dashboardIcon from '../../assets/icons/menu/dashboard.png'
 export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
   return (
     <div className = "bg-[#FFFFFF] flex flex-col w-[20%] items-center gap-1.5">
-      <img src = {logo} alt = "" className = "w-[200px] mt-8 pb-5" />
+      <img src = {logo} alt = "" className = "w-[12.5rem] mt-8 pb-5" />
 
       <BotaoMenu
         ativo = {ativa === "home"}
@@ -69,7 +69,7 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
         <div className = "mt-auto mb-8">
           <button 
             onClick = {aoClicarSair}
-            className = "bg-[#E43E42] text-white w-[160px] h-[40px] rounded-[8px] cursor-pointer">
+            className = "bg-[#E43E42] text-white text-base w-full max-w-[10rem] min-h-[2.5rem] px-4 rounded-[0.5rem] cursor-pointer">
             Encerrar Sessão
           </button>
         </div>

@@ -1,15 +1,15 @@
-export default function CardStatus({ titulo, valor, porcentagem, textoRodape, largura, altura, maxLargura, maxAltura }){
+export default function CardStatus({ titulo, valor, porcentagem, textoRodape, largura, altura }){
   const negativo = porcentagem?.startsWith("-")
   const corPorcentagem = negativo ? "text-[#E43E42]" : "text-[#58A24D]"
   const seta = negativo ? "↓" : "↑"
 
   return (
-    <div className = {`flex flex-col items-center justify-center bg-[#FFFFFF] rounded-[25px] gap-2 ${largura} ${altura} ${maxLargura} ${maxAltura}`}>
-      <p className = "text-[14px] text-[#8A8A8A] font-bold 2xl:text-[16px]">{titulo}</p>
-      <p className = "text-[44px] text-[#7350B9] font-semibold 2xl:text-[48px]">{valor}</p>
-    
-      <p className = {`text-[12.5px] text-[#6E7B6C] 2xl:text-[13.5px] ${(!porcentagem || !textoRodape) ? "invisible" : ""}`}>
-        <span className = {corPorcentagem}>{seta} {porcentagem} </span> {textoRodape} 
+    <div className = {`flex flex-col items-center justify-center bg-[#FFFFFF] rounded-[25px] gap-2 ${largura} ${altura}`}>
+      <p className = "text-[clamp(14px,1.25vw,18px)] text-[#8A8A8A] font-bold">{titulo}</p>
+      <p className = "text-[clamp(44px,2.75vw,56px)] text-[#7350B9] font-semibold">{valor}</p>
+
+      <p className = {`text-[clamp(12.5px,0.8vw,16px)] text-[#6E7B6C] ${(!porcentagem || !textoRodape) ? "invisible" : ""}`}>
+        <span className = {corPorcentagem}>{seta} {porcentagem} </span> {textoRodape}&#x20;
       </p>
     </div>
   )

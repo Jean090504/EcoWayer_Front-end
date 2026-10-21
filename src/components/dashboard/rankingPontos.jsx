@@ -8,7 +8,7 @@ export default function RankingPontos({
   carregando = false 
 }) {
   return (
-    <div className = "bg-[#FFFFFF] rounded-[25px] p-8 w-[450px] h-[425px] shadow-md flex flex-col">
+    <div className = "bg-[#FFFFFF] rounded-[25px] p-8 w-[40%] min-h-[425px] shadow-md flex flex-col">
       
       {/* Cabeçalho Fixo */}
       <div>

@@ -1,6 +1,6 @@
 export default function GraficoHome() {
   return (
-    <div className = "bg-[#FFFFFF] rounded-[25px] p-8 w-[600px] h-[425px] shadow-md flex flex-col justify-between">
+    <div className = "bg-[#FFFFFF] rounded-[25px] p-8 w-[60%] min-h-[425px] shadow-md flex flex-col justify-between">
       
       <div className = "flex flex-row justify-between items-start w-full mb-4">
         <div className = "flex flex-col">

@@ -14,12 +14,12 @@ export default function Login({ aoLogar }){
         <div className = "flex flex-col items-center justify-center gap-8 w-[45%] min-w-0 2xl:-mt-17.5">
 
             <img src = {logoIcon} alt = "" className = 
-                "w-[200px] h-[200px] -mt-21 2xl:w-[250px] 2xl:h-[250px] 2xl:mt-0" />
+                "w-[12.5rem] h-[12.5rem] -mt-[5.25rem] 2xl:w-[15.625rem] 2xl:h-[15.625rem] 2xl:mt-0" />
 
             {/* subfilho */}
-            <div className = "w-full max-w-[350px] 2xl:max-w-[400px] flex flex-col">
+            <div className = "w-full max-w-[21.875rem] 2xl:max-w-[25rem] flex flex-col">
             <h1 className = 
-            "font-black text-[#724BC2] text-[30px] mb-7 underline decoration-[#65BA69] decoration-[3px] underline-offset-[6px] 2xl:text-[36px]">Login</h1>
+            "font-black text-[#724BC2] text-3xl mb-7 underline decoration-[#65BA69] decoration-[3px] underline-offset-[6px] 2xl:text-4xl">Login</h1>
 
             <InputLogin 
                 label = "Email"
@@ -40,7 +40,7 @@ export default function Login({ aoLogar }){
 
             <button 
                 onClick = {aoLogar}
-                className = "bg-[#65BA69] text-white text-[18px] w-[350px] h-[50px] rounded-[8px] cursor-pointer 2xl:w-[400px]">
+                className = "bg-[#65BA69] text-white text-lg w-full max-w-[21.875rem] min-h-[3.125rem] rounded-[0.5rem] cursor-pointer 2xl:max-w-[25rem]">
                 ENTRAR
             </button>
 
@@ -48,7 +48,7 @@ export default function Login({ aoLogar }){
 
         {/* imagem */}
         <div className = "w-[55%] min-w-0 h-screen overflow-hidden">
-            <img src = {banner} alt = "" className = "object-cover w-full h-full object-cover object-[0px_-25px]"/>
+            <img src = {banner} alt = "" className = "object-cover w-full h-full object-[0px_-25px]"/>
         </div>
 
         </div>
