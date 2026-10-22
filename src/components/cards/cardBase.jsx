@@ -8,7 +8,7 @@ export default function CardBase({ imagem, botaoTexto, children }){
         {children}
       </div>
       
-      <button className = "ml-auto bg-[#7350B9] text-[#FFFFFF] text-[16px] w-[clamp(180px,15vw,200px)] h-[clamp(45px,5vh,60px)] rounded-[10px] mr-5 cursor-pointer">
+      <button className = "ml-auto bg-[#7350B9] text-[#FFFFFF] text-[clamp(16px,1.2vw,18px)] w-[clamp(180px,15vw,200px)] h-[clamp(45px,5vh,60px)] rounded-[10px] mr-5 cursor-pointer">
         {botaoTexto}
       </button>
 
