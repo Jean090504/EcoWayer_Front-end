@@ -5,8 +5,6 @@ export default function CardCategoria({ titulo, quantidade, imagem }) {
     <CardBase 
       imagem = {imagem}
       botaoTexto = "Ver Categoria"
-      largura = "w-[1050px]"
-      altura = "h-[130px]"
     >
       <p className = "font-semibold text-[18px]">{titulo}</p>
       

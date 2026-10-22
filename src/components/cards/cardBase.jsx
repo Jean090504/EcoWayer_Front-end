@@ -1,6 +1,6 @@
-export default function CardBase({ imagem, botaoTexto, children, largura, altura, maxLargura, maxAltura }){
+export default function CardBase({ imagem, botaoTexto, children }){
   return (
-    <div className = {`flex flex-row bg-[#FFFFFF] gap-4 items-center rounded-lg shadow-md ${largura} ${altura} ${maxLargura} ${maxAltura}`}>
+    <div className = {`flex flex-row bg-[#FFFFFF] gap-4 items-center rounded-lg shadow-md w-full min-h-[130px] h-[15vh]`}>
       
       <img src = {imagem} alt = "" />
       
@@ -8,7 +8,7 @@ export default function CardBase({ imagem, botaoTexto, children, largura, altura
         {children}
       </div>
       
-      <button className = "ml-auto bg-[#7350B9] text-[#FFFFFF] text-[16px] w-[180px] h-[45px] rounded-[10px] mr-5 cursor-pointer">
+      <button className = "ml-auto bg-[#7350B9] text-[#FFFFFF] text-[16px] w-[clamp(180px,15vw,200px)] h-[clamp(45px,5vh,60px)] rounded-[10px] mr-5 cursor-pointer">
         {botaoTexto}
       </button>
 

@@ -4,7 +4,7 @@ import filtro from "../../assets/icons/ui/filtro.png"
 
 export default function InputBusca({ placeholder, aoFiltrar }) {
   return (
-    <div className = "relative w-[500px]">
+    <div className = "relative min-w-[500px] w-[20vw]">
       <img 
         src = {IconSearch} 
         alt = "Ícone de busca"
