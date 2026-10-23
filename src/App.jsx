@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import Cima from './components/layout/cima.jsx'
+import Home from './pages/telaHome'
 
 function App() {
   return (
-    <Cima/>
+    <Home/>
   )
 }
 
