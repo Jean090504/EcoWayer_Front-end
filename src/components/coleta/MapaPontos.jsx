@@ -32,8 +32,8 @@ function criarElementoPin(ponto, selecionado) {
 function estiloPin(status, selecionado) {
   const base = "flex items-center justify-center rounded-full border-2 transition-all";
   return selecionado
-    ? `${base} h-10 w-10 border-green-600 bg-green-600 text-white`
-    : `${base} h-6 w-6 bg-white ${COR_PIN[status]}`;
+    ? `${base} h-[clamp(32px,2.5vw,40px)] w-[clamp(32px,2.5vw,40px)] border-green-600 bg-green-600 text-white`
+    : `${base} h-[clamp(20px,1.5vw,24px)] w-[clamp(20px,1.5vw,24px)] bg-white ${COR_PIN[status]}`;
 }
 
 export default function MapaPontos({ pontos, selecionadoId, onSelect }) {

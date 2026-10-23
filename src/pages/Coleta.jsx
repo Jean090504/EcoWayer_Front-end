@@ -248,41 +248,51 @@ export default function Coleta() {
   }, [termo]);
 
   return (
-    // Página inteira (ocupa 80% ao lado da sidebar)
-    <div className="min-h-screen w-[80%] pr-6">
-      <Titulo texto="Pontos de Coleta" />
-
-      {/* Barra de ações: pesquisa à esquerda, botões à direita */}
-      <div className="mt-1 flex items-center justify-between gap-4 pl-[34px]">
-        {/* Guarda a barra de pesquisa */}
-        <div className="flex h-[50px] w-[492px] shrink-0">
-          <SearchBar
-            onSearch={setTermo}
-            onFilterClick={() => console.log("Abrir Filtros")}
-          />
-        </div>
-
-        {/* Botões de ação */}
-        <div className="flex gap-3">
-          <button className="rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-purple-700">
-            Todos os Resíduos
-          </button>
-          <button className="rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-600">
-            + Adicionar Ponto
-          </button>
+      <div>
+        <Titulo texto="Pontos de Coleta" />
+    
+        <div className="flex w-[95%] flex-col items-center">
+    
+          {/* Barra de ações */}
+          <div className="mt-1 flex w-full flex-wrap items-center justify-between gap-4 px-[clamp(12px,2vw,34px)]">
+    
+            {/* Barra de pesquisa */}
+            <div className="flex h-[50px] w-[492px] shrink-0">
+              <SearchBar
+                onSearch={setTermo}
+                onFilterClick={() => console.log("Abrir Filtros")}
+              />
+            </div>
+    
+            {/* Botões de ação */}
+            <div className="flex gap-3">
+              <button className="rounded-lg bg-[#7350B9] px-5 py-2.5 text-sm font-semibold text-white hover:bg-purple-700">
+                Todos os Resíduos
+              </button>
+    
+              <button className="rounded-lg bg-[#65BA69] px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-600">
+                + Adicionar Ponto
+              </button>
+            </div>
+          </div>
+    
+          {/* Lista e mapa */}
+          <div className="mt-5 flex w-full flex-wrap gap-5 px-[clamp(12px,2vw,34px)]">
+            <ListaPontos
+              pontos={pontosFiltrados}
+              selecionadoId={selecionadoId}
+              onSelect={setSelecionadoId}
+              onGerenciar={(id) => console.log("Gerenciar ponto:", id)}
+            />
+    
+            <MapaPontos
+              pontos={pontosFiltrados}
+              selecionadoId={selecionadoId}
+              onSelect={setSelecionadoId}
+            />
+          </div>
+    
         </div>
       </div>
-
-      {/* Conteúdo principal: lista (esquerda) + mapa (direita) */}
-      <div className="mt-5 flex gap-5 pl-[34px]">
-        <ListaPontos
-          pontos={pontosFiltrados}
-          selecionadoId={selecionadoId}
-          onSelect={setSelecionadoId}
-          onGerenciar={(id) => console.log("Gerenciar ponto:", id)}
-        />
-        <MapaPontos pontos={pontosFiltrados} selecionadoId={selecionadoId} onSelect={setSelecionadoId} />
-      </div>
-    </div>
-  );
+    )
 }

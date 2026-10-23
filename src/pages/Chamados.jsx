@@ -1,8 +1,13 @@
+import { useState } from "react"
+
 import Titulo from "../components/ui/titulo.jsx"
 import CardChamado from "../components/cards/cardChamados.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
+import ModalFiltro from "../components/modal/modalFiltro.jsx"
 
 export default function Chamados(){
+  const [modalAberto, setModalAberto] = useState(false)
+
   return (
     <div> 
       <Titulo texto = "Chamados" />
@@ -11,7 +16,7 @@ export default function Chamados(){
 
         <div className = "flex flex-col w-[95%] h-[85vh]"> 
     
-          <InputBusca placeholder = "Buscar denúncia ou alerta"/>
+          <InputBusca placeholder = "Buscar denúncia ou alerta" aoFiltrar = {() => setModalAberto(true)}/>
 
           <div className = "mt-8 flex-1 min-h-0 space-y-4 overflow-y-auto overflow-x-hidden">
 
@@ -70,6 +75,11 @@ export default function Chamados(){
             />
           </div>
         </div>
+
+        <ModalFiltro
+          modalAberto={modalAberto}
+          onFechar={() => setModalAberto(false)}
+        />
       </div>
     </div>
   )
