@@ -18,6 +18,7 @@ const COR_PIN = {
   ativo: "border-green-500 text-green-600",
   manutencao: "border-orange-400 text-orange-500",
   cheio: "border-red-500 text-red-600",
+  inativo: "border-red-500 text-red-600",
 };
 
 // Cria o elemento HTML do pin (Mapbox exige um elemento DOM para o Marker)
@@ -78,6 +79,8 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
     marcadoresRef.current = {};
 
     pontos.forEach((p) => {
+      // ignora pontos sem coordenadas válidas (evita o erro Invalid LngLat)
+      if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) return;
       const el = criarElementoPin(p, p.id === selecionadoId);
       el.addEventListener("click", () => onSelect(p.id));
       const marker = new mapboxgl.Marker({ element: el }).setLngLat([p.lng, p.lat]).addTo(map);
@@ -94,7 +97,7 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
       if (item) item.el.className = estiloPin(p.status, p.id === selecionadoId);
     });
 
-    if (selecionado) {
+    if (selecionado && Number.isFinite(selecionado.lat) && Number.isFinite(selecionado.lng)) {
       map.flyTo({ center: [selecionado.lng, selecionado.lat], zoom: 14, duration: 800 });
       popupRef.current.setLngLat([selecionado.lng, selecionado.lat]).addTo(map);
     } else {
