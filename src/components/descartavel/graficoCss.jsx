@@ -17,7 +17,7 @@ export default function GraficoCss() {
   ]
 
   return (
-    <div className = "bg-[#FFFFFF] rounded-[25px] p-8 w-[1050px] h-[450px] shadow-md flex flex-col justify-between">
+    <div className = "bg-[#FFFFFF] rounded-[25px] p-[clamp(16px,2vw,32px)] w-full min-h-[400px] shadow-md flex flex-col justify-between">
       
       <h2 className = "text-center text-[22px] font-semibold text-[#202735] mb-4">
         Usuários Ativos X Cadastrados

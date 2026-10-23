@@ -7,17 +7,17 @@ export default function Dashboard(){
     <div>
       <Titulo texto = "Dashboard" />
 
-          <div className = "flex flex-row gap-5 mt-5 items-center justify-center">
+      <div className = "flex flex-col items-center justify-center"> 
+
+        <div className = "w-[95%] h-[85vh]">
+
+          <div className = "flex flex-row gap-5 mt-5">
     
             <CardStatus 
               titulo = "Usuários Ativos Hoje" 
               valor = "2.502" 
               porcentagem = "+10%" 
               textoRodape = "no último mês" 
-              largura = "w-[250px]"
-              altura = "h-[180px]"
-              maxLargura = "2xl:w-[275px]"
-              maxAltura = "2xl:h-[200px]"
             />
     
             <CardStatus 
@@ -25,10 +25,6 @@ export default function Dashboard(){
               valor = "4.067" 
               porcentagem = "+10%" 
               textoRodape = "no último mês" 
-              largura = "w-[250px]"
-              altura = "h-[180px]"
-              maxLargura = "2xl:w-[275px]"
-              maxAltura = "2xl:h-[200px]"
             />
 
             <CardStatus 
@@ -36,10 +32,6 @@ export default function Dashboard(){
               valor = "1.500" 
               porcentagem = "+3%" 
               textoRodape = "no último mês" 
-              largura = "w-[250px]"
-              altura = "h-[180px]"
-              maxLargura = "2xl:w-[275px]"
-              maxAltura = "2xl:h-[200px]"
             />
 
             <CardStatus 
@@ -47,24 +39,14 @@ export default function Dashboard(){
               valor = "190" 
               porcentagem = "-20%" 
               textoRodape = "no último mês" 
-              largura = "w-[250px]"
-              altura = "h-[180px]"
-              maxLargura = "2xl:w-[275px]"
-              maxAltura = "2xl:h-[200px]"
             />
 
           </div>
-
-          <div className = "flex flex-row gap-5 mt-5 items-center justify-center">
-            <GraficoCss 
-              titulo = "Usuários Ativos"
-              largura = "w-[550px]"
-              altura = "h-[400px]"
-              maxLargura = "2xl:w-[600px]"
-              maxAltura = "2xl:h-[450px]"
-            />  
-          </div>
-
+          <div className = "mt-5">
+            <GraficoCss /> 
+          </div> 
+        </div>
+      </div>
     </div>
   )
 }

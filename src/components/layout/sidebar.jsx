@@ -15,8 +15,8 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
       <BotaoMenu
         ativo = {ativa === "home"}
         imagem = {homeIcon}
-        largura = "20px"
-        altura = "20px"
+        larguraImagem = "clamp(20px, 1.5vw, 28px)"
+        altura = "clamp(20px, 1.5vw, 28px)"
         texto = "Home"
         onClick = {() => setAtiva("home")}
       />
@@ -24,8 +24,8 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
       <BotaoMenu
         ativo = {ativa === "chamados"}
         imagem = {chamadosIcon}
-        largura = "20px"
-        altura = "20px"
+        larguraImagem = "clamp(20px, 1.5vw, 28px)"
+        alturaImagem = "clamp(20px, 1.5vw, 28px)"
         texto = "Chamados"
         onClick = {() => setAtiva("chamados")}
       />
@@ -33,8 +33,8 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
       <BotaoMenu
         ativo = {ativa === "coleta"}
         imagem = {coletaIcon}
-        largura = "20px"
-        altura = "20px"
+        larguraImagem = "clamp(20px, 1.5vw, 28px)"
+        alturaImagem = "clamp(20px, 1.5vw, 28px)"
         texto = "Ponto de Coleta"
         onClick = {() => setAtiva("coleta")}
       />
@@ -42,8 +42,8 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
       <BotaoMenu
         ativo = {ativa === "categorias"}
         imagem = {categoriasIcon}
-        largura = "20px"
-        altura = "20px"
+        larguraImagem = "clamp(20px, 1.5vw, 28px)"
+        altura = "clamp(20px, 1.5vw, 28px)"
         texto = "Categorias"
         onClick = {() => setAtiva("categorias")}
       />
@@ -51,8 +51,8 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
       <BotaoMenu
         ativo = {ativa === "pontos"}
         imagem = {pontosIcon}
-        largura = "20px"
-        altura = "20px"
+        larguraImagem = "clamp(20px, 1.5vw, 28px)"
+        alturaImagem = "clamp(20px, 1.5vw, 28px)"
         texto = "Pontos"
         onClick = {() => setAtiva("pontos")}
       />
@@ -60,8 +60,8 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
       <BotaoMenu
         ativo = {ativa === "dashboard"}
         imagem = {dashboardIcon}
-        largura = "20px"
-        altura = "20px"
+        larguraImagem = "20px"
+        alturaImagem = "20px"
         texto = "Dashboard"
         onClick = {() => setAtiva("dashboard")}
       />

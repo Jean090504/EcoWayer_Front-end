@@ -1,26 +1,24 @@
+import CardBotaoTabela from "./cardBotaoTabela.jsx"
+
 export default function CardTabela({ corBolinha, categoria, pontosBase, condExcelente, condBom, condRegular }) {
   return (
-    <div className = "flex flex-row items-center justify-between py-4 border-b border-[#F3F4F6] w-full hover:bg-gray-50 transition-colors px-4">
-      
-      <div className = "flex flex-row items-center gap-2 w-[150px]">
-        <div className = {`w-[8px] h-[8px] rounded-full ${corBolinha}`}></div>
-        <span className = "text-[14px] text-[#202735] font-medium">{categoria}</span>
+    <div className = "w-full flex flex-row items-center justify-between py-4 px-4 border-b border-[#F3F4F6]">
+
+      <div className = "flex flex-row items-center gap-2 w-[clamp(100px,12vw,150px)]">
+        <div className = {`w-[10px] h-[10px] rounded-full shrink-0 ${corBolinha}`}></div>
+        <span className = "text-[clamp(12px,0.8vw,16px)] font-medium text-[#202735]">{categoria}</span>
       </div>
 
-      <div className = "w-[100px] text-center text-[14px] text-[#8A8A8A] font-medium">
-        {pontosBase}
+      <span className = "w-[clamp(80px,8vw,100px)] text-center text-[clamp(12px,0.8vw,16px)] font-bold text-[#202735]">{pontosBase}</span>
+
+      <div className = "w-[clamp(150px,20vw,250px)] flex flex-row justify-center items-center gap-2">
+        <span className = "bg-[#E8F5E9] text-[#2E8B57] text-[clamp(10px,0.7vw,14px)] font-semibold px-2 py-1 rounded-[6px]">{condExcelente}</span>
+        <span className = "bg-[#FFF8E1] text-[#B8860B] text-[clamp(10px,0.7vw,14px)] font-semibold px-2 py-1 rounded-[6px]">{condBom}</span>
+        <span className = "bg-[#F3F4F6] text-[#6B7280] text-[clamp(10px,0.7vw,14px)] font-semibold px-2 py-1 rounded-[6px]">{condRegular}</span>
       </div>
 
-      <div className = "flex flex-row gap-2 justify-center w-[250px]">
-        <span className = "bg-[#65BA69] text-[#FFFFFF] text-[12px] font-bold px-2 py-0.5 rounded-[4px] w-[45px] text-center">{condExcelente}</span>
-        <span className = "bg-[#7350B9] text-[#FFFFFF] text-[12px] font-bold px-2 py-0.5 rounded-[4px] w-[45px] text-center">{condBom}</span>
-        <span className = "bg-[#F5A623] text-[#FFFFFF] text-[12px] font-bold px-2 py-0.5 rounded-[4px] w-[45px] text-center">{condRegular}</span>
-      </div>
-
-      <div className = "w-[100px] flex justify-end">
-        <button className = "bg-[#E43E42] text-[#FFFFFF] text-[12px] font-bold px-4 py-1.5 rounded-[6px] cursor-pointer hover:bg-red-600 transition-colors">
-          Desativar
-        </button>
+      <div className = "w-[clamp(80px,8vw,100px)] flex flex-row justify-end items-center gap-3 pr-2">
+        <CardBotaoTabela />
       </div>
 
     </div>
