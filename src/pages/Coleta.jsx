@@ -3,6 +3,7 @@ import Titulo from "../components/ui/titulo.jsx";
 import SearchBar from "../components/dashboard/SearchBar.jsx";
 import ListaPontos from "../components/coleta/ListaPontos.jsx";
 import MapaPontos from "../components/coleta/MapaPontos.jsx";
+import ModalPonto from "../components/coleta/ModalPonto.jsx";
 import { listarPontos } from "../services/pontoColetaService.js";
 
 // Remove acentos e deixa minúsculo para a busca não depender disso
@@ -19,6 +20,10 @@ export default function Coleta() {
 
   // Id do ponto selecionado (sincroniza lista <-> mapa)
   const [selecionadoId, setSelecionadoId] = useState(null);
+
+  // Id do ponto aberto no modal (null = modal fechado)
+  const [modalId, setModalId] = useState(null);
+  const pontoDoModal = pontos.find((p) => p.id === modalId);
 
   // Busca os pontos na API quando a página abre
   useEffect(() => {
@@ -76,10 +81,13 @@ export default function Coleta() {
           pontos={pontosFiltrados}
           selecionadoId={selecionadoId}
           onSelect={setSelecionadoId}
-          onGerenciar={(id) => console.log("Gerenciar ponto:", id)}
+          onGerenciar={setModalId} // recebe o id do card clicado e abre o modal
         />
         <MapaPontos pontos={pontosFiltrados} selecionadoId={selecionadoId} onSelect={setSelecionadoId} />
       </div>
+
+      {/* Modal com as informações do ponto (só aparece quando há id selecionado) */}
+      {pontoDoModal && <ModalPonto ponto={pontoDoModal} onClose={() => setModalId(null)} />}
     </div>
   );
 }
