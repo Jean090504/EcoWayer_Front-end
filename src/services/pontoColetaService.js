@@ -2,6 +2,8 @@ const BASE = "http://localhost:8080/meraki/ecowayer/admin";
 const API_URL = `${BASE}/ponto-coleta`;
 const MATERIAL_URL = `${BASE}/material-aceito`; // ajuste para a sua rota
 const CATEGORIA_URL = `${BASE}/categoria`;      // ajuste para a sua rota
+const ENDERECO_URL = `${BASE}/endereco`; // ajuste para a sua rota
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 const cabecalhos = () => {
   const token = localStorage.getItem("token");
@@ -55,6 +57,7 @@ function adaptarPonto(p) {
     descricao: p.descricao ?? "",
     endereco: texto,
     enderecoIds: lerEnderecoIds(p.endereco),
+    enderecoObj: obj ?? null, // dados completos do endereço (para editar)
     cep,
     cidade,
     status: String(p.status ?? "").trim().toLowerCase(), // ativo | inativo (ignora maiúsculas e espaços)
@@ -66,6 +69,20 @@ function adaptarPonto(p) {
     lat: paraNumero(p.latitude ?? p.lat ?? obj?.latitude ?? obj?.lat),
     lng: paraNumero(p.longitude ?? p.lng ?? p.lon ?? obj?.longitude ?? obj?.lng ?? obj?.lon),
   };
+}
+
+// Converte o endereço em coordenadas; devolve { lat, lng } ou null se não achar
+export async function geocodificar({ rua, numero, bairro, cep, cidade }) {
+  const q = [[rua, numero].filter(Boolean).join(" "), bairro, cidade, cep].filter(Boolean).join(", ");
+  const url =
+    `https://api.mapbox.com/search/geocode/v6/forward` +
+    `?q=${encodeURIComponent(q)}&country=br&language=pt&limit=1&access_token=${MAPBOX_TOKEN}`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Erro ${res.status} ao buscar coordenadas`);
+  const json = await res.json();
+  const coords = json.features?.[0]?.geometry?.coordinates; // [lng, lat]
+  return coords ? { lat: coords[1], lng: coords[0] } : null;
 }
 
 export async function listarPontos() {
@@ -93,7 +110,7 @@ async function buscarIdCategoria(nome) {
 }
 
 // PUT: monta o JSON no formato que o controller espera e envia
-export async function atualizarPonto(ponto, { status, materiaisIds }) {
+export async function atualizarPonto(ponto, { status, materiaisIds,coords }) {
   const id_categoria = ponto.idCategoria ?? (await buscarIdCategoria(ponto.categoria));
   if (!id_categoria) throw new Error("Não foi possível descobrir o id da categoria");
 
@@ -107,6 +124,8 @@ export async function atualizarPonto(ponto, { status, materiaisIds }) {
     ...(ponto.capacidade !== undefined && { capacidade: ponto.capacidade }),
     endereco: ponto.enderecoIds.map((id) => ({ id })),
     material_aceito: materiaisIds.map((id) => ({ id })),
+    latitude: coords?.lat ?? ponto.lat,
+    longitude: coords?.lng ?? ponto.lng,
   };
 
   const res = await fetch(`${API_URL}/${ponto.id}`, {
@@ -117,5 +136,17 @@ export async function atualizarPonto(ponto, { status, materiaisIds }) {
 
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.field ?? json.message ?? `Erro ${res.status} ao salvar`);
+  return json;
+}
+
+// PUT no próprio registro de endereço (o vínculo com o ponto não muda, pois o id é o mesmo)
+export async function atualizarEndereco(id, dados) {
+  const res = await fetch(`${ENDERECO_URL}/${id}`, {
+    method: "PUT",
+    headers: cabecalhos(),
+    body: JSON.stringify(dados),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.field ?? json.message ?? `Erro ${res.status} ao salvar endereço`);
   return json;
 }
