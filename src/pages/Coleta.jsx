@@ -25,15 +25,21 @@ export default function Coleta() {
   const [modalId, setModalId] = useState(null);
   const pontoDoModal = pontos.find((p) => p.id === modalId);
 
-  // Busca os pontos na API quando a página abre
-  useEffect(() => {
+  // Busca os pontos na API (usada ao abrir a página e depois de salvar no modal)
+  const carregar = () =>
     listarPontos()
       .then((dados) => {
         setPontos(dados);
-        setSelecionadoId(dados[0]?.id ?? null); // seleciona o primeiro ponto
+        // mantém a seleção atual; se não houver, seleciona o primeiro ponto
+        setSelecionadoId((atual) => atual ?? dados[0]?.id ?? null);
+        setErro(null);
       })
       .catch((e) => setErro(e.message))
       .finally(() => setCarregando(false));
+
+  // Carrega os pontos quando a página abre
+  useEffect(() => {
+    carregar();
   }, []);
 
   // Pontos filtrados pelo texto (nome, endereço, CEP, cidade ou material)
@@ -52,7 +58,6 @@ export default function Coleta() {
 
       {/* Barra de ações: pesquisa à esquerda, botões à direita */}
       <div className="mt-1 flex items-center justify-between gap-4 pl-[34px]">
-        {/* Guarda a barra de pesquisa */}
         <div className="flex h-[50px] w-[492px] shrink-0">
           <SearchBar
             onSearch={setTermo}
@@ -60,7 +65,6 @@ export default function Coleta() {
           />
         </div>
 
-        {/* Botões de ação */}
         <div className="flex gap-3">
           <button className="rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-purple-700">
             Todos os Resíduos
@@ -83,11 +87,21 @@ export default function Coleta() {
           onSelect={setSelecionadoId}
           onGerenciar={setModalId} // recebe o id do card clicado e abre o modal
         />
-        <MapaPontos pontos={pontosFiltrados} selecionadoId={selecionadoId} onSelect={setSelecionadoId} />
+        <MapaPontos
+          pontos={pontosFiltrados}
+          selecionadoId={selecionadoId}
+          onSelect={setSelecionadoId}
+        />
       </div>
 
-      {/* Modal com as informações do ponto (só aparece quando há id selecionado) */}
-      {pontoDoModal && <ModalPonto ponto={pontoDoModal} onClose={() => setModalId(null)} />}
+      {/* Modal do ponto; onSaved recarrega a lista após editar */}
+      {pontoDoModal && (
+        <ModalPonto
+          ponto={pontoDoModal}
+          onClose={() => setModalId(null)}
+          onSaved={carregar}
+        />
+      )}
     </div>
   );
 }

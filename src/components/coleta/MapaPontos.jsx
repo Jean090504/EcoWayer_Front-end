@@ -13,7 +13,7 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 // Centro inicial do mapa: São Paulo [lng, lat]
 const CENTRO_SP = [-46.65, -23.55];
 
-// Classes do pin por status (borda/cor do ícone)
+// Pin normal (não selecionado): fundo branco, borda e ícone na cor do status
 const COR_PIN = {
   ativo: "border-green-500 text-green-600",
   manutencao: "border-orange-400 text-orange-500",
@@ -21,20 +21,32 @@ const COR_PIN = {
   inativo: "border-red-500 text-red-600",
 };
 
+// Pin selecionado: maior e preenchido na cor do status
+const COR_PIN_SELECIONADO = {
+  ativo: "border-green-600 bg-green-600 text-white",
+  manutencao: "border-orange-500 bg-orange-500 text-white",
+  cheio: "border-red-600 bg-red-600 text-white",
+  inativo: "border-red-600 bg-red-600 text-white",
+};
+
+// Cores de reserva caso venha um status que não está nas listas
+const PIN_PADRAO = "border-gray-400 text-gray-500";
+const PIN_SELECIONADO_PADRAO = "border-gray-500 bg-gray-500 text-white";
+
+// Pin pequeno branco; selecionado = maior e preenchido, sempre na cor do status
+function estiloPin(status, selecionado) {
+  const base = "flex items-center justify-center rounded-full border-2 transition-all";
+  return selecionado
+    ? `${base} h-10 w-10 ${COR_PIN_SELECIONADO[status] ?? PIN_SELECIONADO_PADRAO}`
+    : `${base} h-6 w-6 bg-white ${COR_PIN[status] ?? PIN_PADRAO}`;
+}
+
 // Cria o elemento HTML do pin (Mapbox exige um elemento DOM para o Marker)
 function criarElementoPin(ponto, selecionado) {
   const el = document.createElement("button");
   el.className = estiloPin(ponto.status, selecionado);
   el.innerHTML = `<svg viewBox="0 0 24 24" class="h-3/5 w-3/5" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>`;
   return el;
-}
-
-// Pin pequeno branco; selecionado = maior e verde sólido
-function estiloPin(status, selecionado) {
-  const base = "flex items-center justify-center rounded-full border-2 transition-all";
-  return selecionado
-    ? `${base} h-10 w-10 border-green-600 bg-green-600 text-white`
-    : `${base} h-6 w-6 bg-white ${COR_PIN[status]}`;
 }
 
 export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
@@ -50,7 +62,7 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: "mapbox://styles/mapbox/streets-v12", // estilo padrão do Mapbox (ruas coloridas)
+      style: "mapbox://styles/mapbox/streets-v12",
       center: CENTRO_SP,
       zoom: 11.5,
       attributionControl: false,
@@ -89,7 +101,7 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pontos]);
 
-  // 3) Quando a seleção muda: destaca o pin, voa até ele e abre o popup
+  // 3) Quando a seleção ou os dados mudam: recolore os pins, voa até o selecionado e abre o popup
   useEffect(() => {
     const map = mapRef.current;
     pontos.forEach((p) => {
@@ -113,19 +125,16 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
   };
 
   return (
-    // Container do mapa com cantos arredondados
     <section className="relative h-[calc(100vh-200px)] min-h-[420px] flex-1 overflow-hidden rounded-2xl shadow-inner">
-      {/* Div onde o Mapbox renderiza o mapa (h-full w-full: o CSS do Mapbox força position:relative, então não use absolute aqui) */}
+      {/* h-full w-full: o CSS do Mapbox força position:relative, então não use absolute aqui */}
       <div ref={containerRef} className="h-full w-full" />
 
-      {/* Controles de zoom e localização */}
       <ControlesMapa
         onZoomIn={() => mapRef.current.zoomIn()}
         onZoomOut={() => mapRef.current.zoomOut()}
         onLocalizar={localizar}
       />
 
-      {/* Legenda de status */}
       <LegendaMapa />
 
       {/* Renderiza o conteúdo React do popup dentro do popup do Mapbox */}
