@@ -12,9 +12,12 @@ const STATUS = [
 const CAMPOS_ENDERECO = [
   { chave: "rua", rotulo: "Rua", largura: "col-span-2" },
   { chave: "numero", rotulo: "Número", largura: "" },
+  { chave: "complemento", rotulo: "Complemento", largura: "" },
   { chave: "bairro", rotulo: "Bairro", largura: "" },
   { chave: "cep", rotulo: "CEP", largura: "" },
   { chave: "cidade", rotulo: "Cidade", largura: "" },
+  { chave: "estado", rotulo: "Estado", largura: "" },
+  { chave: "sigla", rotulo: "Sigla (UF)", largura: "" },
 ];
 
 function Campo({ rotulo, children }) {
