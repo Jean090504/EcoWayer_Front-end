@@ -77,8 +77,15 @@ export default function Chamados(){
         </div>
 
         <ModalFiltro
-          modalAberto={modalAberto}
-          onFechar={() => setModalAberto(false)}
+          modalAberto = {modalAberto}
+          onFechar = {() => setModalAberto(false)}
+          titulo = {"Filtrar Chamados"}
+          opcoes = {[
+            { valor: "opcao1", label: "Denúncias" }, // bom, só temos esses opções mesmo
+            { valor: "opcao2", label: "Alertas" }
+          ]}
+          selecionado = {""}
+          onSelecionar = {() => {}}
         />
       </div>
     </div>

@@ -4,9 +4,11 @@ import Titulo from "../components/ui/titulo.jsx"
 import CardCategoria from "../components/cards/cardCategoria.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
+import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria.jsx"
 
 export default function Categorias() {
   const [modalAberto, setModalAberto] = useState(false)
+  const [modalAdd, setModalAdd] = useState(false)
 
   return (
     <div>
@@ -20,7 +22,10 @@ export default function Categorias() {
 
             <InputBusca placeholder = "Buscar denúncia ou alerta" aoFiltrar = {() => setModalAberto(true)}/>
 
-            <button className = "bg-[#65BA69] text-[#FFFFFF] text-[clamp(18px,1.2vw,20px)] w-[clamp(200px,15vw,260px)] h-[clamp(50px,5vh,60px)] rounded-[10px] ml-auto cursor-pointer">
+            <button 
+              className = "bg-[#65BA69] text-[#FFFFFF] text-[clamp(18px,1.2vw,20px)] w-[clamp(200px,15vw,260px)] h-[clamp(50px,5vh,60px)] rounded-[10px] ml-auto cursor-pointer"
+              onClick = {() => setModalAdd(true)}
+            >
               Adicionar Categoria
             </button>
           </div>
@@ -46,9 +51,22 @@ export default function Categorias() {
           </div>
         </div>      
         <ModalFiltro
-          modalAberto={modalAberto}
-          onFechar={() => setModalAberto(false)}
+          modalAberto = {modalAberto}
+          onFechar = {() => setModalAberto(false)}
+          titulo = {"Filtrar Categorias"}
+          opcoes = {[
+            { valor: "opcao1", label: "Móveis" }, // vai funcionar pelo tipo de categoria
+            { valor: "opcao2", label: "Eletrônicos" },
+            { valor: "opcao3", label: "Roupas" }
+          ]}
+          selecionado = {""}
+          onSelecionar = {() => {}}
         />     
+
+        <ModalAdicionarCategoria
+          modalAberto = {modalAdd}
+          onFechar = {() => setModalAdd(false)}
+        />
       </div>
     </div>
   )
