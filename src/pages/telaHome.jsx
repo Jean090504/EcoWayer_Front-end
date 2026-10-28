@@ -1,106 +1,112 @@
-
 import Cima from '../components/layout/cima.jsx'
 import Baixo from '../components/layout/baixo.jsx'
+import Banner from '../components/layout/banner.jsx'
+import Destaques from '../components/layout/destaqueAnuncios.jsx'
 
 export default function Home() {
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="flex min-h-screen flex-col">
 
-            {/* Chama o header */}
+            {/* Header */}
             <Cima />
 
-            {/* Conteúdo principal da tela */}
-            <main className="flex-1">
+            {/* Conteúdo principal */}
+            <main className="flex flex-1 flex-col items-center">
 
+                {/* Contêiner principal: centralizado e com a mesma largura do banner */}
+                <div className="w-full max-w-[1280px] mx-auto px-4 flex flex-col gap-4 items-center">
 
-                {/* Contêiner para guardar as categorias da home */}
-                <div className="flex items-center gap-2 overflow-x-auto h-[70px] px-1 whitespace-nowrap">
+                    {/* Categorias - altura e espaçamento ajustados para ficar igual ao protótipo */}
+                    <div className="flex h-12 w-full items-center justify-center gap-4 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
-                    {/* Botão de categorias + ícone de > */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center gap-1 h-10 px-4 rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        categorias
-                        <span className="text-lg leading-none">›</span>
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-gray-200 bg-white px-5 text-sm font-semibold text-gray-600"
+                        >
+                            categorias
+                            <span className="text-base leading-none">›</span>
+                        </button>
 
-                    {/* Botão de "Tudo" */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center h-10 w-[120px] rounded-full bg-green-600 text-white text-sm font-semibold shrink-0"
-                    >
-                        Tudo
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full bg-green-600 px-6 text-sm font-semibold text-white"
+                        >
+                            Tudo
+                        </button>
 
-                    {/* Botão de "Favoritos" */}
-            <button
-                        type="button"
-                        className="flex items-center justify-center h-10 w-[120px] rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        favoritos
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
+                        >
+                            favoritos
+                        </button>
 
-                    {/* Botão de "Móveis" */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center h-10 w-[120px] rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        Móveis
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
+                        >
+                            Móveis
+                        </button>
 
-                    {/* Botão de "Fardos" */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center h-10 w-[120px] rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        Fardos
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
+                        >
+                            Fardos
+                        </button>
 
-                    {/* Botão de "Vidro" */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center h-10 w-[120px] rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        vidro
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
+                        >
+                            vidro
+                        </button>
 
-                    {/* Botão de "Papelão" */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center h-10 w-[120px] rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        Papelão
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
+                        >
+                            Papelão
+                        </button>
 
-                    {/* Botão de "Madeira" */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center h-10 w-[120px] rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        madeira
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
+                        >
+                            madeira
+                        </button>
 
-                    {/* Botão de "Eletrodomésticos" */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center h-10 px-4 rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        eletro domesticos
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-5 text-sm font-semibold text-gray-600"
+                        >
+                            eletro domesticos
+                        </button>
 
-                    {/* Botão de "Dispositivos" */}
-                    <button
-                        type="button"
-                        className="flex items-center justify-center h-10 px-4 rounded-full border border-gray-200 bg-white text-gray-600 text-sm font-semibold shrink-0"
-                    >
-                        dispositivos
-                    </button>
+                        <button
+                            type="button"
+                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-5 text-sm font-semibold text-gray-600"
+                        >
+                            dispositivos
+                        </button>
+
+                    </div>
+
+                    {/* Banner */}
+                    <div className="w-full">
+                        <Banner />
+                    </div>
+
+                    {/* Anúncios em destaque */}
+                    <div className="w-full">
+                        <Destaques />
+                    </div>
 
                 </div>
+
             </main>
 
-            {/* Chama o footer */}
+            {/* Footer */}
             <Baixo />
 
         </div>
