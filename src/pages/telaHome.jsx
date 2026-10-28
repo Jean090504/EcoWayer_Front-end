@@ -1,22 +1,24 @@
+
 import Cima from '../components/layout/cima.jsx'
 import Baixo from '../components/layout/baixo.jsx'
 import Banner from '../components/layout/banner.jsx'
 import Destaques from '../components/layout/destaqueAnuncios.jsx'
 
-export default function Home() {
+export default function Home({ onAbrirCriarConta }) {
     return (
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col gap-8">
 
             {/* Header */}
-            <Cima />
+            <Cima
+                onAbrirCriarConta={onAbrirCriarConta}
+            />
 
             {/* Conteúdo principal */}
             <main className="flex flex-1 flex-col items-center">
 
-                {/* Contêiner principal: centralizado e com a mesma largura do banner */}
-                <div className="w-full max-w-[1280px] mx-auto px-4 flex flex-col gap-4 items-center">
+                <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-4 px-4">
 
-                    {/* Categorias - altura e espaçamento ajustados para ficar igual ao protótipo */}
+                    {/* Categorias */}
                     <div className="flex h-12 w-full items-center justify-center gap-4 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
                         <button
@@ -103,7 +105,6 @@ export default function Home() {
                     </div>
 
                 </div>
-
             </main>
 
             {/* Footer */}

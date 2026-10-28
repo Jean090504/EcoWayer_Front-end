@@ -6,41 +6,38 @@ import carta from "../../assets/icons/icones/carta.png";
 import carteira from "../../assets/icons/icones/carteira.png";
 import chat from "../../assets/icons/icones/menssagem.png";
 
-export default function Cima() {
+export default function Cima({ onAbrirCriarConta }) {
     return (
-        <header className="w-full min-w-[1366px] h-[116px] bg-white border-b border-gray-100">
+        <header className="mt-3 h-[72px] w-full border-b border-gray-100 bg-white">
 
             {/* Contêiner dos elementos */}
-            <div className="flex items-center justify-between w-full h-full px-6 gap-4">
+            <div className="mx-auto flex h-full w-full max-w-[1360px] items-center justify-between gap-5 px-6">
 
-                {/* Imagem da logo */}
-                <div className="flex items-center shrink-0">
+                {/* Logo */}
+                <div className="flex shrink-0 items-center">
                     <img
                         src={logo}
                         alt="EcoMarket"
-                        className="h-10 w-[130px] object-contain"
+                        className="h-6 w-auto object-contain"
                     />
                 </div>
 
                 {/* Campo de pesquisa */}
-                <div className="flex flex-1 min-w-[250px] max-w-[560px] items-center rounded-xl border border-gray-200 shadow-sm px-3 h-12">
+                <div className="flex h-10 min-w-[220px] max-w-[480px] flex-1 items-center rounded-full border border-gray-200 bg-white px-3">
 
                     <input
                         type="text"
                         placeholder="Buscar ponto de coleta, bairro..."
-                        className="flex-1 min-w-0 outline-none text-sm text-gray-700 placeholder-gray-400"
+                        className="min-w-0 flex-1 text-sm text-gray-700 outline-none placeholder:text-gray-400"
                     />
 
-                    {/* Ícone da lupa */}
                     <img
                         src={lupa}
                         alt="Pesquisar"
-                        className="h-5 w-5 object-contain shrink-0"
+                        className="ml-2 h-4 w-4 shrink-0 object-contain"
                     />
 
-                    {/* Separador e ícone de filtro */}
-                    <div className="flex items-center ml-3 pl-3 border-l border-gray-300 h-7 shrink-0">
-
+                    <div className="ml-2 flex h-5 shrink-0 items-center border-l border-gray-200 pl-2">
                         <button
                             type="button"
                             aria-label="Filtros de pesquisa"
@@ -49,86 +46,77 @@ export default function Cima() {
                             <img
                                 src={filtro}
                                 alt=""
-                                className="h-5 w-5 object-contain"
+                                className="h-4 w-4 object-contain"
                             />
                         </button>
-
                     </div>
                 </div>
 
                 {/* Navegação */}
-                <nav className="flex items-center gap-4 shrink-0">
+                <nav className="flex shrink-0 items-center gap-5">
 
-                    {/* Meus anúncios */}
                     <button
                         type="button"
-                        className="flex items-center gap-2 whitespace-nowrap shrink-0"
+                        className="flex items-center gap-1.5 whitespace-nowrap"
                     >
                         <img
                             src={carta}
                             alt=""
-                            className="h-7 w-7 object-contain"
+                            className="h-5 w-5 object-contain"
                         />
-
                         <span className="text-sm font-medium text-gray-600">
                             Meus anúncios
                         </span>
                     </button>
 
-                    {/* Carteira */}
                     <button
                         type="button"
-                        className="flex items-center gap-2 whitespace-nowrap shrink-0"
+                        className="flex items-center gap-1.5 whitespace-nowrap"
                     >
                         <img
                             src={carteira}
                             alt=""
-                            className="h-7 w-7 object-contain"
+                            className="h-5 w-5 object-contain"
                         />
-
                         <span className="text-sm font-medium text-gray-600">
-            Carteira
+                            Carteira
                         </span>
                     </button>
 
-                    {/* Chat */}
                     <button
                         type="button"
-                        className="flex items-center gap-2 whitespace-nowrap shrink-0"
+                        className="flex items-center gap-1.5 whitespace-nowrap"
                     >
                         <img
                             src={chat}
                             alt=""
-                            className="h-7 w-7 object-contain"
+                            className="h-5 w-5 object-contain"
                         />
-
                         <span className="text-sm font-medium text-gray-600">
                             Chat
                         </span>
                     </button>
-
                 </nav>
 
                 {/* Botões de acesso */}
-                <div className="flex items-center gap-4 shrink-0">
+                <div className="flex shrink-0 items-center gap-3">
 
-                    {/* Entrar */}
+                    {/* Botão que abre o card */}
                     <button
                         type="button"
-                        className="flex items-center justify-center w-[150px] h-11 rounded-full border-2 border-green-600 text-gray-600 text-lg font-semibold hover:bg-green-50 transition shrink-0"
+                        onClick={onAbrirCriarConta}
+                        className="flex h-9 items-center justify-center rounded-full border border-green-600 px-6 text-sm font-semibold text-gray-700 transition hover:bg-green-50"
                     >
-                        Entrar
+                        Criar Conta
                     </button>
 
-                    {/* Anunciar */}
                     <button
                         type="button"
-                        className="flex items-center justify-center w-[150px] h-11 rounded-full bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition shrink-0"
+                        className="flex h-9 items-center justify-center rounded-full bg-[#724BC2] px-6 text-sm font-semibold text-white transition hover:bg-purple-700"
                     >
-                        Anunciar
+                        Logar
                     </button>
-
-        </div>
+                </div>
 
             </div>
         </header>
