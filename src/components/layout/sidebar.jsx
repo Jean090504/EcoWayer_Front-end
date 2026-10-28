@@ -1,6 +1,6 @@
 import logo from '../../assets/icons/imagens/logo-sidebar.png'
 import BotaoMenu from '../ui/botaoMenu.jsx'
-import homeIcon from "../../assets/icons/menu/home.png";
+import homeIcon from "../../assets/icons/menu/home.png"
 import chamadosIcon from '../../assets/icons/menu/chamados.png'
 import coletaIcon from '../../assets/icons/menu/coleta.png'
 import categoriasIcon from '../../assets/icons/menu/categorias.png'

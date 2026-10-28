@@ -6,7 +6,7 @@ import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
 import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria.jsx"
 
-export default function Categorias() {
+export default function Categorias({ aoAbrirCategoria }) {
   const [modalAberto, setModalAberto] = useState(false)
   const [modalAdd, setModalAdd] = useState(false)
 
@@ -35,6 +35,7 @@ export default function Categorias() {
                 titulo = "Móveis"
                 quantidade = "25"
                 imagem = ""
+                onClick = {() => aoAbrirCategoria("moveis")}
               />
 
               <CardCategoria 
@@ -49,7 +50,8 @@ export default function Categorias() {
                 imagem = ""
               />
           </div>
-        </div>      
+        </div>   
+
         <ModalFiltro
           modalAberto = {modalAberto}
           onFechar = {() => setModalAberto(false)}
@@ -67,6 +69,7 @@ export default function Categorias() {
           modalAberto = {modalAdd}
           onFechar = {() => setModalAdd(false)}
         />
+
       </div>
     </div>
   )

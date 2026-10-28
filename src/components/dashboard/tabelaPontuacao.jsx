@@ -1,5 +1,6 @@
 import { useState } from "react"
 import CardTabela from "../cards/cardTabela.jsx"
+import Paginacao from "../Paginacao/paginacao.jsx"
 
 const ITENS_POR_PAGINA = 5
 
@@ -27,11 +28,6 @@ export default function TabelaPontuacao() {
   const totalPaginas = Math.max(1, Math.ceil(dados.length / ITENS_POR_PAGINA))
   const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA
   const dadosPagina = dados.slice(inicio, inicio + ITENS_POR_PAGINA)
-
-  const irParaAnterior = () => setPaginaAtual((p) => Math.max(1, p - 1))
-  const irParaProxima = () => setPaginaAtual((p) => Math.min(totalPaginas, p + 1))
-
-  const botaoNav = "px-3 h-[clamp(30px,2.4vw,36px)] border border-[#E5E7EB] rounded-[6px] text-[clamp(11px,0.8vw,14px)] bg-[#FFFFFF] transition-colors"
 
   return (
     <div className = "bg-[#FFFFFF] rounded-[16px] shadow-sm border border-[#F3F4F6] w-full h-full flex flex-col pb-4">
@@ -78,35 +74,11 @@ export default function TabelaPontuacao() {
       </div>
 
       <div className = "flex flex-row items-center justify-end gap-2 px-6 pt-4 mt-auto border-t border-[#F3F4F6]">
-        <button
-          onClick = {irParaAnterior}
-          disabled = {paginaAtual === 1}
-          className = {`${botaoNav} ${paginaAtual === 1 ? "text-[#C4C4C4] cursor-not-allowed" : "text-[#202735] cursor-pointer hover:bg-[#F3F4F6]"}`}
-        >
-          Anterior
-        </button>
-
-        {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => (
-          <button
-            key = {numero}
-            onClick = {() => setPaginaAtual(numero)}
-            className = {`w-[clamp(30px,2.4vw,36px)] h-[clamp(30px,2.4vw,36px)] rounded-[6px] text-[clamp(11px,0.8vw,14px)] font-bold cursor-pointer transition-colors ${
-              numero === paginaAtual
-                ? "bg-[#EDE9FE] text-[#6D4AC4]"
-                : "bg-[#FFFFFF] text-[#8A8A8A] hover:bg-[#F3F4F6]"
-            }`}
-          >
-            {numero}
-          </button>
-        ))}
-
-        <button
-          onClick = {irParaProxima}
-          disabled = {paginaAtual === totalPaginas}
-          className = {`${botaoNav} ${paginaAtual === totalPaginas ? "text-[#C4C4C4] cursor-not-allowed" : "text-[#202735] cursor-pointer hover:bg-[#F3F4F6]"}`}
-        >
-          Próxima
-        </button>
+        <Paginacao
+          paginaAtual={paginaAtual}
+          totalPaginas={totalPaginas}
+          onMudarPagina={setPaginaAtual}
+        />
       </div>
 
     </div>

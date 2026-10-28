@@ -31,18 +31,19 @@ export default function ModalAdicionarCategoria({ modalAberto, onFechar }) {
                     <label className = "text-sm font-medium text-gray-700">
                         Tipo da Categoria
                     </label>
-                <select className = "border border-gray-300 p-2 mb-4" value = "" onChange = {(e) => setTipo(e.target.value)}>
-                        <option value = "">Selecionar</option>
-                        <option value = "moveis">Móveis</option>
-                        <option value = "materiais">Materiais</option>
-                        <option value = "eletronicos">Eletrônicos</option>
-                </select>
+                    <select className = "border border-gray-300 p-2 mb-4" value = "" onChange = {(e) => setTipo(e.target.value)}>
+                      <option value = "">Selecionar</option>
+                      <option value = "moveis">Móveis</option>
+                      <option value = "materiais">Materiais</option>
+                      <option value = "eletronicos">Eletrônicos</option>
+                    </select>
                 </div>
 
                 <div className = "flex row gap-6">
                   <button onClick = {onFechar} className = "w-[100px] h-[35px] border border-gray-300 rounded-[0.5rem] cursor-pointer">Cancelar</button>
                   <button className = "w-[200px] text-[#FFFFFF] bg-[#65BA69] rounded-[0.5rem] cursor-pointer">Adicionar Categoria</button>
                 </div>
+
               </div>
             </div>
           </div>

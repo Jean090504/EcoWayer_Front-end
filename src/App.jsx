@@ -1,4 +1,5 @@
 import { useState } from "react"
+
 import Login from "./pages/Login.jsx"
 import Home from "./pages/Home.jsx"
 import Chamados from "./pages/Chamados.jsx"
@@ -6,6 +7,7 @@ import Coleta from "./pages/Coleta.jsx"
 import Categorias from "./pages/Categorias.jsx"
 import Pontos from "./pages/Pontos.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
+import CategoriaIndividual from "./pages/CategoriaIndividual.jsx"
 
 import Sidebar from "./components/layout/sidebar.jsx"
 import CardSair from "./components/layout/cardSair.jsx"
@@ -15,6 +17,8 @@ export default function App() {
   const [logado, setLogado] = useState(false) // controla se tá logado
   const [ativa, setAtiva] = useState("home")
   const [mostrarCard, setMostrarCard] = useState(false)
+  const [categoriaAberta, setCategoriaAberta] = useState(null)
+
 
   // se não estiver logado, mostra só o login
   if (!logado) {
@@ -30,7 +34,11 @@ export default function App() {
         {ativa === "home" && <Home />}
         {ativa === "chamados" && <Chamados />}
         {ativa === "coleta" && <Coleta />}
-        {ativa === "categorias" && <Categorias />}
+        {ativa === "categorias" && (
+          categoriaAberta
+            ? <CategoriaIndividual aoVoltar = {() => setCategoriaAberta(null)} />
+            : <Categorias aoAbrirCategoria = {setCategoriaAberta} />
+        )}
         {ativa === "pontos" && <Pontos />}
         {ativa === "dashboard" && <Dashboard />}
       </div>

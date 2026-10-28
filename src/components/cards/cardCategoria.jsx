@@ -1,10 +1,11 @@
 import CardBase from "./cardBase"
 
-export default function CardCategoria({ titulo, quantidade, imagem }) {
+export default function CardCategoria({ titulo, quantidade, imagem, onClick }) {
   return (
     <CardBase 
       imagem = {imagem}
       botaoTexto = "Ver Categoria"
+      onClick = {onClick}
     >
       <p className = "font-semibold text-[18px]">{titulo}</p>
       
