@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import StatusBadge from "./StatusBadge.jsx";
 import TagMaterial from "./TagMaterial.jsx";
-import { listarMateriais, atualizarPonto, atualizarEndereco,geocodificar } from "../../services/pontoColetaService.js";
+import {
+  listarMateriais, atualizarPonto, atualizarEndereco, geocodificar, excluirPonto,
+} from "../../services/pontoColetaService.js";
 
 const STATUS = [
   { valor: "ativo", rotulo: "Ativo", cor: "bg-green-500 text-white" },
   { valor: "inativo", rotulo: "Inativo", cor: "bg-red-500 text-white" },
 ];
 
-// Campos editáveis do endereço (ajuste os nomes para os do seu banco)
+// Campos editáveis do endereço
 const CAMPOS_ENDERECO = [
   { chave: "rua", rotulo: "Rua", largura: "col-span-2" },
   { chave: "numero", rotulo: "Número", largura: "" },
@@ -29,32 +31,35 @@ function Campo({ rotulo, children }) {
   );
 }
 
-export default function ModalPonto({ ponto, onClose, onSaved }) {
+export default function ModalPonto({ ponto, onClose, onSaved, onDeleted }) {
   const [editando, setEditando] = useState(false);
   const [status, setStatus] = useState(ponto?.status);
   const [selecionados, setSelecionados] = useState([]);
   const [todosMateriais, setTodosMateriais] = useState([]);
   const [formEndereco, setFormEndereco] = useState({});
   const [salvando, setSalvando] = useState(false);
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
   const [erro, setErro] = useState(null);
 
+  const ocupado = salvando || excluindo;
+
+  // ESC fecha, mas não no meio de uma operação
   useEffect(() => {
-    const aoApertar = (e) => e.key === "Escape" && onClose();
+    const aoApertar = (e) => e.key === "Escape" && !ocupado && onClose();
     window.addEventListener("keydown", aoApertar);
     return () => window.removeEventListener("keydown", aoApertar);
-  }, [onClose]);
+  }, [onClose, ocupado]);
 
   if (!ponto) return null;
 
   async function iniciarEdicao() {
     setErro(null);
+    setConfirmandoExclusao(false);
     setStatus(ponto.status);
     setSelecionados(ponto.materiaisObj.map((m) => m.id).filter((id) => id != null));
-    // copia os dados atuais do endereço para os inputs
     const end = ponto.enderecoObj ?? {};
-    setFormEndereco(
-      Object.fromEntries(CAMPOS_ENDERECO.map((c) => [c.chave, end[c.chave] ?? ""]))
-    );
+    setFormEndereco(Object.fromEntries(CAMPOS_ENDERECO.map((c) => [c.chave, end[c.chave] ?? ""])));
     setEditando(true);
     try {
       setTodosMateriais(await listarMateriais());
@@ -83,9 +88,10 @@ export default function ModalPonto({ ponto, onClose, onSaved }) {
     try {
       const end = ponto.enderecoObj;
       const mudouEndereco =
-        end?.id != null && CAMPOS_ENDERECO.some((c) => String(formEndereco[c.chave] ?? "") !== String(end[c.chave] ?? ""));
+        end?.id != null &&
+        CAMPOS_ENDERECO.some((c) => String(formEndereco[c.chave] ?? "") !== String(end[c.chave] ?? ""));
 
-      // 1) Se o endereço mudou, descobre as novas coordenadas ANTES de gravar qualquer coisa
+      // Se o endereço mudou, descobre as novas coordenadas ANTES de gravar qualquer coisa
       let coords = null;
       if (mudouEndereco) {
         coords = await geocodificar({ ...end, ...formEndereco });
@@ -93,7 +99,6 @@ export default function ModalPonto({ ponto, onClose, onSaved }) {
         await atualizarEndereco(end.id, { ...end, ...formEndereco });
       }
 
-      // 2) Atualiza o ponto com status, materiais e as coordenadas novas (se houver)
       await atualizarPonto(ponto, { status, materiaisIds: selecionados, coords });
 
       await onSaved?.();
@@ -105,15 +110,37 @@ export default function ModalPonto({ ponto, onClose, onSaved }) {
     }
   }
 
+  async function excluir() {
+    setExcluindo(true);
+    setErro(null);
+    try {
+      await excluirPonto(ponto.id);
+      await onDeleted?.(ponto.id); // a página recarrega a lista e ajusta a seleção
+      onClose();
+    } catch (e) {
+      setErro(e.message);
+      setConfirmandoExclusao(false);
+    } finally {
+      setExcluindo(false);
+    }
+  }
+
   return (
-    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <div
+      onClick={() => !ocupado && onClose()}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+    >
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold text-gray-900">{ponto.nome}</h2>
             <p className="text-xs text-gray-400">ID do ponto: #{ponto.id}</p>
           </div>
-          <button onClick={onClose} className="text-xl leading-none text-gray-400 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            disabled={ocupado}
+            className="text-xl leading-none text-gray-400 hover:text-gray-700"
+          >
             ×
           </button>
         </div>
@@ -139,7 +166,6 @@ export default function ModalPonto({ ponto, onClose, onSaved }) {
             )}
           </Campo>
 
-          {/* Endereço: texto no modo normal, inputs no modo edição */}
           <Campo rotulo="Endereço">
             {editando && ponto.enderecoObj ? (
               <div className="grid grid-cols-2 gap-2">
@@ -200,43 +226,82 @@ export default function ModalPonto({ ponto, onClose, onSaved }) {
             </span>
           </Campo>
 
-          {erro && <p className="text-xs text-red-500">{erro}</p>}
+          {/* Confirmação de exclusão (aparece só depois de clicar em Excluir) */}
+          {confirmandoExclusao && (
+            <div className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
+              Excluir o ponto <strong>{ponto.nome}</strong>? Essa ação não pode ser desfeita.
+            </div>
+          )}
+
+          {erro && <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-600">{erro}</p>}
         </div>
 
-        <div className="mt-6 flex justify-end gap-2">
-          {editando ? (
-            <>
+        <div className="mt-6 flex items-center justify-between gap-2">
+          {/* Esquerda: excluir (só fora do modo edição) */}
+          <div>
+            {!editando && !confirmandoExclusao && (
               <button
-                onClick={cancelarEdicao}
-                disabled={salvando}
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                onClick={() => setConfirmandoExclusao(true)}
+                className="rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
               >
-                Cancelar
+                Excluir
               </button>
-              <button
-                onClick={salvar}
-                disabled={salvando}
-                className="rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:bg-green-600 disabled:opacity-60"
-              >
-                {salvando ? "Salvando..." : "Salvar"}
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={onClose}
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
-              >
-                Fechar
-              </button>
-              <button
-                onClick={iniciarEdicao}
-                className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
-              >
-                Editar
-              </button>
-            </>
-          )}
+            )}
+          </div>
+
+          {/* Direita: ações conforme o modo */}
+          <div className="flex gap-2">
+            {confirmandoExclusao ? (
+              <>
+                <button
+                  onClick={() => setConfirmandoExclusao(false)}
+                  disabled={excluindo}
+                  className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                >
+                  Não
+                </button>
+                <button
+                  onClick={excluir}
+                  disabled={excluindo}
+                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+                >
+                  {excluindo ? "Excluindo..." : "Sim, excluir"}
+                </button>
+              </>
+            ) : editando ? (
+              <>
+                <button
+                  onClick={cancelarEdicao}
+                  disabled={salvando}
+                  className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={salvar}
+                  disabled={salvando}
+                  className="rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:bg-green-600 disabled:opacity-60"
+                >
+                  {salvando ? "Salvando..." : "Salvar"}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={onClose}
+                  className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                >
+                  Fechar
+                </button>
+                <button
+                  onClick={iniciarEdicao}
+                  className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
+                >
+                  Editar
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

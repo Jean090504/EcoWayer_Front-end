@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Titulo from "../components/ui/titulo.jsx";
 import SearchBar from "../components/dashboard/SearchBar.jsx";
 import ListaPontos from "../components/coleta/ListaPontos.jsx";
@@ -22,20 +22,35 @@ export default function Coleta() {
   const [novoAberto, setNovoAberto] = useState(false);
   const pontoDoModal = pontos.find((p) => p.id === modalId);
 
-  // Busca os pontos na API (ao abrir a página e depois de editar ou cadastrar)
-  const carregar = () =>
-    listarPontos()
-      .then((dados) => {
-        setPontos(dados);
-        setSelecionadoId((atual) => atual ?? dados[0]?.id ?? null);
-        setErro(null);
-      })
-      .catch((e) => setErro(e.message))
-      .finally(() => setCarregando(false));
+  // Busca os pontos na API e atualiza os cards
+  const carregar = useCallback(async () => {
+    try {
+      const dados = await listarPontos();
+      setPontos(dados);
+      // mantém a seleção se o ponto ainda existe; senão seleciona o primeiro (ou nenhum)
+      setSelecionadoId((atual) => (dados.some((p) => p.id === atual) ? atual : dados[0]?.id ?? null));
+      setErro(null);
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
 
   useEffect(() => {
     carregar();
-  }, []);
+  }, [carregar]);
+
+  // Atualiza os cards depois de excluir: tira o ponto da tela na hora e confirma com o servidor
+  const aoExcluir = useCallback(
+    async (idExcluido) => {
+      setModalId(null);
+      setPontos((atual) => atual.filter((p) => p.id !== idExcluido));
+      setSelecionadoId((atual) => (atual === idExcluido ? null : atual));
+      await carregar(); // reseleciona o primeiro ponto se a seleção ficou vazia
+    },
+    [carregar]
+  );
 
   const pontosFiltrados = useMemo(() => {
     const t = normalizar(termo.trim());
@@ -81,10 +96,14 @@ export default function Coleta() {
       </div>
 
       {pontoDoModal && (
-        <ModalPonto ponto={pontoDoModal} onClose={() => setModalId(null)} onSaved={carregar} />
+        <ModalPonto
+          ponto={pontoDoModal}
+          onClose={() => setModalId(null)}
+          onSaved={carregar}
+          onDeleted={aoExcluir}
+        />
       )}
 
-      {/* Depois de cadastrar, recarrega a lista e já seleciona o ponto novo no mapa */}
       {novoAberto && (
         <ModalNovoPonto
           onClose={() => setNovoAberto(false)}

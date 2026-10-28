@@ -128,7 +128,8 @@ export async function buscarCep(cep) {
 /* ---------- Leitura ---------- */
 
 export async function listarPontos() {
-  const res = await fetch(API_URL, { headers: cabecalhos() });
+  const res = await fetch(API_URL, { headers: cabecalhos(), cache: "no-store" });
+  if (res.status === 404) return []; // sem pontos cadastrados não é erro
   if (!res.ok) throw new Error(`Erro ${res.status} ao buscar pontos`);
   const json = await res.json();
   return (json.response?.ponto_coleta ?? []).map(adaptarPonto);
@@ -243,4 +244,11 @@ export async function criarPonto(corpo) {
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.field ?? json.message ?? `Erro ${res.status} ao criar ponto`);
   return { id: json.response?.id ?? null };
+}
+
+export async function excluirPonto(id) {
+  const res = await fetch(`${API_URL}/${id}`, { method: "DELETE", headers: cabecalhos() });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.field ?? json.message ?? `Erro ${res.status} ao excluir ponto`);
+  return json;
 }
