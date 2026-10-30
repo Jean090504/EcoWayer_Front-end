@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import BotaoPower from "../assets/icons/ui/button_power.png"
 import BotaoReset from "../assets/icons/ui/button_reset.png"
-import TabelaItens from  "../components/dashboard/tabelaItens.jsx"
+import TabelaItens from  "../components/tabela/tabelaItens.jsx"
 
 export default function CategoriaIndividual({ aoVoltar }) {
   const [status, setStatus] = useState("")

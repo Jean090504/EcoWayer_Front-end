@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
-import Titulo from "../components/ui/titulo.jsx";
-import SearchBar from "../components/dashboard/SearchBar.jsx";
-import ListaPontos from "../components/coleta/ListaPontos.jsx";
-import MapaPontos from "../components/coleta/MapaPontos.jsx";
+import { useMemo, useState } from "react"
+import Titulo from "../components/ui/titulo.jsx"
+import SearchBar from "../components/dashboard/SearchBar.jsx"
+import ListaPontos from "../components/coleta/ListaPontos.jsx"
+import MapaPontos from "../components/coleta/MapaPontos.jsx"
 
 // Dados de exemplo (troque pelo fetch da sua API /admin/ponto_coleta; lng/lat vêm do endereço do ponto)
 const PONTOS = [
@@ -226,73 +226,73 @@ const PONTOS = [
     lng: -46.7690,
     lat: -23.5460
   }
-];
+]
 
 // Remove acentos e deixa minúsculo para a busca não depender disso
-const normalizar = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const normalizar = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
 
 export default function Coleta() {
   // Texto digitado na barra de pesquisa
-  const [termo, setTermo] = useState("");
+  const [termo, setTermo] = useState("")
 
   // Id do ponto selecionado (sincroniza lista <-> mapa)
-  const [selecionadoId, setSelecionadoId] = useState(1);
+  const [selecionadoId, setSelecionadoId] = useState(1)
 
   // Pontos filtrados pelo texto (busca por nome, endereço ou material)
   const pontosFiltrados = useMemo(() => {
-    const t = normalizar(termo.trim());
-    if (!t) return PONTOS;
+    const t = normalizar(termo.trim())
+    if (!t) return PONTOS
     return PONTOS.filter((p) =>
       normalizar([p.nome, p.endereco, ...p.materiais].join(" ")).includes(t)
-    );
-  }, [termo]);
+    )
+  }, [termo])
 
   return (
-      <div>
-        <Titulo texto="Pontos de Coleta" />
-    
-        <div className="flex w-[95%] flex-col items-center">
-    
-          {/* Barra de ações */}
-          <div className="mt-1 flex w-full flex-wrap items-center justify-between gap-4 px-[clamp(12px,2vw,34px)]">
-    
-            {/* Barra de pesquisa */}
-            <div className="flex h-[50px] w-[492px] shrink-0">
-              <SearchBar
-                onSearch={setTermo}
-                onFilterClick={() => console.log("Abrir Filtros")}
-              />
-            </div>
-    
-            {/* Botões de ação */}
-            <div className="flex gap-3">
-              <button className="rounded-lg bg-[#7350B9] px-5 py-2.5 text-sm font-semibold text-white hover:bg-purple-700">
-                Todos os Resíduos
-              </button>
-    
-              <button className="rounded-lg bg-[#65BA69] px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-600">
-                + Adicionar Ponto
-              </button>
-            </div>
-          </div>
-    
-          {/* Lista e mapa */}
-          <div className="mt-5 flex w-full flex-wrap gap-5 px-[clamp(12px,2vw,34px)]">
-            <ListaPontos
-              pontos={pontosFiltrados}
-              selecionadoId={selecionadoId}
-              onSelect={setSelecionadoId}
-              onGerenciar={(id) => console.log("Gerenciar ponto:", id)}
-            />
-    
-            <MapaPontos
-              pontos={pontosFiltrados}
-              selecionadoId={selecionadoId}
-              onSelect={setSelecionadoId}
+    <div>
+      <Titulo texto = "Pontos de Coleta" />
+
+      <div className = "flex w-[95%] flex-col items-center mt-5">
+
+        {/* Barra de ações */}
+        <div className = "mt-1 flex w-full flex-wrap items-center justify-between gap-4 px-[clamp(12px,2vw,34px)]">
+
+          {/* Barra de pesquisa */}
+          <div className = "flex h-[50px] w-[500px] shrink-0">
+            <SearchBar
+              onSearch = {setTermo}
+              onFilterClick = {() => console.log("Abrir Filtros")}
             />
           </div>
-    
+
+          {/* Botões de ação */}
+          <div className = "flex gap-3">
+            <button className = "rounded-lg bg-[#7350B9] px-5 py-2.5 text-sm font-semibold text-white cursor-pointer">
+              Todos os Resíduos
+            </button>
+
+            <button className = "rounded-lg bg-[#65BA69] px-5 py-2.5 text-sm font-semibold text-white cursor-pointer">
+              + Adicionar Ponto
+            </button>
+          </div>
         </div>
+
+        {/* Lista e mapa */}
+        <div className = "mt-5 flex w-full flex-wrap gap-5 px-[clamp(12px,2vw,34px)]">
+          <ListaPontos
+            pontos = {pontosFiltrados}
+            selecionadoId = {selecionadoId}
+            onSelect = {setSelecionadoId}
+            onGerenciar = {(id) => console.log("Gerenciar ponto:", id)}
+          />
+
+          <MapaPontos
+            pontos = {pontosFiltrados}
+            selecionadoId = {selecionadoId}
+            onSelect = {setSelecionadoId}
+          />
+        </div>
+
       </div>
-    )
+    </div>
+  )
 }

@@ -1,4 +1,5 @@
 import CardBotaoTabela from "./cardBotaoTabela.jsx"
+import TextoTabela from "../ui/textoTabela.jsx"
 
 export default function CardTabela({ corBolinha, categoria, pontosBase, condExcelente, condBom, condRegular }) {
   return (
@@ -12,9 +13,11 @@ export default function CardTabela({ corBolinha, categoria, pontosBase, condExce
       <span className = "w-[clamp(80px,8vw,100px)] text-center text-[clamp(12px,0.8vw,16px)] font-bold text-[#202735]">{pontosBase}</span>
 
       <div className = "w-[clamp(150px,20vw,250px)] flex flex-row justify-center items-center gap-2">
-        <span className = "bg-[#E8F5E9] text-[#2E8B57] text-[clamp(10px,0.7vw,14px)] font-semibold px-2 py-1 rounded-[6px]">{condExcelente}</span>
-        <span className = "bg-[#FFF8E1] text-[#B8860B] text-[clamp(10px,0.7vw,14px)] font-semibold px-2 py-1 rounded-[6px]">{condBom}</span>
-        <span className = "bg-[#F3F4F6] text-[#6B7280] text-[clamp(10px,0.7vw,14px)] font-semibold px-2 py-1 rounded-[6px]">{condRegular}</span>
+        <TextoTabela texto = {condExcelente} corTexto = "text-[#2E8B57]" background = "bg-[#E8F5E9]" />
+
+        <TextoTabela texto = {condBom} corTexto = "text-[#B8860B]" background = "bg-[#FFF8E1]" />
+
+        <TextoTabela texto = {condRegular} corTexto = "text-[#6B7280]" background = "bg-[#F3F4F6]" />
       </div>
 
       <div className = "w-[clamp(80px,8vw,100px)] flex flex-row justify-end items-center gap-3 pr-2">

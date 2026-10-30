@@ -20,56 +20,14 @@ export default function Chamados(){
 
           <div className = "mt-8 flex-1 min-h-0 space-y-4 overflow-y-auto overflow-x-hidden">
 
-            <CardChamado 
-              imagem = ""
+            <CardChamado
+              tipo = "ia"
               titulo = "Título do Chamado"
               descricao = "Descrição do problema"
             />
 
-            <CardChamado 
-              imagem = ""
-              titulo = "Título do Chamado"
-              descricao = "Descrição do problema"
-            />
-
-            <CardChamado 
-              imagem = ""
-              titulo = "Título do Chamado"
-              descricao = "Descrição do problema"
-            />
-
-            <CardChamado 
-              imagem = ""
-              titulo = "Título do Chamado"
-              descricao = "Descrição do problema"
-            />
-
-            <CardChamado 
-              imagem = ""
-              titulo = "Título do Chamado"
-              descricao = "Descrição do problema"
-            />
-
-            <CardChamado 
-              imagem = ""
-              titulo = "Título do Chamado"
-              descricao = "Descrição do problema"
-            />
-
-            <CardChamado 
-              imagem = ""
-              titulo = "Título do Chamado"
-              descricao = "Descrição do problema"
-            />
-
-            <CardChamado 
-              imagem = ""
-              titulo = "Título do Chamado"
-              descricao = "Descrição do problema"
-            />
-
-            <CardChamado 
-              imagem = ""
+            <CardChamado
+              tipo = "denuncia"
               titulo = "Título do Chamado"
               descricao = "Descrição do problema"
             />

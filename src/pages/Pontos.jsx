@@ -2,7 +2,7 @@ import Titulo from "../components/ui/titulo.jsx"
 import CardStatus from "../components/cards/cardStatus.jsx"
 import CardConversao from "../components/cards/cardConversao.jsx"
 import CardValidador from "../components/cards/cardValidador.jsx"
-import TabelaPontuacao from "../components/dashboard/tabelaPontuacao.jsx"
+import TabelaPontuacao from "../components/tabela/tabelaPontuacao.jsx"
 
 export default function Pontos(){
   return (

@@ -1,6 +1,9 @@
 import { useState } from "react"
 import CardTabela from "../cards/cardTabela.jsx"
+import Cabecalho from "./cabecalhoTabela.jsx"
 import Paginacao from "../Paginacao/paginacao.jsx"
+import Mais from "../../assets/icons/ui/mais.png"
+import IconSearch from "../../assets/icons/ui/search.png"
 
 const ITENS_POR_PAGINA = 5
 
@@ -32,31 +35,30 @@ export default function TabelaPontuacao() {
   return (
     <div className = "bg-[#FFFFFF] rounded-[16px] shadow-sm border border-[#F3F4F6] w-full h-full flex flex-col pb-4">
 
-      <div className = "flex flex-row justify-between items-center p-6 border-b border-[#F3F4F6]">
-        <h2 className = "text-[clamp(16px,1.2vw,20px)] font-bold text-[#202735]">Pontuação Base por Categoria</h2>
+      <div className = "flex flex-row justify-between items-center p-4 border-b border-[#F3F4F6]">
+        <h2 className = "text-[clamp(12px,1vw,16px)] font-bold text-[#202735]">Pontuação Base por Categoria</h2>
 
         <div className = "flex flex-row items-center gap-4">
-          <div className = "flex flex-row items-center w-[clamp(180px,18vw,250px)] h-[clamp(35px,3vw,40px)] border border-[#E5E7EB] rounded-[8px] px-3">
-            <svg xmlns = "http://www.w3.org/2000/svg" fill = "none" viewBox = "0 0 24 24" strokeWidth = {2} stroke = "currentColor" className = "w-[clamp(14px,0.9vw,18px)] h-[clamp(14px,0.9vw,18px)] text-[#8A8A8A] mr-2">
-              <path strokeLinecap = "round" strokeLinejoin = "round" d = "m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
-            <input type = "text" placeholder = "Filtrar categoria..." className = "w-full outline-none text-[clamp(12px,0.8vw,16px)] bg-transparent placeholder-[#8A8A8A]" />
+          <div className = "flex flex-row items-center w-[clamp(140px,18vw,200px)] h-[clamp(30px,1vw,35px)] border border-[#E5E7EB] rounded-[8px] px-3">
+            <img src = {IconSearch} alt = "" className = "w-[10px]" />
+            <input type = "text" placeholder = "Filtrar categoria..." className = "w-full outline-none text-[clamp(12px,0.8vw,16px)] bg-transparent placeholder-[#8A8A8A] pl-2" />
           </div>
 
-          <button className = "flex flex-row items-center gap-2 bg-[#65BA69] text-[#FFFFFF] text-[clamp(12px,0.9vw,18px)] font-bold px-4 h-[clamp(35px,3vw,40px)] rounded-[8px] cursor-pointer">
-            <svg xmlns = "http://www.w3.org/2000/svg" fill = "none" viewBox = "0 0 24 24" strokeWidth = {2} stroke = "currentColor" className = "w-[clamp(14px,0.9vw,18px)] h-[clamp(14px,0.9vw,18px)]">
-              <path strokeLinecap = "round" strokeLinejoin = "round" d = "M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+          <button className = "flex flex-row items-center justify-center gap-2 bg-[#65BA69] text-[#FFFFFF] text-[clamp(10px,0.9vw,18px)] font-bold w-[clamp(100px,18vw,120px)] h-[clamp(30px,1vw,35px)] rounded-[8px] cursor-pointer">
+            <img src = {Mais} alt = "" />
             Nova Regra
           </button>
         </div>
       </div>
 
       <div className = "bg-[#65BA69] w-full flex flex-row items-center justify-between py-3 px-4 mt-2">
-        <span className = "text-[#FFFFFF] text-[clamp(12px,0.8vw,16px)] font-bold uppercase w-[clamp(100px,12vw,150px)]">Categoria</span>
-        <span className = "text-[#FFFFFF] text-[clamp(12px,0.8vw,16px)] font-bold uppercase w-[clamp(80px,8vw,100px)] text-center">Pontos Base</span>
-        <span className = "text-[#FFFFFF] text-[clamp(12px,0.8vw,16px)] font-bold uppercase w-[clamp(150px,20vw,250px)] text-center">Condições</span>
-        <span className = "text-[#FFFFFF] text-[clamp(12px,0.8vw,16px)] font-bold uppercase w-[clamp(80px,8vw,100px)] text-right pr-2">Ações</span>
+        <Cabecalho largura = "w-[clamp(90px,12vw,150px)]" alinhamento = "text-left pl-3.5" texto = "Categoria" textoCor = "text-[#FFFFFF]" />
+
+        <Cabecalho largura = "w-[clamp(90px,8vw,100px)]" alinhamento = "text-center pl-1" texto = "Pontos Base" textoCor = "text-[#FFFFFF]" />
+
+        <Cabecalho largura = "w-[clamp(150px,20vw,250px)]" alinhamento = "text-center" texto = "Condições" textoCor = "text-[#FFFFFF]" />
+
+        <Cabecalho largura = "w-[clamp(80px,8vw,100px)]" alinhamento = "text-right pr-8.5" texto = "Ações" textoCor = "text-[#FFFFFF]" />
       </div>
 
       <div className = "flex flex-col w-full px-2">
@@ -75,9 +77,9 @@ export default function TabelaPontuacao() {
 
       <div className = "flex flex-row items-center justify-end gap-2 px-6 pt-4 mt-auto border-t border-[#F3F4F6]">
         <Paginacao
-          paginaAtual={paginaAtual}
-          totalPaginas={totalPaginas}
-          onMudarPagina={setPaginaAtual}
+          paginaAtual = {paginaAtual}
+          totalPaginas = {totalPaginas}
+          onMudarPagina = {setPaginaAtual}
         />
       </div>
 

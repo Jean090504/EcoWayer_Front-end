@@ -45,7 +45,7 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar })
             e.stopPropagation(); // evita selecionar o card ao clicar no botão
             onGerenciar(ponto.id);
           }}
-          className="rounded-md bg-purple-600 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-purple-700"
+          className="rounded-md bg-[#7350B9] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-purple-700"
         >
           Gerenciar
         </button>

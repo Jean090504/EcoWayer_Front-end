@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { useState } from "react"
+import { Search, SlidersHorizontal } from "lucide-react"
 
 export default function SearchBar({ onSearch, onFilterClick }) {
   const [termo, setTermo] = useState("");
@@ -15,7 +15,7 @@ export default function SearchBar({ onSearch, onFilterClick }) {
       className="flex h-10 w-full items-center gap-2
         rounded-xl border border-gray-200 bg-white
         px-3 shadow-[0_2px_5px_rgba(0,0,0,0.08)]
-        transition focus-within:border-lime-500"
+        transition"
     >
       <Search
         size={17}
@@ -46,5 +46,5 @@ export default function SearchBar({ onSearch, onFilterClick }) {
         <SlidersHorizontal size={18} />
       </button>
     </form>
-  );
+  )
 }
