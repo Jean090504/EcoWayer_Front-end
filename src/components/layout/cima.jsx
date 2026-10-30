@@ -5,8 +5,13 @@ import filtro from "../../assets/icons/icones/filtro.png";
 import carta from "../../assets/icons/icones/carta.png";
 import carteira from "../../assets/icons/icones/carteira.png";
 import chat from "../../assets/icons/icones/menssagem.png";
+import perfil from "../../assets/icons/icones/foto.png";
 
-export default function Cima({ onAbrirCriarConta }) {
+export default function Header({
+    onAbrirCriarConta,
+    onAbrirLogin,
+    usuario
+}) {
     return (
         <header className="mt-3 h-[72px] w-full border-b border-gray-100 bg-white">
 
@@ -18,12 +23,12 @@ export default function Cima({ onAbrirCriarConta }) {
                     <img
                         src={logo}
                         alt="EcoMarket"
-                        className="h-6 w-auto object-contain"
+                        className="h-5 w-auto object-contain"
                     />
                 </div>
 
                 {/* Campo de pesquisa */}
-                <div className="flex h-10 min-w-[220px] max-w-[480px] flex-1 items-center rounded-full border border-gray-200 bg-white px-3">
+                <div className="flex h-12 min-w-[220px] max-w-[560px] flex-1 items-center rounded-xl border border-gray-200 bg-white px-3 shadow-sm">
 
                     <input
                         type="text"
@@ -34,10 +39,10 @@ export default function Cima({ onAbrirCriarConta }) {
                     <img
                         src={lupa}
                         alt="Pesquisar"
-                        className="ml-2 h-4 w-4 shrink-0 object-contain"
+                        className="ml-3 h-5 w-5 shrink-0 object-contain"
                     />
 
-                    <div className="ml-2 flex h-5 shrink-0 items-center border-l border-gray-200 pl-2">
+                    <div className="ml-3 flex h-7 shrink-0 items-center border-l border-gray-200 pl-2">
                         <button
                             type="button"
                             aria-label="Filtros de pesquisa"
@@ -46,7 +51,7 @@ export default function Cima({ onAbrirCriarConta }) {
                             <img
                                 src={filtro}
                                 alt=""
-                                className="h-4 w-4 object-contain"
+                                className="h-5 w-5 object-contain"
                             />
                         </button>
                     </div>
@@ -55,6 +60,7 @@ export default function Cima({ onAbrirCriarConta }) {
                 {/* Navegação */}
                 <nav className="flex shrink-0 items-center gap-5">
 
+                    {/* Meus anúncios */}
                     <button
                         type="button"
                         className="flex items-center gap-1.5 whitespace-nowrap"
@@ -62,13 +68,15 @@ export default function Cima({ onAbrirCriarConta }) {
                         <img
                             src={carta}
                             alt=""
-                            className="h-5 w-5 object-contain"
+                            className="h-7 w-7 object-contain"
                         />
+
                         <span className="text-sm font-medium text-gray-600">
                             Meus anúncios
                         </span>
                     </button>
 
+                    {/* Carteira */}
                     <button
                         type="button"
                         className="flex items-center gap-1.5 whitespace-nowrap"
@@ -78,11 +86,13 @@ export default function Cima({ onAbrirCriarConta }) {
                             alt=""
                             className="h-5 w-5 object-contain"
                         />
+
                         <span className="text-sm font-medium text-gray-600">
                             Carteira
                         </span>
                     </button>
 
+                    {/* Chat */}
                     <button
                         type="button"
                         className="flex items-center gap-1.5 whitespace-nowrap"
@@ -90,33 +100,71 @@ export default function Cima({ onAbrirCriarConta }) {
                         <img
                             src={chat}
                             alt=""
-                            className="h-5 w-5 object-contain"
+                            className="h-6 w-6 object-contain"
                         />
+
                         <span className="text-sm font-medium text-gray-600">
                             Chat
                         </span>
                     </button>
                 </nav>
 
-                {/* Botões de acesso */}
-                <div className="flex shrink-0 items-center gap-3">
+                {/* Renderização condicional: usuário logado ou deslogado */}
+                {usuario ? (
 
-                    {/* Botão que abre o card */}
-                    <button
-                        type="button"
-                        onClick={onAbrirCriarConta}
-                        className="flex h-9 items-center justify-center rounded-full border border-green-600 px-6 text-sm font-semibold text-gray-700 transition hover:bg-green-50"
-                    >
-                        Criar Conta
-                    </button>
+                    // IF: usuário está logado
+                    <div className="flex shrink-0 items-center gap-3">
 
-                    <button
-                        type="button"
-                        className="flex h-9 items-center justify-center rounded-full bg-[#724BC2] px-6 text-sm font-semibold text-white transition hover:bg-purple-700"
-                    >
-                        Logar
-                    </button>
-                </div>
+                        {/* Perfil do usuário */}
+                        <div className="flex shrink-0 items-center gap-2">
+
+                            <img
+                                src={usuario.foto || perfil}
+                                alt="Foto de perfil"
+                                className="h-10 w-10 rounded-full object-cover"
+                            />
+
+                            <span className="whitespace-nowrap text-sm font-semibold text-black">
+                                {usuario.nome}
+                            </span>
+
+                        </div>
+
+                        {/* Botão anunciar */}
+                        <button
+                            type="button"
+                            className="flex h-10 shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-10 text-sm font-semibold text-white transition hover:bg-purple-700"
+                        >
+                            Anunciar
+                        </button>
+
+                    </div>
+
+                ) : (
+
+                    // ELSE: usuário não está logado
+                    <div className="flex shrink-0 items-center gap-3">
+
+                        {/* Botão criar conta */}
+                        <button
+                            type="button"
+                            onClick={onAbrirCriarConta}
+                            className="flex h-9 items-center justify-center rounded-full border border-green-600 px-6 text-sm font-semibold text-gray-700 transition hover:bg-green-50"
+                        >
+                            Criar Conta
+                        </button>
+
+                        {/* Botão login */}
+                        <button
+                            type="button"
+                            onClick={onAbrirLogin}
+                            className="flex h-9 items-center justify-center rounded-full bg-[#724BC2] px-6 text-sm font-semibold text-white transition hover:bg-purple-700"
+                        >
+                            Logar
+                        </button>
+
+                    </div>
+                )}
 
             </div>
         </header>

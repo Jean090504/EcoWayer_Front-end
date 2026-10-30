@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 
-export default function CriarConta({ onClose }) {
+export default function CreateAccount({ onClose }) {
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
 

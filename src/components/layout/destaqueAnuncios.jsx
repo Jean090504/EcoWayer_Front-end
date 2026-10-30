@@ -68,6 +68,7 @@ const produtos = [
 ];
 
 export default function Destaques() {
+  
   const carrosselRef = useRef(null);
   const [favoritos, setFavoritos] = useState([]);
 

@@ -1,16 +1,37 @@
 
-import Cima from '../components/layout/cima.jsx'
-import Baixo from '../components/layout/baixo.jsx'
-import Banner from '../components/layout/banner.jsx'
-import Destaques from '../components/layout/destaqueAnuncios.jsx'
+import { useState } from "react";
 
-export default function Home({ onAbrirCriarConta }) {
+import Header from "../components/layout/cima.jsx";
+import Baixo from "../components/layout/baixo.jsx";
+import Banner from "../components/layout/banner.jsx";
+import Destaques from "../components/layout/destaqueAnuncios.jsx";
+import Login from "../pages/login.jsx";
+import CriarConta from "../pages/criarConta.jsx";
+
+export default function Home() {
+
+    // Armazena os dados do usuário logado.
+    // null significa que não existe usuário autenticado.
+    const [usuario, setUsuario] = useState(null);
+
+    // Controla a abertura dos cards.
+    const [abrirLogin, setAbrirLogin] = useState(false);
+    const [abrirCadastro, setAbrirCadastro] = useState(false);
+
+    // Executada quando o login for realizado com sucesso.
+    function realizarLogin(dadosUsuario) {
+        setUsuario(dadosUsuario);
+        setAbrirLogin(false);
+    }
+
     return (
         <div className="flex min-h-screen flex-col gap-8">
 
-            {/* Header */}
-            <Cima
-                onAbrirCriarConta={onAbrirCriarConta}
+            {/* Header: recebe os dados do usuário e as funções */}
+            <Header
+                usuario={usuario}
+                onAbrirLogin={() => setAbrirLogin(true)}
+                onAbrirCriarConta={() => setAbrirCadastro(true)}
             />
 
             {/* Conteúdo principal */}
@@ -110,6 +131,25 @@ export default function Home({ onAbrirCriarConta }) {
             {/* Footer */}
             <Baixo />
 
+            {/* Card de Login */}
+            {abrirLogin && (
+                <Login
+                    onClose={() => setAbrirLogin(false)}
+                    onLoginSuccess={realizarLogin}
+                    onAbrirCriarConta={() => {
+                        setAbrirLogin(false);
+                        setAbrirCadastro(true);
+                    }}
+                />
+            )}
+
+            {/* Card de Cadastro */}
+            {abrirCadastro && (
+                <CriarConta
+                    onClose={() => setAbrirCadastro(false)}
+                />
+            )}
+
         </div>
-    )
+    );
 }
