@@ -1,6 +1,30 @@
+
 import { useState } from "react";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login({ onClose, onAbrirCriarConta }) {
+
+    const larguraGoogle = "250";
+
+    const botaoGoogle = (
+        <div className="flex w-full justify-center overflow-visible">
+            <div className="w-[250px] shrink-0">
+                <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => {
+                        console.error('Falha no login com Google');
+                    }}
+                    text="signin"
+                    shape="pill"
+                    theme="outline"
+                    size="medium"
+                    locale="pt-BR"
+                    width={larguraGoogle}
+                />
+            </div>
+        </div>
+    );
+
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [lembrar, setLembrar] = useState(true);
 
@@ -9,11 +33,12 @@ export default function Login({ onClose, onAbrirCriarConta }) {
         "h-[35px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[29px] pr-[10px] text-[12px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
 
     return (
-        // Camada de desfoque do fundo 
+
+        // Camada de desfoque do fundo
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-[5px]">
 
             {/* Card principal do login */}
-            <div className="relative min-h-[506px] w-full max-w-[650px] rounded-[15px] bg-white px-8 pb-[35px] pt-[55px] shadow-xl sm:px-[98px]">
+            <div className="relative min-h-[506px] w-full max-w-[650px] rounded-[15px] bg-white px-3 pb-[35px] pt-[55px] shadow-xl sm:px-[98px]">
 
                 {/* Botão para fechar o card */}
                 <button
@@ -147,30 +172,7 @@ export default function Login({ onClose, onAbrirCriarConta }) {
                         </div>
 
                         {/* Entrar com Google */}
-                        <button
-                            type="button"
-                            className="mx-auto flex h-[33px] w-full items-center justify-center gap-2 rounded-full border border-[#7548C8] text-[12px] font-semibold text-[#7548C8] transition hover:bg-purple-50 sm:w-[81%]"
-                        >
-
-                            {/* Ícone Google */}
-                            <svg
-                                width="17"
-                                height="17"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                            >
-                                <path d="M10 8h10v6a6 6 0 1 1-6-6" />
-                                <path d="M16 5h5M18.5 2.5v5" />
-                            </svg>
-
-                            Entrar com o google
-
-                        </button>
+                        {botaoGoogle}
 
                         {/* Link para criar conta */}
                         <div className="mt-[36px] flex items-center justify-center gap-2 text-[12px]">
@@ -198,3 +200,29 @@ export default function Login({ onClose, onAbrirCriarConta }) {
         </div>
     );
 }
+
+// Autenticação com Google
+const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+        const resposta = await fetch('http://localhost:3000/api/auth/google', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                credential: credentialResponse.credential,
+            }),
+        });
+
+        if (!resposta.ok) {
+            throw new Error('Não foi possível autenticar com o Google.');
+        }
+
+        const usuario = await resposta.json();
+
+        console.log('Login realizado:', usuario);
+
+    } catch (error) {
+        console.error('Erro na autenticação:', error);
+    }
+};
