@@ -1,9 +1,11 @@
 import { useState } from "react"
+
+import { Search } from "lucide-react"
+
 import CardTabela from "../cards/cardTabela.jsx"
 import Cabecalho from "./cabecalhoTabela.jsx"
 import Paginacao from "../Paginacao/paginacao.jsx"
 import Mais from "../../assets/icons/ui/mais.png"
-import IconSearch from "../../assets/icons/ui/search.png"
 
 const ITENS_POR_PAGINA = 5
 
@@ -40,7 +42,7 @@ export default function TabelaPontuacao() {
 
         <div className = "flex flex-row items-center gap-4">
           <div className = "flex flex-row items-center w-[clamp(140px,18vw,200px)] h-[clamp(30px,1vw,35px)] border border-[#E5E7EB] rounded-[8px] px-3">
-            <img src = {IconSearch} alt = "" className = "w-[10px]" />
+            <Search size = {12}/>
             <input type = "text" placeholder = "Filtrar categoria..." className = "w-full outline-none text-[clamp(12px,0.8vw,16px)] bg-transparent placeholder-[#8A8A8A] pl-2" />
           </div>
 

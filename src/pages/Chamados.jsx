@@ -28,7 +28,7 @@ export default function Chamados(){
 
             <CardChamado
               tipo = "denuncia"
-              titulo = "Título do Chamado"
+              titulo = "Anúncio irregular"
               descricao = "Descrição do problema"
             />
           </div>

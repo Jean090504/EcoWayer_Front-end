@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Search, SlidersHorizontal } from "lucide-react"
+import InputBusca from "../ui/inputBusca.jsx"
 
 export default function SearchBar({ onSearch, onFilterClick }) {
   const [termo, setTermo] = useState("")
@@ -10,38 +10,13 @@ export default function SearchBar({ onSearch, onFilterClick }) {
   }
 
   return (
-    <form
-      onSubmit = {handleSubmit}
-      className="flex h-[50px] min-w-[500px] w-[20vw] items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 shadow-[0_2px_5px_rgba(0,0,0,0.08)] transition"
-    >
-      <Search
-        size = {17}
-        className = "shrink-0 text-gray-400"
-      />
-
-      <input
-        type  ="search"
+    <form onSubmit = {handleSubmit}>
+      <InputBusca
+        placeholder = "Buscar cep, rua ou bairro"
         value = {termo}
         onChange = {(e) => setTermo(e.target.value)}
-        placeholder = "Buscar cep, rua ou bairro"
-        aria-label = "Buscar CEP, rua ou bairro"
-        className="min-w-0 flex-1 h-[50px] bg-transparent
-          px-3 text-sm text-gray-700 outline-none 
-          placeholder:text-gray-400"
+        aoFiltrar = {onFilterClick}
       />
-
-      <div className = "h-6 w-px shrink-0 bg-gray-200" />
-
-      <button
-        type = "button"
-        onClick = {onFilterClick}
-        aria-label = "Abrir filtros"
-        className="flex h-8 w-8 shrink-0 items-center
-          justify-center rounded-lg text-lime-600
-          transition hover:bg-lime-50"
-      >
-        <SlidersHorizontal size = {18} />
-      </button>
     </form>
   )
 }

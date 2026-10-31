@@ -254,7 +254,7 @@ export default function Coleta() {
       <div className = "flex w-[95%] flex-col items-center mt-5">
 
         {/* Barra de ações */}
-        <div className = "mt-1 flex w-full flex-wrap items-center justify-between gap-4 px-[clamp(12px,2vw,34px)]">
+        <div className = "flex w-full flex-wrap items-center justify-between gap-4 px-[clamp(12px,2vw,34px)]">
 
           {/* Barra de pesquisa */}
           <div className = "flex h-[50px] w-[500px] shrink-0">
