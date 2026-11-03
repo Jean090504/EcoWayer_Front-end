@@ -3,8 +3,9 @@ import { useState } from "react"
 import { Clock, Image } from "lucide-react"
 
 import BotaoVoltar from "../components/ui/botaoVoltar.jsx"
-import CardAlerta from "../components/cards/cardAlerta.jsx"
+import CardAlertaIA from "../components/cards/cardAlerta.jsx"
 import InputImagem from "../components/ui/inputImagem.jsx"
+import CardInfoItem from "../components/cards/cardInfoItem.jsx"
 
 export default function ChamadoIndividual({ aoVoltar }) {
     const [arquivo, setArquivo] = useState(null)
@@ -18,10 +19,10 @@ export default function ChamadoIndividual({ aoVoltar }) {
 
                 <div className="flex flex-col w-[95%] min-h-[85vh]">
 
-                    <div className="flex flex-row w-full">
-                        <h1>Verificar anúncio</h1>
-                        <h2>#CH-8492</h2>
-                        <span className="bg-[#7350B9] text-white rounded-[clamp(10px,0.7vw,14px)] text-[clamp(12px,1vw,16px)] w-[clamp(105px,8vw,155px)] h-[clamp(35px,3vh,45px)] flex items-center justify-center">
+                    <div className="flex flex-row w-full items-center">
+                        <h1 className="text-[25px] font-bold">Verificar anúncio</h1>
+                        <h1 className="text-[25px] font-bold text-[#9CA3AF] ml-1.5">#CH-8492</h1>
+                        <span className="bg-[#7350B9] text-white rounded-[clamp(10px,0.7vw,14px)] text-[clamp(10px,1vw,14px)] w-[clamp(165px,8vw,190px)] h-[clamp(25px,3vh,40px)] flex items-center justify-center ml-4.5">
                             ◉ Em Análise / Alerta
                         </span>
                         <p className="text-[clamp(12px,1vw,14px)] text-slate-500 font-medium ml-auto">
@@ -29,42 +30,13 @@ export default function ChamadoIndividual({ aoVoltar }) {
                         </p>
                     </div>
 
-                    <CardAlerta imagem = "">
-                        <h3>Alerta da Inteligência Artificial: Atividade Suspeita / Conteúdo Irregular</h3>
+                    <CardAlertaIA
+                        titulo="Anúncio com Divergência de Preço"
+                        descricao="A IA detectou divergência acentuada no preço de mercado (75% abaixo do padrão para a categoria) e descrição idêntica a anúncio duplicado recentemente denunciado por conduta fraudulenta."
+                        porcentagem="94%"
+                    />
 
-                        <p>
-                            A IA detectou divergência acentuada no preço de mercado (75% abaixo do padrão para a categoria) e descrição idêntica a anúncio duplicado recentemente denunciado por conduta fraudulenta.
-                        </p>
-                    </CardAlerta>
-
-
-                    <div className="flex flex-row w-full">
-                        <div className="flex flex-col">
-
-                            <div className="bg-white flex flex-row">
-                                <label className="w-[200px] h-[200px] border-2 border-dashed border-[#E5E7EB] rounded-xl flex flex-col items-center justify-center cursor-pointer bg-[#F1F5F9] hover:bg-[#F9FAFB]">
-
-                                    <Image size={32} className="text-[#8A8A8A] mb-2" />
-
-                                    <InputImagem
-                                        onChange={setArquivo}
-                                        className="hidden"
-                                    />
-
-                                    <span className="text-[#8A8A8A] text-sm">Foto 1 de 4</span>
-                                    
-
-                                </label>
-
-                                <Clock size={16} className="text-[#8A8A8A] mt-1" />
-                                <p>Publicado em 14/10/2024 às 14:32 • São Paulo, SP</p>
-                            </div>
-
-                            <div className="bg-white">
-                                <p>Detalhamento da Análise Automatizada</p>
-                            </div>
-                        </div>
-                    </div>
+                    
 
                 </div>
             </div>
