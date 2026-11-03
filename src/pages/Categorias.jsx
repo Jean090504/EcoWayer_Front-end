@@ -53,63 +53,64 @@ export default function Categorias({ aoAbrirCategoria }) {
 
   return (
     <div>
-      <Titulo texto = "Categorias" />
+      <Titulo texto="Categorias" />
 
-      <div className = "flex flex-col items-center justify-center gap-4 mt-5">
+      <div className="flex flex-col items-center justify-center gap-4 mt-5">
 
-        <div className = "flex flex-col w-[95%] h-[85vh]">
+        <div className="flex flex-col w-[95%] h-[85vh]">
 
           {/* Barra de busca + botão adicionar */}
-          <div className = "flex flex-row items-center w-full">
+          <div className="flex flex-row items-center w-full">
             <InputBusca
-              placeholder = "Buscar categoria"
-              valor = {busca}
-              aoDigitar = {(e) => setBusca(e.target.value)}
-              aoFiltrar = {() => setModalAberto(true)}
+              placeholder="Buscar categoria"
+              valor={busca}
+              aoDigitar={(e) => setBusca(e.target.value)}
+              aoFiltrar={() => setModalAberto(true)}
             />
 
             <button
-              className = "bg-[#65BA69] text-[#FFFFFF] text-[clamp(18px,1.2vw,20px)] w-[clamp(200px,15vw,260px)] h-[clamp(50px,5vh,60px)] rounded-[10px] ml-auto cursor-pointer"
-              onClick = {() => setModalAdd(true)}
+              className="bg-[#65BA69] text-[#FFFFFF] text-[clamp(18px,1.2vw,20px)] w-[clamp(200px,15vw,260px)] h-[clamp(50px,5vh,60px)] rounded-[10px] ml-auto cursor-pointer"
+              onClick={() => setModalAdd(true)}
             >
               Adicionar Categoria
             </button>
           </div>
 
           {/* Lista de categorias */}
-          <div className = "mt-8 flex-1 min-h-0 space-y-4 overflow-y-auto overflow-x-hidden">
+          <div className="mt-8 flex-1 min-h-0 space-y-4 overflow-y-auto overflow-x-hidden">
             {carregando && <p>Carregando...</p>}
-            {erro && <p className = "text-red-500">{erro}</p>}
+            {erro && <p className="text-red-500">{erro}</p>}
             {!carregando && !erro && categoriasFiltradas.length === 0 && (
               <p>Nenhuma categoria encontrada.</p>
             )}
 
             {categoriasFiltradas.map((categoria) => (
               <CardCategoria
-                key = {categoria.id}
-                titulo = {categoria.nome}
-                quantidade = {categoria.itens.length}
-                imagem = {`${URL_IMAGENS}/${categoria.img}`}
-                onClick = {() => aoAbrirCategoria(categoria.id)}
+                key={categoria.id}
+                titulo={categoria.nome}
+                quantidade={categoria.itens.length}
+                pontos={categoria.pontos}
+                imagem={categoria.img?.startsWith("http") ? categoria.img : `${URL_IMAGENS}/${categoria.img}`}
+                onClick={() => aoAbrirCategoria(categoria.id)}
               />
             ))}
           </div>
         </div>
 
         <ModalFiltro
-          modalAberto = {modalAberto}
-          onFechar = {() => setModalAberto(false)}
-          titulo = "Filtrar Categorias"
-          opcoes = {tipos}
-          selecionado = {tipoSelecionado}
-          onSelecionar = {setTipoSelecionado}
+          modalAberto={modalAberto}
+          onFechar={() => setModalAberto(false)}
+          titulo="Filtrar Categorias"
+          opcoes={tipos}
+          selecionado={tipoSelecionado}
+          onSelecionar={setTipoSelecionado}
         />
 
         <ModalAdicionarCategoria
-          modalAberto = {modalAdd}
-          onFechar = {() => setModalAdd(false)}
-          tipos = {tipos}
-          aoCriar = {carregarCategorias}
+          modalAberto={modalAdd}
+          onFechar={() => setModalAdd(false)}
+          tipos={tipos}
+          aoCriar={carregarCategorias}
         />
 
       </div>

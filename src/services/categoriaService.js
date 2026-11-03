@@ -9,15 +9,11 @@ export async function listarCategorias() {
   return dados.response.categoria
 }
 
-export async function criarCategoria({ nome, id_tipo_categoria, arquivo }) {
-  const formData = new FormData()
-  formData.append("nome", nome)
-  formData.append("id_tipo_categoria", id_tipo_categoria)
-  if (arquivo) formData.append("img", arquivo)
-
+export async function criarCategoria({ nome, pontos, id_tipo_categoria, img }) {
   const resposta = await fetch(URL_API, {
     method: "POST",
-    body: formData
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome, pontos, id_tipo_categoria, img })
   })
 
   const dados = await resposta.json()
