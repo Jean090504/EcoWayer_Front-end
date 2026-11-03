@@ -23,7 +23,7 @@ export default function TabelaItens() {
   const itensPagina = itens.slice(inicio, inicio + ITENS_POR_PAGINA)
 
   return (
-    <div className = "bg-white rounded-[16px] shadow-sm border border-[#F3F4F6] w-full">
+    <div className = "bg-white w-full">
 
       <div className = "flex flex-row items-center py-4 bg-[#F9FAFB] text-xs font-bold uppercase text-[#6B7280]">
 

@@ -8,6 +8,7 @@ import Categorias from "./pages/Categorias.jsx"
 import Pontos from "./pages/Pontos.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
 import CategoriaIndividual from "./pages/CategoriaIndividual.jsx"
+import ChamadoIndividual from "./pages/ChamadoIndividual.jsx"
 
 import Sidebar from "./components/layout/sidebar.jsx"
 import CardSair from "./components/layout/cardSair.jsx"
@@ -18,7 +19,7 @@ export default function App() {
   const [ativa, setAtiva] = useState("home")
   const [mostrarCard, setMostrarCard] = useState(false)
   const [categoriaAberta, setCategoriaAberta] = useState(null)
-
+  const [chamadoAberto, setChamadoAberto] = useState(null)
 
   // se não estiver logado, mostra só o login
   if (!logado) {
@@ -32,7 +33,11 @@ export default function App() {
 
       <div className = "w-[80%]">
         {ativa === "home" && <Home />}
-        {ativa === "chamados" && <Chamados />}
+        {ativa === "chamados" && (
+          chamadoAberto
+            ? <ChamadoIndividual aoVoltar = {() => setChamadoAberto(null)} />
+            : <Chamados aoAbrirChamado = {setChamadoAberto} />
+        )}
         {ativa === "coleta" && <Coleta />}
         {ativa === "categorias" && (
           categoriaAberta
