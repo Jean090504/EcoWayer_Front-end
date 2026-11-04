@@ -6,7 +6,16 @@ import Paginacao from "../Paginacao/paginacao.jsx"
 
 const ITENS_POR_PAGINA = 6
 
-export default function TabelaItens() {
+// Converte o item da tabela para o formato que o ItemModal espera
+const paraModal = (item) => ({
+  name: item.nome,
+  points: item.pontos,
+  status: item.status,
+  description: item.descricao ?? "",
+  image: item.imagem ?? null,
+})
+
+export default function TabelaItens({ aoVer, aoEditar }) {
   const [paginaAtual, setPaginaAtual] = useState(1)
 
   const itens = [
@@ -43,6 +52,8 @@ export default function TabelaItens() {
             nome = {item.nome}
             pontos = {item.pontos}
             status = {item.status}
+            aoVer = {() => aoVer?.(paraModal(item))}
+            aoEditar = {() => aoEditar?.(paraModal(item))}
           />
         ))}
       </div>

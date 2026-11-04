@@ -6,9 +6,21 @@ import BotaoVoltar from "../components/ui/botaoVoltar.jsx"
 import BotaoPower from "../assets/icons/ui/button_power.png"
 import BotaoReset from "../assets/icons/ui/button_reset.png"
 import TabelaItens from  "../components/tabela/tabelaItens.jsx"
+import ModalItem from "../components/modal/modalItem.jsx"
 
 export default function CategoriaIndividual({ aoVoltar }) {
   const [status, setStatus] = useState("")
+  const [modal, setModal] = useState({ aberto: false, modo: "create", item: null })
+
+  const abrirModal = (modo, item = null) => setModal({ aberto: true, modo, item })
+  const fecharModal = () => setModal((m) => ({ ...m, aberto: false }))
+
+  const salvarItem = (dados) => {
+    // modal.modo === "create" -> criar | "edit" -> atualizar
+    console.log(modal.modo, dados)
+    fecharModal()
+  }
+
   return (
     <div>
 
@@ -34,7 +46,10 @@ export default function CategoriaIndividual({ aoVoltar }) {
                   excluir categoria
                 </button>
 
-                <button className = "bg-[#65BA69] text-[#FFFFFF] rounded-[clamp(10px,0.7vw,14px)] cursor-pointer text-[clamp(12px,1vw,16px)] w-[clamp(125px,9vw,175px)] h-[clamp(35px,3vh,45px)] flex items-center justify-center">
+                <button
+                  onClick = {() => abrirModal("create")}
+                  className = "bg-[#65BA69] text-[#FFFFFF] rounded-[clamp(10px,0.7vw,14px)] cursor-pointer text-[clamp(12px,1vw,16px)] w-[clamp(125px,9vw,175px)] h-[clamp(35px,3vh,45px)] flex items-center justify-center"
+                >
                   adicionar novo item
                 </button>
 
@@ -59,7 +74,7 @@ export default function CategoriaIndividual({ aoVoltar }) {
                   />
                 </div>
 
-                <select className = "border border-[#E2E8F0] rounded-[clamp(8px,0.5vw,10px)] bg-[#F8FAFC] text-[clamp(12px,0.8vw,14px)] text-[#334155] ml-[clamp(12px,0.8vw,16px)] h-[clamp(30px,3vh,38px)] w-[clamp(120px,8vw,150px)] px-[clamp(4px,0.3vw,6px)]" value = "" onChange = {(e) => setTipo(e.target.value)}>
+                <select className = "border border-[#E2E8F0] rounded-[clamp(8px,0.5vw,10px)] bg-[#F8FAFC] text-[clamp(12px,0.8vw,14px)] text-[#334155] ml-[clamp(12px,0.8vw,16px)] h-[clamp(30px,3vh,38px)] w-[clamp(120px,8vw,150px)] px-[clamp(4px,0.3vw,6px)]" value = {status} onChange = {(e) => setStatus(e.target.value)}>
                   <option value = "">Status (Todos)</option>
                   <option value = "moveis">Móveis</option>
                   <option value = "materiais">Materiais</option>
@@ -73,12 +88,23 @@ export default function CategoriaIndividual({ aoVoltar }) {
                 </div>
 
               <div>
-                  <TabelaItens />
+                  <TabelaItens
+                    aoVer = {(item) => abrirModal("view", item)}
+                    aoEditar = {(item) => abrirModal("edit", item)}
+                  />
                 </div>
 
             </div>
           </div>
         </div>
+
+      <ModalItem
+        open = {modal.aberto}
+        mode = {modal.modo}
+        initialValues = {modal.item}
+        onClose = {fecharModal}
+        onSubmit = {salvarItem}
+      />
     </div>
   )
 }
