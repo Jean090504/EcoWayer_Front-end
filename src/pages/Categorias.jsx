@@ -7,8 +7,13 @@ import ModalFiltro from "../components/modal/modalFiltro.jsx"
 import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria.jsx"
 import { listarCategorias } from "../services/categoriaService.js"
 
-// ajuste para o endereço onde as imagens são servidas
 const URL_IMAGENS = "http://localhost:8080"
+
+// monta a URL da imagem sem gerar ".../undefined"
+function urlImagem(img) {
+  if (!img) return ""
+  return img.startsWith("http") ? img : `${URL_IMAGENS}/${img}`
+}
 
 export default function Categorias({ aoAbrirCategoria }) {
   const [modalAberto, setModalAberto] = useState(false)
@@ -25,8 +30,10 @@ export default function Categorias({ aoAbrirCategoria }) {
     try {
       setCarregando(true)
       setErro("")
-      setCategorias(await listarCategorias())
+      const dados = await listarCategorias()
+      setCategorias(Array.isArray(dados) ? dados : [])
     } catch (e) {
+      console.error(e)
       setErro("Não foi possível carregar as categorias.")
     } finally {
       setCarregando(false)
@@ -37,16 +44,18 @@ export default function Categorias({ aoAbrirCategoria }) {
     carregarCategorias()
   }, [])
 
-  // tipos únicos tirados da própria resposta (usado no filtro e no modal)
   const tipos = useMemo(() => {
     const mapa = new Map()
-    categorias.forEach((c) => mapa.set(c.id_tipo_categoria, c.tipo_categoria))
+    categorias.forEach((c) => {
+      if (c.id_tipo_categoria != null) {
+        mapa.set(c.id_tipo_categoria, c.tipo_categoria ?? "")
+      }
+    })
     return [...mapa].map(([id, nome]) => ({ valor: String(id), label: nome }))
   }, [categorias])
 
-  // busca por nome + filtro por tipo
   const categoriasFiltradas = categorias.filter((c) => {
-    const bateNome = c.nome.toLowerCase().includes(busca.toLowerCase())
+    const bateNome = (c.nome ?? "").toLowerCase().includes(busca.toLowerCase())
     const bateTipo = !tipoSelecionado || String(c.id_tipo_categoria) === tipoSelecionado
     return bateNome && bateTipo
   })
@@ -56,10 +65,8 @@ export default function Categorias({ aoAbrirCategoria }) {
       <Titulo texto="Categorias" />
 
       <div className="flex flex-col items-center justify-center gap-4 mt-5">
-
         <div className="flex flex-col w-[95%] h-[85vh]">
 
-          {/* Barra de busca + botão adicionar */}
           <div className="flex flex-row items-center w-full">
             <InputBusca
               placeholder="Buscar categoria"
@@ -76,7 +83,6 @@ export default function Categorias({ aoAbrirCategoria }) {
             </button>
           </div>
 
-          {/* Lista de categorias */}
           <div className="mt-8 flex-1 min-h-0 space-y-4 overflow-y-auto overflow-x-hidden">
             {carregando && <p>Carregando...</p>}
             {erro && <p className="text-red-500">{erro}</p>}
@@ -88,10 +94,9 @@ export default function Categorias({ aoAbrirCategoria }) {
               <CardCategoria
                 key={categoria.id}
                 titulo={categoria.nome}
-                quantidade={categoria.itens.length}
-                pontos={categoria.pontos}
-                imagem={categoria.img?.startsWith("http") ? categoria.img : `${URL_IMAGENS}/${categoria.img}`}
-                onClick={() => aoAbrirCategoria(categoria.id)}
+                quantidade={Array.isArray(categoria.itens) ? categoria.itens.length : 0}
+                imagem={urlImagem(categoria.img)}
+                onClick={() => aoAbrirCategoria?.(categoria.id)}
               />
             ))}
           </div>
@@ -112,7 +117,6 @@ export default function Categorias({ aoAbrirCategoria }) {
           tipos={tipos}
           aoCriar={carregarCategorias}
         />
-
       </div>
     </div>
   )
