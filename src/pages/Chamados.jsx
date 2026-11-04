@@ -5,7 +5,7 @@ import CardChamado from "../components/cards/cardChamados.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
 
-export default function Chamados(){
+export default function Chamados({ aoAbrirChamado }) {
   const [modalAberto, setModalAberto] = useState(false)
 
   return (
@@ -24,6 +24,7 @@ export default function Chamados(){
               tipo = "ia"
               titulo = "Título do Chamado"
               descricao = "Descrição do problema"
+              onClick = {() => aoAbrirChamado("chamado")}
             />
 
             <CardChamado
