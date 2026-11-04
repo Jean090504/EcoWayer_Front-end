@@ -7,14 +7,13 @@ const icones = {
   denuncia: IconDenuncia
 }
 
-export default function CardChamado({ titulo, descricao, tipo, onClick }) {
+export default function CardChamado({ titulo, descricao, tipo }) {
   return (
     <CardBase
       imagem = {icones[tipo]}
       imagemTamanho = "w-[65px] h-[60px]"
       margin = "ml-5"
       botaoTexto = "Verificar Anúncio"
-      onClick = {onClick}
     >
       <div className = "pl-2">
         <p className = "font-semibold text-[clamp(18px,1.2vw,22px)]">{titulo}</p>

@@ -46,7 +46,7 @@ export default function TabelaPontuacao() {
             <input type = "text" placeholder = "Filtrar categoria..." className = "w-full outline-none text-[clamp(12px,0.8vw,16px)] bg-transparent placeholder-[#8A8A8A] pl-2" />
           </div>
 
-          <button className = "flex flex-row items-center justify-center gap-2 bg-[#65BA69] text-[#FFFFFF] text-[clamp(10px,0.9vw,14px)] font-bold w-[clamp(100px,18vw,120px)] h-[clamp(30px,1vw,35px)] rounded-[8px] cursor-pointer">
+          <button className = "flex flex-row items-center justify-center gap-2 bg-[#65BA69] text-[#FFFFFF] text-[clamp(10px,0.9vw,18px)] font-bold w-[clamp(100px,18vw,120px)] h-[clamp(30px,1vw,35px)] rounded-[8px] cursor-pointer">
             <img src = {Mais} alt = "" />
             Nova Regra
           </button>

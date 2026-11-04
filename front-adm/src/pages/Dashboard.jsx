@@ -9,7 +9,7 @@ export default function Dashboard(){
 
       <div className = "flex flex-col items-center justify-center"> 
 
-        <div className = "w-[95%] min-h-[85vh] pb-5">
+        <div className = "w-[95%] h-[85vh]">
 
           <div className = "flex flex-row gap-5 mt-5">
     
