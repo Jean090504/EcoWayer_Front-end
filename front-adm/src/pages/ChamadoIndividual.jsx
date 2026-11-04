@@ -3,6 +3,9 @@ import { useState } from "react"
 import BotaoVoltar from "../components/ui/botaoVoltar.jsx"
 import CardAlertaIA from "../components/cards/cardAlerta.jsx"
 import CardInfoItem from "../components/cards/cardInfoItem.jsx"
+import CardDadosVendedor from "../components/cards/cardDadosVendedor.jsx"
+import CardAcoesAdministrador from "../components/cards/cardAcoesAdministrador.jsx"
+
 
 export default function ChamadoIndividual({ aoVoltar }) {
     const [arquivo, setArquivo] = useState(null)
@@ -33,10 +36,18 @@ export default function ChamadoIndividual({ aoVoltar }) {
                         porcentagem="94%"
                     />
 
-                    <CardInfoItem/>
+                    <div className = "grid grid-cols-[1fr_clamp(300px,27vw,375px)] grid-rows-[auto_1fr] gap-x-6 min-h-[calc(90vh-200px)] mb-5">
+                        <div className = "row-span-2 flex">
+                            <CardInfoItem />
+                        </div>
 
-                    
-
+                        <CardDadosVendedor />
+                        <CardAcoesAdministrador
+                            onAprovar = {() => console.log("aprovar")}
+                            onDesativar = {() => console.log("desativar")}
+                            onRemover = {() => console.log("remover")}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

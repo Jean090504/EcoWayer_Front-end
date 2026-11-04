@@ -17,7 +17,6 @@ export default function ModalAdicionarCategoria({ modalAberto, onFechar }) {
 
                 <InputImagem
                   onChange = {setArquivo}
-                  className = "hidden"
                 />
 
               </label>
