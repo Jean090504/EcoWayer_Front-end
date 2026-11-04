@@ -13,19 +13,15 @@ import Sidebar from "./components/layout/sidebar.jsx"
 import CardSair from "./components/layout/cardSair.jsx"
 
 export default function App() {
-  // estado para controlar se o usuário está logado ou não, o setLogado atualiza esse valor e o react redesenha a tela automaticamente quando ele muda
-  const [logado, setLogado] = useState(false) // controla se tá logado
+  const [logado, setLogado] = useState(false)
   const [ativa, setAtiva] = useState("home")
   const [mostrarCard, setMostrarCard] = useState(false)
-  const [categoriaAberta, setCategoriaAberta] = useState(null)
+  const [categoriaAberta, setCategoriaAberta] = useState(null) // id da categoria aberta
 
-
-  // se não estiver logado, mostra só o login
   if (!logado) {
     return <Login aoLogar = {() => setLogado(true)} />
   }
 
-  // se estiver logado, mostra o home
   return (
     <div className = "flex flex-row min-w-[1366px] min-h-screen bg-[#F5F5F5]">
       <Sidebar ativa = {ativa} setAtiva = {setAtiva} aoClicarSair = {() => setMostrarCard(true)} />
@@ -36,7 +32,10 @@ export default function App() {
         {ativa === "coleta" && <Coleta />}
         {ativa === "categorias" && (
           categoriaAberta
-            ? <CategoriaIndividual aoVoltar = {() => setCategoriaAberta(null)} />
+            ? <CategoriaIndividual
+                categoriaId = {categoriaAberta}
+                aoVoltar = {() => setCategoriaAberta(null)}
+              />
             : <Categorias aoAbrirCategoria = {setCategoriaAberta} />
         )}
         {ativa === "pontos" && <Pontos />}
@@ -44,15 +43,14 @@ export default function App() {
       </div>
 
       {mostrarCard && (
-        <CardSair 
-          aoCancelar = {() => setMostrarCard(false)} 
+        <CardSair
+          aoCancelar = {() => setMostrarCard(false)}
           aoConfirmar = {() => {
             setMostrarCard(false)
             setLogado(false)
-          }} 
+          }}
         />
       )}
-
     </div>
   )
 }

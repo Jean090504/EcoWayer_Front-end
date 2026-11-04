@@ -9,6 +9,11 @@ export async function listarCategorias() {
   return dados.response.categoria
 }
 
+export async function buscarCategoria(id) {
+  const lista = await listarCategorias()
+  return lista.find((c) => String(c.id) === String(id)) ?? null
+}
+
 export async function criarCategoria({ nome, pontos, id_tipo_categoria, img }) {
   const resposta = await fetch(URL_API, {
     method: "POST",
