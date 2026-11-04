@@ -51,7 +51,7 @@ export default function Header({
                             <img
                                 src={filtro}
                                 alt=""
-                                className="h-5 w-5 object-contain"
+                                className="h-4 w-4 object-contain"
                             />
                         </button>
                     </div>
