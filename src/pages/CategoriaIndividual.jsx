@@ -5,6 +5,7 @@ import BotaoPower from "../assets/icons/ui/button_power.png"
 import BotaoReset from "../assets/icons/ui/button_reset.png"
 import TabelaItens from "../components/tabela/tabelaItens.jsx"
 import { buscarCategoria } from "../services/categoriaService.js"
+import ModalNovoItem from "../components/modal/ModalNovoItem.jsx"
 
 const URL_IMAGENS = "http://localhost:8080"
 
@@ -20,6 +21,9 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
 
   const [busca, setBusca] = useState("")
   const [status, setStatus] = useState("")
+
+  const [modalAberto, setModalAberto] = useState(false)
+  const [recarregar, setRecarregar] = useState(0)
 
   useEffect(() => {
     async function carregar() {
@@ -37,7 +41,7 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
       }
     }
     carregar()
-  }, [categoriaId])
+  }, [categoriaId, recarregar])
 
   const itens = Array.isArray(categoria?.itens) ? categoria.itens : []
 
@@ -88,7 +92,10 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
                   excluir categoria
                 </button>
 
-                <button className="bg-[#65BA69] text-[#FFFFFF] rounded-[10px] cursor-pointer text-[10px] w-[125px] h-[30px] flex items-center justify-center">
+                <button
+                  onClick={() => setModalAberto(true)}
+                  className="bg-[#65BA69] text-[#FFFFFF] rounded-[10px] cursor-pointer text-[10px] w-[125px] h-[30px] flex items-center justify-center"
+                >
                   adicionar novo item
                 </button>
 
@@ -139,6 +146,17 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
           )}
         </div>
       </div>
+
+      {modalAberto && (
+        <ModalNovoItem
+          categoriaId={categoriaId}
+          aoFechar={() => setModalAberto(false)}
+          aoSalvar={async () => {
+            setModalAberto(false)
+            setRecarregar((n) => n + 1) // refaz o fetch e a tabela atualiza sozinha
+          }}
+        />
+      )}
     </div>
   )
 }
