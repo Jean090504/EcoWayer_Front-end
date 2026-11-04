@@ -68,7 +68,7 @@ const produtos = [
 ];
 
 export default function Destaques() {
-  
+
   const carrosselRef = useRef(null);
   const [favoritos, setFavoritos] = useState([]);
 
@@ -205,7 +205,7 @@ export default function Destaques() {
                   {produto.nome}
                 </h3>
 
-                <p className="truncate text-sm font-bold leading-5 text-[#58A24D]">
+                <p className="truncate text-sm font-bold leading-5 text-[#4CAF50]">
                   {produto.preco}
                 </p>
 

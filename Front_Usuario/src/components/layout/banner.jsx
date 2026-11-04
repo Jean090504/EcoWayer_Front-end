@@ -1,6 +1,6 @@
 import { useState } from "react";
-import fundo1 from "../../assets/icons/img/banner.png";
-import fundo2 from "../../assets/icons/img/banner02.png";
+import fundo1 from "../../assets/icons/img/banner1.png";
+import fundo2 from "../../assets/icons/img/banner2.png";
 import fundo3 from "../../assets/icons/img/banner3.png";
 
 export default function Banner() {

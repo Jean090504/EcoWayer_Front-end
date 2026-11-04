@@ -6,6 +6,7 @@ import Baixo from "../components/layout/baixo.jsx";
 import Banner from "../components/layout/banner.jsx";
 import Destaques from "../components/layout/destaqueAnuncios.jsx";
 import Login from "./login.jsx";
+import Categorias from "../components/layout/categorias.jsx"
 import CriarConta from "./criarConta.jsx";
 
 export default function Home() {
@@ -39,81 +40,9 @@ export default function Home() {
 
                 <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center gap-4 px-4">
 
-                    {/* Categorias */}
-                    <div className="flex h-12 w-full items-center justify-center gap-4 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-gray-200 bg-white px-5 text-sm font-semibold text-gray-600"
-                        >
-                            categorias
-                            <span className="text-base leading-none">›</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full bg-green-600 px-6 text-sm font-semibold text-white"
-                        >
-                            Tudo
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
-                        >
-                            favoritos
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
-                        >
-                            Móveis
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
-                        >
-                            Fardos
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
-                        >
-                            vidro
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
-                        >
-                            Papelão
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-semibold text-gray-600"
-                        >
-                            madeira
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-5 text-sm font-semibold text-gray-600"
-                        >
-                            eletro domesticos
-                        </button>
-
-                        <button
-                            type="button"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white px-5 text-sm font-semibold text-gray-600"
-                        >
-                            dispositivos
-                        </button>
-
-                    </div>
+                    {/* chama as categorias */}
+                        <Categorias/>
+                 
 
                     {/* Banner */}
                     <div className="w-full">
