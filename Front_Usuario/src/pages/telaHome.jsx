@@ -5,8 +5,8 @@ import Header from "../components/layout/cima.jsx";
 import Baixo from "../components/layout/baixo.jsx";
 import Banner from "../components/layout/banner.jsx";
 import Destaques from "../components/layout/destaqueAnuncios.jsx";
-import Login from "../pages/login.jsx";
-import CriarConta from "../pages/criarConta.jsx";
+import Login from "./login.jsx";
+import CriarConta from "./criarConta.jsx";
 
 export default function Home() {
 
