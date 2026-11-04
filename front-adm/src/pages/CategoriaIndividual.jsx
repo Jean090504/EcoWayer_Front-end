@@ -6,6 +6,9 @@ import BotaoReset from "../assets/icons/ui/button_reset.png"
 import TabelaItens from "../components/tabela/tabelaItens.jsx"
 import { buscarCategoria } from "../services/categoriaService.js"
 import ModalNovoItem from "../components/modal/ModalNovoItem.jsx"
+import ModalDetalhesItem from "../components/modal/ModalDetalhesItem.jsx"
+import ModalEditarItem from "../components/modal/ModalEditarItem.jsx"
+import ModalExcluirItem from "../components/modal/ModalExcluirItem.jsx"
 
 const URL_IMAGENS = "http://localhost:8080"
 
@@ -24,6 +27,10 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
 
   const [modalAberto, setModalAberto] = useState(false)
   const [recarregar, setRecarregar] = useState(0)
+
+  const [itemVisualizado, setItemVisualizado] = useState(null)
+  const [itemEditando, setItemEditando] = useState(null)
+  const [itemExcluindo, setItemExcluindo] = useState(null)
 
   useEffect(() => {
     async function carregar() {
@@ -140,7 +147,13 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
                   </button>
                 </div>
 
-                <TabelaItens itens={itensFiltrados} total={itens.length} />
+                <TabelaItens
+                  itens={itensFiltrados}
+                  total={itens.length}
+                  aoVer={(id) => setItemVisualizado(id)}
+                  aoEditar={(id) => setItemEditando(id)}
+                  aoExcluir={(item) => setItemExcluindo(item)}
+                />
               </div>
             </>
           )}
@@ -154,6 +167,35 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
           aoSalvar={async () => {
             setModalAberto(false)
             setRecarregar((n) => n + 1) // refaz o fetch e a tabela atualiza sozinha
+          }}
+        />
+      )}
+
+      {itemVisualizado && (
+        <ModalDetalhesItem
+          itemId={itemVisualizado}
+          aoFechar={() => setItemVisualizado(null)}
+        />
+      )}
+
+      {itemEditando && (
+        <ModalEditarItem
+          itemId={itemEditando}
+          categoriaId={categoriaId}
+          aoFechar={() => setItemEditando(null)}
+          aoSalvar={async () => {
+            setItemEditando(null)
+            setRecarregar((n) => n + 1)
+          }}
+        />
+      )}
+      {itemExcluindo && (
+        <ModalExcluirItem
+          item={itemExcluindo}
+          aoFechar={() => setItemExcluindo(null)}
+          aoExcluir={async () => {
+            setItemExcluindo(null)
+            setRecarregar((n) => n + 1)
           }}
         />
       )}

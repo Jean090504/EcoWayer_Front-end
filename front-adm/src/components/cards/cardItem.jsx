@@ -9,7 +9,7 @@ const CORES = {
   "em revisão": "bg-[#F5A623]",
 }
 
-export default function CardItem({ nome, pontos, status }) {
+export default function CardItem({ id, nome, pontos, status, aoVer, aoEditar, aoExcluir  }) {
   const chave = (status ?? "").toLowerCase()
 
   return (
@@ -39,9 +39,15 @@ export default function CardItem({ nome, pontos, status }) {
 
       {/* Coluna 4: ações */}
       <div className="w-[15%] flex flex-row justify-center gap-4">
-        <button className="cursor-pointer"><img src={Ver} alt="Ver" className="w-4 h-4" /></button>
-        <button className="cursor-pointer"><img src={Editar} alt="Editar" className="w-4 h-4" /></button>
-        <button className="cursor-pointer"><img src={Apagar} alt="Apagar" className="w-4 h-4" /></button>
+        <button className="cursor-pointer" onClick={() => aoVer?.(id)}>
+          <img src={Ver} alt="Ver" className="w-4 h-4" />
+        </button>
+        <button className="cursor-pointer" onClick={() => aoEditar?.(id)}>
+          <img src={Editar} alt="Editar" className="w-4 h-4" />
+        </button>
+        <button className="cursor-pointer" onClick={() => aoExcluir?.({ id, nome })}>
+          <img src={Apagar} alt="Apagar" className="w-4 h-4" />
+        </button>
       </div>
 
     </div>
