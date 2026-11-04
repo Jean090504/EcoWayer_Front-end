@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import Titulo from "../components/ui/titulo.jsx"
-import CardChamado from "../components/cards/cardChamados.jsx"
+import CardChamado from "../components/cards/cardChamados/cardChamados.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
 

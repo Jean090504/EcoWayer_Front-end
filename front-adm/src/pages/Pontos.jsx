@@ -1,10 +1,24 @@
+import { useMemo } from "react"
+
 import Titulo from "../components/ui/titulo.jsx"
 import CardStatus from "../components/cards/cardStatus.jsx"
-import CardConversao from "../components/cards/cardConversao.jsx"
-import CardValidador from "../components/cards/cardValidador.jsx"
+import CardConversao from "../components/cards/cardPontos/cardConversao.jsx"
+import CardValidador from "../components/cards/cardPontos/cardValidador.jsx"
 import TabelaPontuacao from "../components/tabela/tabelaPontuacao.jsx"
 
 export default function Pontos(){
+  const valoresIniciais = useMemo(
+  () => ({
+    categoria: "eletronicos",
+    ativa: true,
+    pontos: 150,
+    bonus: 10,
+    excelente: 1.5,
+    bom: 1.2,
+    regular: 1.0,
+    }),
+    []
+  )
   return (
     <div>
       <Titulo texto = "Pontos" />

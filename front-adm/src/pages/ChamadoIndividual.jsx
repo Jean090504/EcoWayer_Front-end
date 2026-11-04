@@ -1,10 +1,10 @@
 import { useState } from "react"
 
 import BotaoVoltar from "../components/ui/botaoVoltar.jsx"
-import CardAlertaIA from "../components/cards/cardAlerta.jsx"
-import CardInfoItem from "../components/cards/cardInfoItem.jsx"
-import CardDadosVendedor from "../components/cards/cardDadosVendedor.jsx"
-import CardAcoesAdministrador from "../components/cards/cardAcoesAdministrador.jsx"
+import CardAlertaIA from "../components/cards/cardChamadosIndividuais/cardAlertaIA.jsx"
+import CardInfoItem from "../components/cards/cardChamadosIndividuais/cardInfoItem.jsx"
+import CardDadosVendedor from "../components/cards/cardChamadosIndividuais/cardDadosVendedor.jsx"
+import CardAcoesAdministrador from "../components/cards/cardChamadosIndividuais/cardAcoesAdministrador.jsx"
 
 
 export default function ChamadoIndividual({ aoVoltar }) {

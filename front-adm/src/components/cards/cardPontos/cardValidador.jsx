@@ -1,5 +1,5 @@
-import CardPadrao from "./cardPadrao"
-import IconValidador from "../../assets/icons/imagens/icon-validador.png"
+import CardPadrao from "../cardPadrao"
+import IconValidador from "../../../assets/icons/imagens/icon-validador.png"
 
 export default function CardValidador() {
   return (

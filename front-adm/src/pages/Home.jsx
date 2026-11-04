@@ -2,8 +2,8 @@ import { useState } from "react"
 
 import Titulo from "../components/ui/titulo.jsx"
 import CardStatus from "../components/cards/cardStatus.jsx"
-import GraficoHome from "../components/dashboard/graficoHome.jsx"
-import RankingPontos from "../components/dashboard/rankingPontos.jsx"
+import GraficoHome from "../components/dashboard/dashboardHome/graficoHome.jsx"
+import RankingPontos from "../components/dashboard/dashboardHome/rankingPontos.jsx"
 
 export default function Home(){
   const [filtroRanking, setFiltroRanking] = useState("semanal")

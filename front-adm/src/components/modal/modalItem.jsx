@@ -39,7 +39,7 @@ const MODE_CONFIG = {
 }
 
 const inputClass =
-  "w-full rounded border border-neutral-200 bg-neutral-50 px-3.5 py-3.5 text-base text-neutral-900 " +
+  "w-full rounded-[10px] border border-neutral-200 bg-neutral-50 px-3.5 py-3.5 text-base text-neutral-900 " +
   "placeholder:text-neutral-400 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/25 " +
   "read-only:cursor-default aria-[invalid=true]:border-red-500"
 
@@ -231,7 +231,7 @@ export default function ModalItem({
             <button
               type = "button"
               onClick = {onClose}
-              className = "rounded border border-neutral-200 bg-white px-6 py-2.5 text-base hover:bg-neutral-50 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-black/25"
+              className = "rounded-[8px] border border-neutral-200 bg-white px-6 py-2.5 text-base hover:bg-neutral-50 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-black/25"
             >
               {config.cancelLabel}
             </button>
@@ -240,13 +240,13 @@ export default function ModalItem({
               <button
                 type = "button"
                 onClick = {onClose}
-                className = "min-w-[120px] flex-1 rounded bg-red-500 px-6 py-2.5 text-base text-white hover:brightness-95 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-black/25 sm:flex-none"
+                className = "min-w-[120px] flex-1 rounded-[8px] bg-[#E43E42] px-6 py-2.5 text-base text-white hover:brightness-95 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-black/25 sm:flex-none"
               >
                 {config.cancelLabel}
               </button>
               <button
                 type = "submit"
-                className = "min-w-[120px] flex-1 rounded bg-green-500 px-6 py-2.5 text-base text-white hover:brightness-95 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-black/25 sm:flex-none"
+                className = "min-w-[120px] flex-1 rounded-[8px] bg-[#65BA69] px-6 py-2.5 text-base text-white hover:brightness-95 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-black/25 sm:flex-none"
               >
                 {config.submitLabel}
               </button>

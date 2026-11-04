@@ -1,6 +1,6 @@
-import CardBase from "./cardBase"
+import CardBase from "../cardBase"
 
-export default function CardCategoria({ titulo, quantidade, imagem, onClick }) {
+export default function CardCategorias({ titulo, quantidade, imagem, onClick }) {
   return (
     <CardBase 
       imagem = {imagem}

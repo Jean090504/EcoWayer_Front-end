@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import Titulo from "../components/ui/titulo.jsx"
-import SearchBar from "../components/dashboard/SearchBar.jsx"
+import SearchBar from "../components/coleta/SearchBar.jsx"
 import ListaPontos from "../components/coleta/ListaPontos.jsx"
 import MapaPontos from "../components/coleta/MapaPontos.jsx"
 

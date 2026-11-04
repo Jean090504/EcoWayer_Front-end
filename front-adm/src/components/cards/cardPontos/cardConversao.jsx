@@ -1,4 +1,4 @@
-import CardPadrao from "./cardPadrao"
+import CardPadrao from "../cardPadrao"
 
 export default function CardConversao(){
   return (

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import InputImagem from "../ui/inputImagem.jsx"
 
-export default function ModalAdicionarCategoria({ modalAberto, onFechar }) {
+export default function ModalAdicionarItemCategoria({ modalAberto, onFechar }) {
   const [arquivo, setArquivo] = useState(null)
   const [tipo, setTipo] = useState("")
   return (
@@ -9,7 +9,7 @@ export default function ModalAdicionarCategoria({ modalAberto, onFechar }) {
       {modalAberto && (
         <div className = "fixed inset-0 bg-black/50 flex items-center justify-center" onClick = {onFechar}>
           <div className = "bg-white p-6 rounded-xl w-[600px]" onClick = {(e) => e.stopPropagation()}>
-            <h2 className = "text-xl font-bold mb-4">Adicionar Nova Categoria</h2>
+            <h2 className = "text-xl font-bold mb-4">Adicionar Novo Item à Categoria</h2>
 
             <div className = "flex flex-row gap-10">
               <label className = "w-[200px] h-[200px] border-2 border-dashed border-[#E5E7EB] rounded-xl flex items-center justify-center cursor-pointer hover:bg-[#F9FAFB]">

@@ -1,12 +1,12 @@
 import { useState } from "react"
 
-import CardItem from "../cards/cardItem.jsx"
+import CardItem from "../cards/cardChamadosIndividuais/cardItem.jsx"
 import Cabecalho from "./cabecalhoTabela.jsx"
 import Paginacao from "../Paginacao/paginacao.jsx"
 
 const ITENS_POR_PAGINA = 6
 
-// Converte o item da tabela para o formato que o ItemModal espera
+// Converte o item da tabela para o formato que o ModalItem espera
 const paraModal = (item) => ({
   name: item.nome,
   points: item.pontos,
@@ -15,7 +15,7 @@ const paraModal = (item) => ({
   image: item.imagem ?? null,
 })
 
-export default function TabelaItens({ aoVer, aoEditar }) {
+export default function TabelaItens({ aoVer, aoEditar, aoExcluir }) {
   const [paginaAtual, setPaginaAtual] = useState(1)
 
   const itens = [
@@ -32,40 +32,46 @@ export default function TabelaItens({ aoVer, aoEditar }) {
   const itensPagina = itens.slice(inicio, inicio + ITENS_POR_PAGINA)
 
   return (
-    <div className = "bg-white w-full">
+    <div className="bg-white w-full">
+      <div className="flex flex-row items-center py-3 border-b border-[#F3F4F6] bg-[#F9FAFB] text-xs font-bold uppercase text-[#6B7280]">
+        <div className="w-[35%] px-4">
+          <Cabecalho alinhamento="text-left" texto="Item / Identificação" />
+        </div>
 
-      <div className = "flex flex-row items-center py-4 bg-[#F9FAFB] text-xs font-bold uppercase text-[#6B7280]">
+        <div className="w-[20%]">
+          <Cabecalho alinhamento="text-center" texto="Pontuação Base" />
+        </div>
 
-        <Cabecalho largura = "w-[35%]" alinhamento = "px-4" texto = "Item / Identificação"/>
-        
-        <Cabecalho largura = "w-[20%]" alinhamento = "text-center" texto = "Pontuação Base"/>
-        
-        <Cabecalho largura = "w-[25%]" alinhamento = "text-center" texto = "Status"/>
-        
-        <Cabecalho largura = "w-[15%]" alinhamento = "text-center" texto = "Ações"/>
+        <div className="w-[25%]">
+          <Cabecalho alinhamento="text-center" texto="Status" />
+        </div>
+
+        <div className="w-[10%] mx-auto">
+          <Cabecalho alinhamento="text-center" texto="Ações" />
+        </div>
       </div>
 
       <div className="flex flex-col">
         {itensPagina.map((item) => (
           <CardItem
-            key = {item.id}
-            nome = {item.nome}
-            pontos = {item.pontos}
-            status = {item.status}
-            aoVer = {() => aoVer?.(paraModal(item))}
-            aoEditar = {() => aoEditar?.(paraModal(item))}
+            key={item.id}
+            nome={item.nome}
+            pontos={item.pontos}
+            status={item.status}
+            aoVer={() => aoVer?.(paraModal(item))}
+            aoEditar={() => aoEditar?.(paraModal(item))}
+            onDelete={() => aoExcluir?.(item)}
           />
         ))}
       </div>
 
-      <div className = "flex flex-row items-center justify-end gap-2 px-6 pt-4 mt-auto border-t border-[#F3F4F6]">
+      <div className="flex flex-row items-center justify-end gap-2 px-6 pt-4 mt-auto border-t border-[#F3F4F6]">
         <Paginacao
-          paginaAtual = {paginaAtual}
-          totalPaginas = {totalPaginas}
-          onMudarPagina = {setPaginaAtual}
+          paginaAtual={paginaAtual}
+          totalPaginas={totalPaginas}
+          onMudarPagina={setPaginaAtual}
         />
       </div>
-
     </div>
   )
 }

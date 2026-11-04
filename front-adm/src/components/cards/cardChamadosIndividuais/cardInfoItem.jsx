@@ -2,7 +2,7 @@ import { useState } from "react"
 
 import { Clock, Image } from "lucide-react"
 
-import InputImagem from "../ui/inputImagem.jsx"
+import InputImagem from "../../ui/inputImagem.jsx"
 
 export default function CardInfoItem({
     categoria = "Móveis",

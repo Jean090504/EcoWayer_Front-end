@@ -1,10 +1,10 @@
 import { useState } from "react"
 
 import Titulo from "../components/ui/titulo.jsx"
-import CardCategoria from "../components/cards/cardCategoria.jsx"
+import CardCategoria from "../components/cards/cardCategorias/cardCategorias.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
-import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria.jsx"
+import ModalAdicionarCategoria from "../components/modal/modalAdicionarItemCategoria.jsx"
 
 export default function Categorias({ aoAbrirCategoria }) {
   const [modalAberto, setModalAberto] = useState(false)

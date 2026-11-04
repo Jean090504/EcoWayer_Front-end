@@ -1,5 +1,5 @@
 import CardBotaoTabela from "./cardBotaoTabela.jsx"
-import TextoTabela from "../ui/textoTabela.jsx"
+import TextoTabela from "../../ui/textoTabela.jsx"
 
 export default function CardTabela({ corBolinha, categoria, pontosBase, condExcelente, condBom, condRegular }) {
   return (
