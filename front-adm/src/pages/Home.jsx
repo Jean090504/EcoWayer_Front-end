@@ -1,79 +1,117 @@
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import Titulo from "../components/ui/titulo.jsx"
 import CardStatus from "../components/cards/cardStatus.jsx"
 import GraficoHome from "../components/dashboard/graficoHome.jsx"
 import RankingPontos from "../components/dashboard/rankingPontos.jsx"
+import { listarAcessos, listarPontos, listarUsuarios } from "../services/home/home.js"
+import { calcularCards, calcularGrafico, calcularRanking, opcoesPeriodo } from "../services/home/metricasHome.js"
 
-export default function Home(){
+const SEM_DADOS = { acessos: [], pontos: [], usuarios: [] }
+
+export default function Home() {
+  const [dados, setDados] = useState(SEM_DADOS)
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(null)
+
   const [filtroRanking, setFiltroRanking] = useState("semanal")
+  const [periodoGrafico, setPeriodoGrafico] = useState("30d")
 
-  // dados teste para a lista não ficar vazia
-    const dadosRanking = {
-      diario: [
-        { id: 1, nome: "João Paulo", pontos: 50, variacao: "+50" },
-        { id: 2, nome: "Daniel Santana", pontos: 20, variacao: "+20" },
-      ],
-      semanal: [
-        { id: 1, nome: "João Paulo", pontos: 300, variacao: "+50" },
-        { id: 2, nome: "Daniel Santana", pontos: 250, variacao: "+20" },
-        { id: 3, nome: "Vitor Hugo", pontos: 180, variacao: "+60" },
-        { id: 4, nome: "Gabriel Junior", pontos: 90, variacao: "+10" },
-        { id: 5, nome: "Alfredo Augusto", pontos: 30, variacao: "-0" },
-      ],
-      mensal: [
-        { id: 1, nome: "Maria Clara", pontos: 1200, variacao: "+200" },
-        { id: 2, nome: "João Paulo", pontos: 1100, variacao: "+150" },
-        { id: 3, nome: "Daniel Santana", pontos: 800, variacao: "+100" },
-        { id: 4, nome: "Vitor Hugo", pontos: 500, variacao: "+80" },
-        { id: 5, nome: "Alfredo Augusto", pontos: 150, variacao: "+10" },
-      ]
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function carregar() {
+      try {
+        setCarregando(true)
+        setErro(null)
+
+        const [acessos, pontos, usuarios] = await Promise.all([
+          listarAcessos(controller.signal),
+          listarPontos(controller.signal),
+          listarUsuarios(controller.signal)
+        ])
+
+        setDados({ acessos, pontos, usuarios })
+      } catch (e) {
+        if (e.name !== "AbortError") setErro(e.message)
+      } finally {
+        setCarregando(false)
+      }
     }
+
+    carregar()
+    return () => controller.abort()
+  }, [])
+
+  const cards = useMemo(() => calcularCards(dados), [dados])
+  const grafico = useMemo(() => calcularGrafico(dados.pontos, periodoGrafico), [dados.pontos, periodoGrafico])
+  const ranking = useMemo(
+    () => calcularRanking(dados.pontos, dados.usuarios, filtroRanking),
+    [dados.pontos, dados.usuarios, filtroRanking]
+  )
+
+  // enquanto carrega, o rodapé do card fica invisível (o CardStatus esconde quando não há porcentagem)
+  const valor = (card) => (carregando ? "..." : card.valor)
+  const variacao = (card) => (carregando ? undefined : card.variacao)
+
   return (
     <div>
-      <Titulo texto = "Home" />
+      <Titulo texto="Home" />
 
-      <div className = "flex flex-col items-center justify-center">
-        
-        <div className = "w-[95%] h-[85vh]"> 
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-[95%] min-h-[85vh]">
+
+          {erro && (
+            <p className="mt-5 text-center text-red-600">{erro}</p>
+          )}
 
           {/* Cards de cima */}
-          <div className = "flex flex-row gap-5 mt-5 justify-between w-full">
+          <div className="flex flex-row gap-5 mt-5 justify-between w-full">
             <CardStatus
-              titulo = "Valor"
-              valor = "150"
-              porcentagem = "+10%"
-              textoRodape = "em relação ao mês anterior"
-              largura = "w-full"
-              altura = "h-[25vh] min-h-[180px]"
-            />
-
-            <CardStatus 
-              titulo = "Usuários Ativos Hoje" 
-              valor = "2.502" 
-              porcentagem = "+10%" 
-              textoRodape = "no último mês" 
-              largura = "w-full"
-              altura = "h-[25vh] min-h-[180px]"
-            />
-
-            <CardStatus 
-              titulo = "Usuários Cadastrados" 
-              valor = "4.067" 
-              porcentagem = "+50%" 
-              textoRodape = "no último mês" 
+              titulo="Usuários Ativos"
+              valor={valor(cards.ativos)}
+              porcentagem={variacao(cards.ativos)}
+              textoRodape="no último mês"
               largura="w-full"
-              altura = "h-[25vh] min-h-[180px]"
+              altura="h-[25vh] min-h-[180px]"
+            />
+
+            <CardStatus
+              titulo="Usuários Ativos Hoje"
+              valor={valor(cards.ativosHoje)}
+              porcentagem={variacao(cards.ativosHoje)}
+              textoRodape="no último mês"
+              largura="w-full"
+              altura="h-[25vh] min-h-[180px]"
+            />
+
+            <CardStatus
+              titulo="Usuários Cadastrados"
+              valor={valor(cards.cadastrados)}
+              porcentagem={variacao(cards.cadastrados)}
+              textoRodape="no último mês"
+              largura="w-full"
+              altura="h-[25vh] min-h-[180px]"
             />
           </div>
 
           {/* Gráfico e Ranking embaixo */}
-          <div className = "flex flex-row gap-5 mt-5 justify-between w-full h-[55vh]">
-            <GraficoHome />
-            <RankingPontos 
-              // usuarios = {dadosRanking[filtroRanking]} 
-              filtroAtivo = {filtroRanking} 
-              aoMudarFiltro = {setFiltroRanking} 
+          <div className="flex flex-row gap-5 mt-5 justify-between w-full h-[55vh]">
+            <GraficoHome
+              serie={grafico.serie}
+              total={grafico.total}
+              variacao={grafico.variacao}
+              periodo={periodoGrafico}
+              opcoes={opcoesPeriodo}
+              aoMudarPeriodo={setPeriodoGrafico}
+              carregando={carregando}
+            />
+
+            <RankingPontos
+              usuarios={ranking}
+              filtroAtivo={filtroRanking}
+              aoMudarFiltro={setFiltroRanking}
+              carregando={carregando}
             />
           </div>
 
