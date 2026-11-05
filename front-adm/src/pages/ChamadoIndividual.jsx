@@ -3,42 +3,98 @@ import { useState } from "react"
 import BotaoVoltar from "../components/ui/botaoVoltar.jsx"
 import CardAlertaIA from "../components/cards/cardAlerta.jsx"
 import CardInfoItem from "../components/cards/cardInfoItem.jsx"
+import CardVendedor from "../components/cards/cardVendedor.jsx"
+import CardAcoesAdmin from "../components/cards/cardAcoesAdmin.jsx"
+import { atualizarAlerta } from "../services/alertas.js"
 
-export default function ChamadoIndividual({ aoVoltar }) {
-    const [arquivo, setArquivo] = useState(null)
-    const [tipo, setTipo] = useState("")
+const badgeStatus = {
+  PENDENTE: { texto: "◉ Em Análise / Alerta", cor: "bg-[#7350B9]" },
+  RESOLVIDO: { texto: "✓ Resolvido", cor: "bg-green-600" }
+}
 
-    return (
-        <div>
-            <BotaoVoltar aoVoltar={aoVoltar} texto="← Voltar para todos os Chamados" />
+export default function ChamadoIndividual({ alerta, aoVoltar, aoAtualizar }) {
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState(null)
 
-            <div className="flex flex-col items-center justify-center gap-[clamp(16px,1.3vw,24px)] mt-[clamp(20px,1.3vw,26px)]">
+  const anuncio = alerta.anuncio?.[0] ?? null
+  const badge = badgeStatus[alerta.status] ?? { texto: alerta.status, cor: "bg-gray-500" }
 
-                <div className="flex flex-col w-[95%] min-h-[85vh]">
+  async function resolver(acao) {
+    try {
+      setSalvando(true)
+      setErro(null)
 
-                    <div className="flex flex-row w-full items-center">
-                        <h1 className="text-[25px] font-bold">Verificar anúncio</h1>
-                        <h1 className="text-[25px] font-bold text-[#9CA3AF] ml-1.5">#CH-8492</h1>
-                        <span className="bg-[#7350B9] text-white rounded-[clamp(10px,0.7vw,14px)] text-[clamp(10px,1vw,14px)] w-[clamp(165px,8vw,190px)] h-[clamp(25px,3vh,40px)] flex items-center justify-center ml-4.5">
-                            ◉ Em Análise / Alerta
-                        </span>
-                        <p className="text-[clamp(12px,1vw,14px)] text-slate-500 font-medium ml-auto">
-                            Prioridade: <span className="text-red-500 font-bold uppercase">alta</span>
-                        </p>
-                    </div>
+      // o PUT do back exige motivo, status e acao; sem "anuncio" no body os vínculos são mantidos
+      const atualizado = await atualizarAlerta(alerta.id, {
+        motivo: alerta.motivo,
+        status: "RESOLVIDO",
+        acao
+      })
 
-                    <CardAlertaIA
-                        titulo="Anúncio com Divergência de Preço"
-                        descricao="A IA detectou divergência acentuada no preço de mercado (75% abaixo do padrão para a categoria) e descrição idêntica a anúncio duplicado recentemente denunciado por conduta fraudulenta."
-                        porcentagem="94%"
-                    />
+      aoAtualizar?.(atualizado)
+    } catch (e) {
+      setErro(e.message)
+    } finally {
+      setSalvando(false)
+    }
+  }
 
-                    <CardInfoItem/>
+  return (
+    <div>
+      <BotaoVoltar aoVoltar={aoVoltar} texto="← Voltar para todos os Chamados" />
 
-                    
+      <div className="flex flex-col items-center justify-center mt-[clamp(20px,1.3vw,26px)]">
+        <div className="flex flex-col gap-5 w-[95%] min-h-[85vh]">
 
-                </div>
+          <div className="flex flex-row w-full items-center flex-wrap gap-y-2">
+            <h1 className="text-[25px] font-bold">Verificar anúncio</h1>
+            <h1 className="text-[25px] font-bold text-[#9CA3AF] ml-1.5">#CH-{alerta.id}</h1>
+
+            <span className={`${badge.cor} text-white rounded-full text-[clamp(10px,1vw,14px)] px-3 py-1 ml-4`}>
+              {badge.texto}
+            </span>
+
+            {alerta.prioridade && (
+              <p className="text-[clamp(12px,1vw,14px)] text-slate-500 font-medium ml-auto">
+                Prioridade: <span className="text-red-500 font-bold uppercase">{alerta.prioridade}</span>
+              </p>
+            )}
+          </div>
+
+          <CardAlertaIA
+            titulo={`Alerta da IA: ${alerta.ia?.nome ?? "Moderação automática"}`}
+            descricao={alerta.motivo}
+            porcentagem={alerta.certeza}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 items-start">
+            {anuncio ? (
+              <CardInfoItem anuncio={anuncio} />
+            ) : (
+              <div className="bg-white rounded-lg shadow-md p-6 text-gray-500">
+                Este alerta não está vinculado a um anúncio (ex.: mensagem ou usuário).
+              </div>
+            )}
+
+            <div className="flex flex-col gap-5">
+              <CardVendedor usuario={alerta.usuario} />
+
+              <CardAcoesAdmin
+                pendente={alerta.status === "PENDENTE"}
+                acaoAtual={alerta.acao}
+                salvando={salvando}
+                erro={erro}
+                onAprovar={() => resolver("ANUNCIO_APROVADO")}
+                onDesativar={() => resolver("ANUNCIO_DESATIVADO")}
+                onRemover={() => {
+                  if (window.confirm("Remover o anúncio e penalizar o usuário?")) resolver("ANUNCIO_BLOQUEADO")
+                }}
+              />
             </div>
+          </div>
+
         </div>
-    )
+      </div>
+    </div>
+  )
 }
