@@ -75,7 +75,7 @@ export default function Banner() {
                         ))}
                     </div>
 
-                    {/* Botão anterior - por cima da imagem, na extremidade esquerda */}
+                    {/* Botão anterior*/}
                     <button
                         type="button"
                         onClick={bannerAnterior}
@@ -85,7 +85,7 @@ export default function Banner() {
                         ‹
                     </button>
 
-                    {/* Botão próximo - por cima da imagem, na extremidade direita */}
+                    {/* Botão proximo */}
                     <button
                         type="button"
                         onClick={proximoBanner}

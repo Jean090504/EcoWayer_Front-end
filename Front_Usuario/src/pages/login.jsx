@@ -1,46 +1,127 @@
-
 import { useState } from "react";
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from "@react-oauth/google";
 
-export default function Login({ onClose, onAbrirCriarConta }) {
+// Estilo padrão dos campos de entrada
+const inputClass =
+    "h-[35px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[29px] pr-[10px] text-[12px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
+
+// Mesma chave do .env que uso no resto do projeto.
+// VITE_USAR_MOCK=true = login do Google "simulado" aqui no front.
+const USAR_MOCK = import.meta.env.VITE_USAR_MOCK === "true";
+
+// O Google devolve um "credential" (token JWT) com os dados da conta
+// Aqui eu abro o token só pra ler nome, e-mail e foto
+
+// ATENÇÃO: isso é só pra simular. No login de verdade, o backend
+// é quem precisa validar o token (o token atual foi fabricado no front)
+function lerCredencialGoogle(credential) {
+    const parteDados = credential.split(".")[1];
+    const base64 = parteDados.replace(/-/g, "+").replace(/_/g, "/");
+
+    // Esse passo extra é pra não quebrar acentos (ex -> João)
+    const texto = decodeURIComponent(
+        atob(base64)
+            .split("")
+            .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+            .join("")
+    );
+
+    return JSON.parse(texto);
+}
+
+// Para impedir que o navegador preencha o email e senha sozinho automaticamente
+// Deixo o campo "somente leitura" até eu clicar nele,
+// assim não preenche tudo ao abrir o card
+function liberarCampo(evento) {
+    evento.target.removeAttribute("readonly");
+}
+
+export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
     const larguraGoogle = "250";
 
-    const botaoGoogle = (
-        <div className="flex w-full justify-center overflow-visible">
-            <div className="w-[250px] shrink-0">
-                <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => {
-                        console.error('Falha no login com Google');
-                    }}
-                    text="signin"
-                    shape="pill"
-                    theme="outline"
-                    size="medium"
-                    locale="pt-BR"
-                    width={larguraGoogle}
-                />
-            </div>
-        </div>
-    );
+    // O que estou digitando
+    const [email, setEmail] = useState("");
+    const [senha, setSenha] = useState("");
 
+    // Controles da tela
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [lembrar, setLembrar] = useState(true);
+    const [erro, setErro] = useState("");
 
-    // Estilo padrão dos campos de entrada
-    const inputClass =
-        "h-[35px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[29px] pr-[10px] text-[12px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
+    // Quando escolho uma conta Google cai direto nessa parte
+    // Monta o usuário (nome, e-mail, foto) e avisa o App
+    async function handleGoogleSuccess(credentialResponse) {
+        setErro("");
+
+        try {
+            let usuario;
+
+            if (USAR_MOCK) {
+                // Simulação: pega o nome e foto direto do token do Google
+                const dados = lerCredencialGoogle(credentialResponse.credential);
+
+                usuario = {
+                    nome: dados.name,
+                    email: dados.email,
+                    foto: dados.picture ?? null
+                };
+            } else {
+                // Login de verdade: o backend valida o token e devolve o usuário
+                const resposta = await fetch("http://localhost:3000/api/auth/google", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        credential: credentialResponse.credential
+                    })
+                });
+
+                if (!resposta.ok) {
+                    throw new Error("Não foi possível autenticar com o Google.");
+                }
+
+                const retorno = await resposta.json();
+                const dados = retorno.usuario ?? retorno;
+
+                usuario = {
+                    nome: dados.nome ?? dados.name,
+                    email: dados.email,
+                    foto: dados.foto ?? dados.picture ?? null
+                };
+            }
+
+            console.log("Login realizado:", usuario);
+
+            // Avisa o App que o login deu certo (o header muda por causa disso)
+            if (typeof onLoginSuccess === "function") {
+                onLoginSuccess(usuario);
+            }
+        } catch (error) {
+            console.error("Erro na autenticação:", error);
+            setErro("Não foi possível entrar com o Google.");
+        }
+    }
+
+    // Botão "Entrar" (e-mail e senha)
+    function handleSubmit(event) {
+        event.preventDefault();
+        setErro("");
+
+        // login por e-mail e senha pelo backend (ainda não existe)
+        console.log("Tentativa de login:", { email, lembrar });
+    }
 
     return (
 
-        // Camada de desfoque do fundo
+        // Fundo desfocado
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-[5px]">
 
-            {/* Card principal do login */}
+            {/* Card do login */}
             <div className="relative min-h-[506px] w-full max-w-[650px] rounded-[15px] bg-white px-3 pb-[35px] pt-[55px] shadow-xl sm:px-[98px]">
 
-                {/* Botão para fechar o card */}
+                {/* Botão de fechar */}
                 <button
                     type="button"
                     onClick={onClose}
@@ -50,7 +131,6 @@ export default function Login({ onClose, onAbrirCriarConta }) {
                     ×
                 </button>
 
-                {/* Conteúdo do formulário */}
                 <div className="w-full">
 
                     {/* Título */}
@@ -58,13 +138,9 @@ export default function Login({ onClose, onAbrirCriarConta }) {
                         Login
                     </h2>
 
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                        }}
-                    >
+                    <form onSubmit={handleSubmit} autoComplete="off">
 
-                        {/* Campo de e-mail */}
+                        {/* E-mail */}
                         <div className="relative mb-[20px]">
 
                             {/* Ícone de envelope */}
@@ -86,13 +162,19 @@ export default function Login({ onClose, onAbrirCriarConta }) {
 
                             <input
                                 type="email"
+                                name="login-email"
                                 placeholder="E-mail"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                autoComplete="off"
+                                readOnly
+                                onFocus={liberarCampo}
                                 className={inputClass}
                                 required
                             />
                         </div>
 
-                        {/* Campo de senha */}
+                        {/* Senha */}
                         <div className="relative">
 
                             {/* Ícone de cadeado */}
@@ -115,10 +197,40 @@ export default function Login({ onClose, onAbrirCriarConta }) {
 
                             <input
                                 type={mostrarSenha ? "text" : "password"}
+                                name="login-senha"
                                 placeholder="Senha"
-                                className={inputClass}
+                                value={senha}
+                                onChange={(e) => setSenha(e.target.value)}
+                                autoComplete="new-password"
+                                readOnly
+                                onFocus={liberarCampo}
+                                className={`${inputClass} pr-[34px]`}
                                 required
                             />
+
+                            {/* Olhinho: mostra ou esconde a senha */}
+                            <button
+                                type="button"
+                                onClick={() => setMostrarSenha((atual) => !atual)}
+                                aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                                className="absolute right-[8px] top-1/2 -translate-y-1/2 text-[#888] hover:text-[#555]"
+                            >
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                    {mostrarSenha && <path d="M4 4l16 16" />}
+                                </svg>
+                            </button>
 
                         </div>
 
@@ -146,6 +258,16 @@ export default function Login({ onClose, onAbrirCriarConta }) {
 
                         </div>
 
+                        {/* Mensagem de erro */}
+                        {erro && (
+                            <p
+                                role="alert"
+                                className="mt-[10px] text-center text-xs text-red-500"
+                            >
+                                {erro}
+                            </p>
+                        )}
+
                         {/* Botão entrar */}
                         <div className="mt-[49px]">
 
@@ -158,7 +280,7 @@ export default function Login({ onClose, onAbrirCriarConta }) {
 
                         </div>
 
-                        {/* Divisor com a palavra OU */}
+                        {/* Divisor com a palavra "ou" */}
                         <div className="my-[30px] flex items-center gap-1">
 
                             <div className="h-px flex-1 bg-[#7548C8]" />
@@ -172,9 +294,25 @@ export default function Login({ onClose, onAbrirCriarConta }) {
                         </div>
 
                         {/* Entrar com Google */}
-                        {botaoGoogle}
+                        <div className="flex w-full justify-center overflow-visible">
+                            <div className="w-[250px] shrink-0">
+                                <GoogleLogin
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={() => {
+                                        console.error("Falha no login com Google");
+                                        setErro("Falha no login com Google.");
+                                    }}
+                                    text="signin"
+                                    shape="pill"
+                                    theme="outline"
+                                    size="medium"
+                                    locale="pt-BR"
+                                    width={larguraGoogle}
+                                />
+                            </div>
+                        </div>
 
-                        {/* Link para criar conta */}
+                        {/* Link pra criar conta */}
                         <div className="mt-[36px] flex items-center justify-center gap-2 text-[12px]">
 
                             <span className="text-[#222]">
@@ -200,29 +338,3 @@ export default function Login({ onClose, onAbrirCriarConta }) {
         </div>
     );
 }
-
-// Autenticação com Google
-const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-        const resposta = await fetch('http://localhost:3000/api/auth/google', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                credential: credentialResponse.credential,
-            }),
-        });
-
-        if (!resposta.ok) {
-            throw new Error('Não foi possível autenticar com o Google.');
-        }
-
-        const usuario = await resposta.json();
-
-        console.log('Login realizado:', usuario);
-
-    } catch (error) {
-        console.error('Erro na autenticação:', error);
-    }
-};

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 
 import logo from "../../assets/icons/logo/Ecomarket.png";
@@ -9,39 +8,41 @@ import carteira from "../../assets/icons/icones/carteira.png";
 import chat from "../../assets/icons/icones/menssagem.png";
 import perfil from "../../assets/icons/icones/foto.png";
 
+
+// verifica se o usuario é = null -> mostra "Criar Conta" e "Logar"
+// - usuario != null -> mostra foto + nome + botão de "Anunciar"
+
 export default function Header({
     onAbrirCriarConta,
     onAbrirLogin,
     usuario
 }) {
 
-    // Controla a abertura do menu de localização.
+    // Abre/fecha o menu de localização
     const [mostrarFiltro, setMostrarFiltro] = useState(false);
 
-    // Armazena os estados retornados pela API do IBGE.
+    // Estados que vêm da API do IBGE
     const [estados, setEstados] = useState([]);
 
-    // Armazena o código IBGE do estado selecionado.
+    // Código IBGE do estado selecionado
     const [ufSelecionada, setUfSelecionada] = useState("");
 
-    // Armazena os municípios retornados pela API.
+    // Municípios que vêm da API
     const [cidades, setCidades] = useState([]);
 
-    // Armazena o código IBGE do município selecionado.
+    // Código IBGE do município selecionado
     const [cidadeSelecionada, setCidadeSelecionada] = useState("");
 
-    // Controla o carregamento dos estados.
+    // Carregamento dos estados e das cidades
     const [carregandoEstados, setCarregandoEstados] = useState(false);
-
-    // Controla o carregamento das cidades.
     const [carregandoCidades, setCarregandoCidades] = useState(false);
 
-    // Armazena possíveis erros nas consultas.
+    // Erros nas consultas
     const [erroEstados, setErroEstados] = useState(false);
     const [erroCidades, setErroCidades] = useState(false);
 
 
-    // Busca todos os estados diretamente na API do IBGE.
+    // Busca todos os estados na API do IBGE (só uma vez quando abre a página)
     useEffect(() => {
 
         const controller = new AbortController();
@@ -87,7 +88,7 @@ export default function Header({
     }, []);
 
 
-    // Busca as cidades sempre que um estado é selecionado.
+    // Busca as cidades sempre que escolho um uf
     useEffect(() => {
 
         if (!ufSelecionada) {
@@ -225,7 +226,7 @@ export default function Header({
                             </div>
 
 
-                            {/* Seleção do estado */}
+                            {/* Estado */}
                             <label className="mb-1 block text-xs font-semibold text-gray-600">
                                 Estado (UF)
                             </label>
@@ -262,7 +263,7 @@ export default function Header({
                             </select>
 
 
-                            {/* Seleção da cidade */}
+                            {/* Cidade */}
                             <label className="mb-1 block text-xs font-semibold text-gray-600">
                                 Cidade
                             </label>
@@ -372,17 +373,25 @@ export default function Header({
                 </nav>
 
 
-                {/* Renderização condicional: usuário logado ou deslogado */}
+                {/* Logado ou deslogado: quem decide é o "usuario" que vem do App */}
                 {usuario ? (
 
                     <div className="flex shrink-0 items-center gap-3">
 
-                        {/* Perfil do usuário */}
+                        {/* Foto e nome do usuário */}
                         <div className="flex shrink-0 items-center gap-2">
 
+                            {/* Foto da conta (Google ou padrão)
+                                referrerPolicy: sem isso a foto do Google às vezes não carrega.
+                                onError: se a foto falhar, volta pra foto padrão */}
                             <img
                                 src={usuario.foto || perfil}
                                 alt="Foto de perfil"
+                                referrerPolicy="no-referrer"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = perfil;
+                                }}
                                 className="h-10 w-10 rounded-full object-cover"
                             />
 
