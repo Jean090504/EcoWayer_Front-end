@@ -3,6 +3,7 @@ import { useState } from "react"
 import BotaoVoltar from "../components/ui/botaoVoltar.jsx"
 import CardAlertaIA from "../components/cards/cardAlerta.jsx"
 import CardInfoItem from "../components/cards/cardInfoItem.jsx"
+import CardMensagens from "../components/cards/cardMensagens.jsx"
 import CardVendedor from "../components/cards/cardVendedor.jsx"
 import CardAcoesAdmin from "../components/cards/cardAcoesAdmin.jsx"
 import { atualizarAlerta } from "../services/alertas.js"
@@ -17,6 +18,8 @@ export default function ChamadoIndividual({ alerta, aoVoltar, aoAtualizar }) {
   const [erro, setErro] = useState(null)
 
   const anuncio = alerta.anuncio?.[0] ?? null
+  const mensagens = alerta.mensagem ?? []
+  const ehMensagem = !anuncio && mensagens.length > 0
   const badge = badgeStatus[alerta.status] ?? { texto: alerta.status, cor: "bg-gray-500" }
 
   async function resolver(acao) {
@@ -47,7 +50,9 @@ export default function ChamadoIndividual({ alerta, aoVoltar, aoAtualizar }) {
         <div className="flex flex-col gap-5 w-[95%] min-h-[85vh]">
 
           <div className="flex flex-row w-full items-center flex-wrap gap-y-2">
-            <h1 className="text-[25px] font-bold">Verificar anúncio</h1>
+            <h1 className="text-[25px] font-bold">
+              {ehMensagem ? "Verificar mensagem" : "Verificar anúncio"}
+            </h1>
             <h1 className="text-[25px] font-bold text-[#9CA3AF] ml-1.5">#CH-{alerta.id}</h1>
 
             <span className={`${badge.cor} text-white rounded-full text-[clamp(10px,1vw,14px)] px-3 py-1 ml-4`}>
@@ -70,9 +75,11 @@ export default function ChamadoIndividual({ alerta, aoVoltar, aoAtualizar }) {
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 items-start">
             {anuncio ? (
               <CardInfoItem anuncio={anuncio} />
+            ) : ehMensagem ? (
+              <CardMensagens mensagens={mensagens} />
             ) : (
               <div className="bg-white rounded-lg shadow-md p-6 text-gray-500">
-                Este alerta não está vinculado a um anúncio (ex.: mensagem ou usuário).
+                Este alerta não possui anúncio nem mensagem vinculados.
               </div>
             )}
 
@@ -80,15 +87,21 @@ export default function ChamadoIndividual({ alerta, aoVoltar, aoAtualizar }) {
               <CardVendedor usuario={alerta.usuario} />
 
               <CardAcoesAdmin
+                tipo={ehMensagem ? "mensagem" : "anuncio"}
                 pendente={alerta.status === "PENDENTE"}
                 acaoAtual={alerta.acao}
                 salvando={salvando}
                 erro={erro}
+                // ações de anúncio
                 onAprovar={() => resolver("ANUNCIO_APROVADO")}
                 onDesativar={() => resolver("ANUNCIO_DESATIVADO")}
                 onRemover={() => {
                   if (window.confirm("Remover o anúncio e penalizar o usuário?")) resolver("ANUNCIO_BLOQUEADO")
                 }}
+                // ações de mensagem
+                onAdvertir={() => resolver("ADVERTENCIA")}
+                onBloquearMensagem={() => resolver("MENSAGEM_BLOQUEADA")}
+                onSemAcao={() => resolver("SEM_ACAO")}
               />
             </div>
           </div>
