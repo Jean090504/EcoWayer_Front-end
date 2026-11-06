@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { MapPin, Mail, Wallet, MessageSquare } from "lucide-react";
+
+import ItemNavegacao from "../ui/itemNavegacao.jsx"
+import BotaoHeader from "../ui/botao.jsx"
+
 import logo from "../../assets/icons/logo/Ecomarket.png";
 import lupa from "../../assets/icons/icones/lupa.png";
 import perfil from "../../assets/icons/icones/foto.png";
@@ -184,14 +188,13 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                                 <h3 className={`${TEXTO_SM} font-semibold text-gray-800`}>
                                     Filtrar localização
                                 </h3>
-                                <button
-                                    type="button"
-                                    onClick={() => setMostrarFiltro(false)}
-                                    className="text-[length:clamp(18px,1.32vw,24px)] text-gray-400 transition hover:text-gray-700"
-                                    aria-label="Fechar filtro"
+                                <BotaoHeader
+                                    onClick = {() => setMostrarFiltro(false)}
+                                    className = "text-[length:clamp(18px,1.32vw,24px)] text-gray-400 transition hover:text-gray-700"
+                                    aria-label = "Fechar filtro"
                                 >
-                                    ×
-                                </button>
+                                ×
+                                </BotaoHeader>
                             </div>
 
                             {/* Seleção do estado */}
@@ -208,8 +211,8 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                                     {carregandoEstados
                                         ? "Carregando estados..."
                                         : erroEstados
-                                        ? "Erro ao carregar estados"
-                                        : "Selecione um estado"}
+                                            ? "Erro ao carregar estados"
+                                            : "Selecione um estado"}
                                 </option>
                                 {estados.map((estado) => (
                                     <option key={estado.id} value={estado.id}>
@@ -232,12 +235,12 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                                     {!ufSelecionada
                                         ? "Selecione primeiro o estado"
                                         : carregandoCidades
-                                        ? "Carregando cidades..."
-                                        : erroCidades
-                                        ? "Erro ao carregar cidades"
-                                        : cidades.length === 0
-                                        ? "Nenhuma cidade disponível"
-                                        : "Selecione uma cidade"}
+                                            ? "Carregando cidades..."
+                                            : erroCidades
+                                                ? "Erro ao carregar cidades"
+                                                : cidades.length === 0
+                                                    ? "Nenhuma cidade disponível"
+                                                    : "Selecione uma cidade"}
                                 </option>
                                 {cidades.map((cidade) => (
                                     <option key={cidade.id} value={cidade.id}>
@@ -260,23 +263,9 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
 
                 {/* Navegação */}
                 <nav className={`flex shrink-0 items-center ${GAP_NAV}`}>
-                    {/* Meus anúncios */}
-                    <button type="button" className="flex items-center gap-1.5 whitespace-nowrap">
-                        <Mail className={ICONE_NAV} />
-                        <span className={`${TEXTO_SM} font-medium text-gray-600`}>Meus anúncios</span>
-                    </button>
-
-                    {/* Carteira */}
-                    <button type="button" className="flex items-center gap-1.5 whitespace-nowrap">
-                        <Wallet className={ICONE_NAV} />
-                        <span className={`${TEXTO_SM} font-medium text-gray-600`}>Carteira</span>
-                    </button>
-
-                    {/* Chat */}
-                    <button type="button" className="flex items-center gap-1.5 whitespace-nowrap">
-                        <MessageSquare className={ICONE_NAV} />
-                        <span className={`${TEXTO_SM} font-medium text-gray-600`}>Chat</span>
-                    </button>
+                    <ItemNavegacao Icone={Mail} texto="Meus anúncios" />
+                    <ItemNavegacao Icone={Wallet} texto="Carteira" />
+                    <ItemNavegacao Icone={MessageSquare} texto="Chat" />
                 </nav>
 
                 {/* Renderização condicional: usuário logado ou deslogado */}
@@ -295,32 +284,30 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                         </div>
 
                         {/* Botão anunciar */}
-                        <button
-                            type="button"
-                            className={`flex h-[clamp(40px,2.93vw,56px)] shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-[clamp(40px,2.93vw,56px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
+                        <BotaoHeader
+                            className = {`flex h-[clamp(40px,2.93vw,56px)] shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-[clamp(40px,2.93vw,56px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
                         >
                             Anunciar
-                        </button>
+                        </BotaoHeader>
                     </div>
                 ) : (
                     <div className="flex shrink-0 items-center gap-3">
                         {/* Botão criar conta */}
-                        <button
-                            type="button"
-                            onClick={onAbrirCriarConta}
-                            className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full border border-gray-300 bg-white px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600`}
-                        >
-                            Criar Conta
-                        </button>
+                        <div className="flex shrink-0 items-center gap-3">
+                            <BotaoHeader
+                                onClick={onAbrirCriarConta}
+                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full border border-gray-300 bg-white px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600`}
+                            >
+                                Criar Conta
+                            </BotaoHeader>
 
-                        {/* Botão login */}
-                        <button
-                            type="button"
-                            onClick={onAbrirLogin}
-                            className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full bg-[#724BC2] px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
-                        >
-                            Logar
-                        </button>
+                            <BotaoHeader
+                                onClick={onAbrirLogin}
+                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full bg-[#724BC2] px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
+                            >
+                                Logar
+                            </BotaoHeader>
+                        </div>
                     </div>
                 )}
             </div>

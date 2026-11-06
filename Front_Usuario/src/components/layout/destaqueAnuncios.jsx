@@ -17,7 +17,7 @@ const produtos = [
     { id: 7, nome: "Geladeira nova - branca", preco: "R$ 45,00", imagem: Geladeira, avaliacao: "4.8", distancia: "4.0 km" },
 ];
 
-export default function Destaques() {
+export default function DestaqueAnuncios() {
     const carrosselRef = useRef(null);
     const [favoritos, setFavoritos] = useState([]);
 
