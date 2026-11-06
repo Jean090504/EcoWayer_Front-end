@@ -83,3 +83,28 @@ export async function excluirItem(id) {
 
   return dados
 }
+
+export async function excluirCategoria(id) {
+  const resposta = await fetch(`${URL_API}/${id}`, { method: "DELETE" })
+  const dados = await resposta.json().catch(() => null)
+
+  if (!resposta.ok || !dados?.status) {
+    throw new Error(dados?.message ?? "Erro ao excluir categoria")
+  }
+
+  return dados
+}
+
+export async function alterarStatusCategoria(id, status) {
+  const resposta = await fetch(`${URL_API}/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status })
+  })
+  const dados = await resposta.json().catch(() => null)
+
+  if (!resposta.ok || !dados?.status) {
+    throw new Error(dados?.message ?? "Erro ao alterar status da categoria")
+  }
+  return dados.response
+}

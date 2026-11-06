@@ -1,113 +1,249 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { Search } from "lucide-react"
 
-import BotaoVoltar from "../components/ui/botaoVoltar.jsx"
-import CardAlertaIA from "../components/cards/cardAlerta.jsx"
-import CardInfoItem from "../components/cards/cardInfoItem.jsx"
-import CardMensagens from "../components/cards/cardMensagens.jsx"
-import CardVendedor from "../components/cards/cardVendedor.jsx"
-import CardAcoesAdmin from "../components/cards/cardAcoesAdmin.jsx"
-import { atualizarAlerta } from "../services/alertas.js"
+import BotaoPower from "../assets/icons/ui/button_power.png"
+import BotaoReset from "../assets/icons/ui/button_reset.png"
+import TabelaItens from "../components/tabela/tabelaItens.jsx"
+import { buscarCategoria, alterarStatusCategoria } from "../services/categoriaService.js"
+import ModalNovoItem from "../components/modal/ModalNovoItem.jsx"
+import ModalDetalhesItem from "../components/modal/ModalDetalhesItem.jsx"
+import ModalEditarItem from "../components/modal/ModalEditarItem.jsx"
+import ModalExcluirItem from "../components/modal/ModalExcluirItem.jsx"
+import ModalExcluirCategoria from "../components/modal/ModalExcluirCategoria.jsx"
 
-const badgeStatus = {
-  PENDENTE: { texto: "◉ Em Análise / Alerta", cor: "bg-[#7350B9]" },
-  RESOLVIDO: { texto: "✓ Resolvido", cor: "bg-green-600" }
+const URL_IMAGENS = "http://localhost:8080"
+
+function urlImagem(img) {
+  if (!img) return ""
+  return img.startsWith("http") ? img : `${URL_IMAGENS}/${img}`
 }
 
-export default function ChamadoIndividual({ alerta, aoVoltar, aoAtualizar }) {
-  const [salvando, setSalvando] = useState(false)
-  const [erro, setErro] = useState(null)
+export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
+  const [categoria, setCategoria] = useState(null)
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState("")
 
-  const anuncio = alerta.anuncio?.[0] ?? null
-  const mensagens = alerta.mensagem ?? []
-  const ehMensagem = !anuncio && mensagens.length > 0
-  const badge = badgeStatus[alerta.status] ?? { texto: alerta.status, cor: "bg-gray-500" }
+  const [busca, setBusca] = useState("")
+  const [status, setStatus] = useState("")
 
-  async function resolver(acao) {
+  const [modalAberto, setModalAberto] = useState(false)
+  const [recarregar, setRecarregar] = useState(0)
+
+  const [itemVisualizado, setItemVisualizado] = useState(null)
+  const [itemEditando, setItemEditando] = useState(null)
+  const [itemExcluindo, setItemExcluindo] = useState(null)
+  const [excluindoCategoria, setExcluindoCategoria] = useState(false)
+  const [alterandoStatus, setAlterandoStatus] = useState(false)
+
+  const ativa = (categoria?.status ?? "ativo") === "ativo"
+
+  async function alternarStatus() {
+    const novo = ativa ? "inativo" : "ativo"
+
+    if (ativa && !window.confirm("Desativar a categoria? Ela deixará de aparecer para novos anúncios.")) return
+
     try {
-      setSalvando(true)
-      setErro(null)
-
-      // o PUT do back exige motivo, status e acao; sem "anuncio" no body os vínculos são mantidos
-      const atualizado = await atualizarAlerta(alerta.id, {
-        motivo: alerta.motivo,
-        status: "RESOLVIDO",
-        acao
-      })
-
-      aoAtualizar?.(atualizado)
+      setAlterandoStatus(true)
+      setErro("")
+      await alterarStatusCategoria(categoriaId, novo)
+      setRecarregar((n) => n + 1)
     } catch (e) {
-      setErro(e.message)
+      setErro(e.message || "Não foi possível alterar o status.")
     } finally {
-      setSalvando(false)
+      setAlterandoStatus(false)
     }
+  }
+
+  useEffect(() => {
+    async function carregar() {
+      try {
+        setCarregando(true)
+        setErro("")
+        const dados = await buscarCategoria(categoriaId)
+        if (!dados) setErro("Categoria não encontrada.")
+        setCategoria(dados)
+      } catch (e) {
+        console.error(e)
+        setErro("Não foi possível carregar a categoria.")
+      } finally {
+        setCarregando(false)
+      }
+    }
+    carregar()
+  }, [categoriaId, recarregar])
+
+  const itens = Array.isArray(categoria?.itens) ? categoria.itens : []
+
+  const itensFiltrados = itens.filter((i) => {
+    const bateNome = (i.nome ?? "").toLowerCase().includes(busca.toLowerCase())
+    const bateStatus = !status || (i.status ?? "").toLowerCase() === status
+    return bateNome && bateStatus
+  })
+
+  function redefinir() {
+    setBusca("")
+    setStatus("")
   }
 
   return (
     <div>
-      <BotaoVoltar aoVoltar={aoVoltar} texto="← Voltar para todos os Chamados" />
+      <button className="text-[#9A9A9A] pt-5 pl-6 cursor-pointer" onClick={aoVoltar}>
+        ← Voltar para todas as Categorias
+      </button>
 
-      <div className="flex flex-col items-center justify-center mt-[clamp(20px,1.3vw,26px)]">
-        <div className="flex flex-col gap-5 w-[95%] min-h-[85vh]">
+      <div className="flex flex-col items-center justify-center gap-4 mt-5">
+        <div className="flex flex-col w-[95%] min-h-[85vh]">
 
-          <div className="flex flex-row w-full items-center flex-wrap gap-y-2">
-            <h1 className="text-[25px] font-bold">
-              {ehMensagem ? "Verificar mensagem" : "Verificar anúncio"}
-            </h1>
-            <h1 className="text-[25px] font-bold text-[#9CA3AF] ml-1.5">#CH-{alerta.id}</h1>
+          {carregando && <p>Carregando...</p>}
+          {erro && <p className="text-red-500">{erro}</p>}
 
-            <span className={`${badge.cor} text-white rounded-full text-[clamp(10px,1vw,14px)] px-3 py-1 ml-4`}>
-              {badge.texto}
-            </span>
+          {categoria && (
+            <>
+              <div className="flex flex-row items-center justify-center bg-[#FFFFFF] min-h-[150px] gap-5 mb-2">
+                {categoria.img && (
+                  <img
+                    src={urlImagem(categoria.img)}
+                    alt=""
+                    className="w-[56px] h-[56px] object-contain"
+                  />
+                )}
+                <h1 className="text-[25px] font-bold">{categoria.nome}</h1>
 
-            {alerta.prioridade && (
-              <p className="text-[clamp(12px,1vw,14px)] text-slate-500 font-medium ml-auto">
-                Prioridade: <span className="text-red-500 font-bold uppercase">{alerta.prioridade}</span>
-              </p>
-            )}
-          </div>
+                <div className="bg-[#7350B9] text-[#FFFFFF] rounded-[10px] text-[10px] w-[125px] h-[30px] flex items-center justify-center">
+                  {itens.length} Itens registrados
+                </div>
 
-          <CardAlertaIA
-            titulo={`Alerta da IA: ${alerta.ia?.nome ?? "Moderação automática"}`}
-            descricao={alerta.motivo}
-            porcentagem={alerta.certeza}
-          />
+                <div
+                  className={`${ativa ? "bg-[#65BA69]" : "bg-[#9CA3AF]"} text-[#FFFFFF] rounded-[10px] text-[10px] w-[105px] h-[30px] flex items-center justify-center`}
+                >
+                  {ativa ? "Categoria Ativa" : "Categoria Inativa"}
+                </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 items-start">
-            {anuncio ? (
-              <CardInfoItem anuncio={anuncio} />
-            ) : ehMensagem ? (
-              <CardMensagens mensagens={mensagens} />
-            ) : (
-              <div className="bg-white rounded-lg shadow-md p-6 text-gray-500">
-                Este alerta não possui anúncio nem mensagem vinculados.
+                <button
+                  onClick={() => setExcluindoCategoria(true)}
+                  className="ml-auto bg-[#E43E42] text-[#FFFFFF] rounded-[10px] cursor-pointer text-[10px] w-[125px] h-[30px] flex items-center justify-center"
+                >
+                  excluir categoria
+                </button>
+
+                <button
+                  onClick={() => setModalAberto(true)}
+                  className="bg-[#65BA69] text-[#FFFFFF] rounded-[10px] cursor-pointer text-[10px] w-[125px] h-[30px] flex items-center justify-center"
+                >
+                  adicionar novo item
+                </button>
+
+                <button
+                  onClick={alternarStatus}
+                  disabled={alterandoStatus}
+                  title={ativa ? "Desativar categoria" : "Ativar categoria"}
+                  className="cursor-pointer mr-8 bg-[#D9D9D9] w-[30px] h-[30px] rounded-full items-center justify-center flex disabled:opacity-60"
+                >
+                  <img src={BotaoPower} alt="" />
+                </button>
               </div>
-            )}
 
-            <div className="flex flex-col gap-5">
-              <CardVendedor usuario={alerta.usuario} />
+              <div className="bg-[#FFFFFF] mb-10">
+                <div className="flex flex-row items-center h-[70px]">
+                  <div className="relative min-w-[180px] w-[20vw] ml-5">
+                    <Search
+                      size={12}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 shrink-0 text-[#334155]"
+                    />
+                    <input
+                      className="border border-[#E2E8F0] rounded-[8px] bg-[#F8FAFC] text-[12px] placeholder:text-[#334155] px-3 py-0.5 pl-[35px] w-full h-[30px]"
+                      type="search"
+                      placeholder="Buscar Item"
+                      value={busca}
+                      onChange={(e) => setBusca(e.target.value)}
+                    />
+                  </div>
 
-              <CardAcoesAdmin
-                tipo={ehMensagem ? "mensagem" : "anuncio"}
-                pendente={alerta.status === "PENDENTE"}
-                acaoAtual={alerta.acao}
-                salvando={salvando}
-                erro={erro}
-                // ações de anúncio
-                onAprovar={() => resolver("ANUNCIO_APROVADO")}
-                onDesativar={() => resolver("ANUNCIO_DESATIVADO")}
-                onRemover={() => {
-                  if (window.confirm("Remover o anúncio e penalizar o usuário?")) resolver("ANUNCIO_BLOQUEADO")
-                }}
-                // ações de mensagem
-                onAdvertir={() => resolver("ADVERTENCIA")}
-                onBloquearMensagem={() => resolver("MENSAGEM_BLOQUEADA")}
-                onSemAcao={() => resolver("SEM_ACAO")}
-              />
-            </div>
-          </div>
+                  <select
+                    className="border border-[#E2E8F0] rounded-[8px] bg-[#F8FAFC] text-[12px] text-[#334155] ml-3 h-[30px] w-[120px] px-1"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
+                    <option value="">Status (Todos)</option>
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                    <option value="em revisão">Em Revisão</option>
+                  </select>
 
+                  <button
+                    onClick={redefinir}
+                    className="flex flex-row items-center justify-center border border-[#E2E8F0] rounded-[8px] text-[12px] text-[#64748B] gap-1 w-[100px] h-[30px] ml-auto mr-4 cursor-pointer"
+                  >
+                    <img src={BotaoReset} alt="" />
+                    Redefinir
+                  </button>
+                </div>
+
+                <TabelaItens
+                  itens={itensFiltrados}
+                  total={itens.length}
+                  aoVer={(id) => setItemVisualizado(id)}
+                  aoEditar={(id) => setItemEditando(id)}
+                  aoExcluir={(item) => setItemExcluindo(item)}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
+
+      {modalAberto && (
+        <ModalNovoItem
+          categoriaId={categoriaId}
+          aoFechar={() => setModalAberto(false)}
+          aoSalvar={async () => {
+            setModalAberto(false)
+            setRecarregar((n) => n + 1) // refaz o fetch e a tabela atualiza sozinha
+          }}
+        />
+      )}
+
+      {itemVisualizado && (
+        <ModalDetalhesItem
+          itemId={itemVisualizado}
+          aoFechar={() => setItemVisualizado(null)}
+        />
+      )}
+
+      {itemEditando && (
+        <ModalEditarItem
+          itemId={itemEditando}
+          categoriaId={categoriaId}
+          aoFechar={() => setItemEditando(null)}
+          aoSalvar={async () => {
+            setItemEditando(null)
+            setRecarregar((n) => n + 1)
+          }}
+        />
+      )}
+
+      {itemExcluindo && (
+        <ModalExcluirItem
+          item={itemExcluindo}
+          aoFechar={() => setItemExcluindo(null)}
+          aoExcluir={async () => {
+            setItemExcluindo(null)
+            setRecarregar((n) => n + 1)
+          }}
+        />
+      )}
+
+      {excluindoCategoria && categoria && (
+        <ModalExcluirCategoria
+          categoria={categoria}
+          itens={itens}
+          aoFechar={() => setExcluindoCategoria(false)}
+          aoExcluir={async () => {
+            setExcluindoCategoria(false)
+            aoVoltar() // a categoria não existe mais, volta para a lista
+          }}
+        />
+      )}
     </div>
   )
 }
