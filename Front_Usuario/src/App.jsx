@@ -1,14 +1,20 @@
+
 import { useState } from "react";
 
 import Header from "./components/layout/header.jsx";
 import Footer from "./components/layout/footer.jsx";
 
-import Home from "./pages/telaHome.jsx";
-import Login from "./pages/login.jsx";
-import CriarConta from "./pages/criarConta.jsx";
+import Login from "./pages/Login.jsx";
+import CriarConta from "./pages/CriarConta.jsx";
+
+import Home from "./pages/Home.jsx";
+import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
 
 export default function App() {
     const [usuario, setUsuario] = useState(null);
+
+    // Controla a tela ativa.
+    const [telaAtiva, setTelaAtiva] = useState("home");
 
     // Controla a abertura dos cards.
     const [abrirLogin, setAbrirLogin] = useState(false);
@@ -20,15 +26,31 @@ export default function App() {
         setAbrirLogin(false);
     }
 
+    // Controla a navegação entre as telas.
+    function navegar(tela) {
+        setTelaAtiva(tela);
+    }
+
     return (
         <div className = "flex min-h-screen flex-col gap-6 sm:gap-8">
             <Header
                 usuario = {usuario}
                 onAbrirLogin = {() => setAbrirLogin(true)}
                 onAbrirCriarConta = {() => setAbrirCadastro(true)}
+                onNavegar = {navegar}
             />
 
-            <Home />
+            <main className = "flex flex-1 flex-col">
+                {/* {telaAtiva === "home" && (
+                    <Home onNavegar = {navegar} />
+                )}
+
+                {telaAtiva === "avaliacao" && (
+                    <AvaliacaoAnuncio onNavegar = {navegar} />
+                )} */}
+
+                <AvaliacaoAnuncio/>
+            </main>
 
             <Footer />
 

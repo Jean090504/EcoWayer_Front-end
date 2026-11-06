@@ -1,17 +1,10 @@
-
 import { useState } from "react";
 
-import Header from "../components/layout/cima.jsx";
-import Baixo from "../components/layout/baixo.jsx";
 import Banner from "../components/layout/banner.jsx";
 import Destaques from "../components/layout/destaqueAnuncios.jsx";
 import Categorias from "../components/layout/categorias.jsx";
 
-import Login from "./login.jsx";
-import CriarConta from "./criarConta.jsx";
-import VerificacaoNumero from "./verificarNumero.jsx";
-
-export default function Home() {
+export default function VerificarNumero() {
 
     // Dados do usuário logado
     const [usuario, setUsuario] = useState(null);
@@ -71,13 +64,6 @@ export default function Home() {
     return (
         <div className="flex min-h-screen flex-col gap-8">
 
-            {/* Header */}
-            <Header
-                usuario={usuario}
-                onAbrirLogin={() => setAbrirLogin(true)}
-                onAbrirCriarConta={abrirTelaCadastro}
-            />
-
             {/* Conteúdo principal */}
             <main className="flex flex-1 flex-col items-center">
 
@@ -99,9 +85,6 @@ export default function Home() {
                 </div>
             </main>
 
-            {/* Footer */}
-            <Baixo />
-
             {/* Login */}
             {abrirLogin && (
                 <Login
@@ -120,14 +103,14 @@ export default function Home() {
             )}
 
             {/* Verificação de telefone */}
-            {abrirVerificacao && (
+            {/* {abrirVerificacao && (
                 <VerificacaoNumero
                     telefone={dadosCadastro?.telefone}
                     onVoltar={voltarCadastro}
                     onVerificar={verificarCodigo}
                     onReenviar={reenviarCodigo}
                 />
-            )}
+            )} */}
 
         </div>
     );
