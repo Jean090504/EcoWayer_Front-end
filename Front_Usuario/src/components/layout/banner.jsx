@@ -39,7 +39,7 @@ export default function Banner() {
             <div className="relative w-full">
 
                 {/* Área do banner (imagem + botões) */}
-                <div className="relative h-[210px] overflow-hidden rounded-2xl bg-gray-100">
+                <div className = "relative w-full h-[clamp(160px,20vw,210px)] overflow-hidden rounded-2xl bg-gray-100">
 
                     {/* Imagem de fundo */}
                     <img

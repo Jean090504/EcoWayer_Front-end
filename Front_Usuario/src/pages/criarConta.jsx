@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 // Classes compartilhadas
@@ -21,19 +20,18 @@ function Campo({
 }) {
     return (
         <div>
-            <label htmlFor={name} className={labelClass}>
+            <label htmlFor = {name} className = {labelClass}>
                 {label}
             </label>
-
             <input
-                id={name}
-                name={name}
-                type={type}
-                inputMode={inputMode}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                className={inputClass}
+                id = {name}
+                name = {name}
+                type = {type}
+                inputMode = {inputMode}
+                placeholder = {placeholder}
+                value = {value}
+                onChange = {onChange}
+                className = {inputClass}
                 required
             />
         </div>
@@ -53,46 +51,43 @@ function CampoSenha({
 }) {
     return (
         <div>
-            <label htmlFor={name} className={labelClass}>
+            <label htmlFor = {name} className = {labelClass}>
                 {label}
             </label>
-
-            <div className="relative">
+            <div className = "relative">
                 <input
-                    id={name}
-                    name={name}
-                    type={mostrar ? "text" : "password"}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={onChange}
-                    className={`${inputClass} pr-10`}
+                    id = {name}
+                    name = {name}
+                    type = {mostrar ? "text" : "password"}
+                    placeholder = {placeholder}
+                    value = {value}
+                    onChange = {onChange}
+                    className = {`${inputClass} pr-10`}
                     required
                 />
-
                 <button
-                    type="button"
-                    onClick={alternar}
-                    aria-label={
+                    type = "button"
+                    onClick = {alternar}
+                    aria-label = {
                         mostrar ? "Ocultar senha" : "Mostrar senha"
                     }
-                    className="absolute right-[12px] top-1/2 -translate-y-1/2 text-[#888] hover:text-[#555]"
+                    className = "absolute right-[12px] top-1/2 -translate-y-1/2 text-[#888] hover:text-[#555]"
                 >
                     <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
+                        width = "16"
+                        height = "16"
+                        viewBox = "0 0 24 24"
+                        fill = "none"
+                        stroke = "currentColor"
+                        strokeWidth = "2"
+                        strokeLinecap = "round"
+                        strokeLinejoin = "round"
+                        aria-hidden = "true"
                     >
-                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-                        <circle cx="12" cy="12" r="3" />
-
+                        <path d = "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                        <circle cx = "12" cy = "12" r = "3" />
                         {mostrar && (
-                            <path d="M4 4l16 16" />
+                            <path d = "M4 4l16 16" />
                         )}
                     </svg>
                 </button>
@@ -108,7 +103,6 @@ export default function CreateAccount({
 }) {
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
-
     const [erro, setErro] = useState("");
 
     const [formulario, setFormulario] = useState({
@@ -138,7 +132,6 @@ export default function CreateAccount({
     // Envio do formulário
     function handleSubmit(event) {
         event.preventDefault();
-
         setErro("");
 
         // Verifica as senhas
@@ -171,158 +164,149 @@ export default function CreateAccount({
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-2 backdrop-blur-[3px] sm:p-4">
-
-            <div className="relative max-h-[calc(100dvh-16px)] w-full max-w-[640px] overflow-y-auto rounded-[15px] bg-white px-6 pb-[30px] pt-[25px] shadow-xl sm:max-h-[calc(100dvh-32px)] sm:px-[94px] sm:pt-[25px]">
+        <div className = "fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-2 backdrop-blur-[3px] sm:p-4">
+            <div className = "relative max-h-[calc(100dvh-16px)] w-full max-w-[640px] overflow-y-auto rounded-[15px] bg-white px-4 pb-[24px] pt-[25px] shadow-xl sm:max-h-[calc(100dvh-32px)] sm:px-[94px] sm:pb-[30px] sm:pt-[25px]">
 
                 {/* Fechar card */}
                 <button
-                    type="button"
-                    onClick={onClose}
-                    aria-label="Fechar"
-                    className="absolute right-[13px] top-[11px] text-[16px] font-light leading-none text-[#FF4545] hover:text-red-700"
+                    type = "button"
+                    onClick = {onClose}
+                    aria-label = "Fechar"
+                    className = "absolute right-[13px] top-[11px] text-[16px] font-light leading-none text-[#FF4545] hover:text-red-700"
                 >
                     ×
                 </button>
 
                 {/* Título */}
-                <h2 className="mb-[17px] text-center text-[28px] font-bold leading-[34px] tracking-[-0.5px]">
-                    <span className="text-[#61B86B]">Criar</span>{" "}
-                    <span className="text-[#7548CB]">conta</span>
+                <h2 className = "mb-[17px] text-center text-[clamp(24px,5vw,28px)] font-bold leading-[34px] tracking-[-0.5px]">
+                    <span className = "text-[#61B86B]">Criar</span>{" "}
+                    <span className = "text-[#7548CB]">conta</span>
                 </h2>
 
                 <form
-                    className="space-y-[14px]"
-                    onSubmit={handleSubmit}
+                    className = "space-y-[14px]"
+                    onSubmit = {handleSubmit}
                 >
-
                     {/* Nome */}
                     <Campo
-                        label="Nome completo"
-                        name="nome"
-                        placeholder="Seu nome aqui"
-                        value={formulario.nome}
-                        onChange={atualizarCampo}
+                        label = "Nome completo"
+                        name = "nome"
+                        placeholder = "Seu nome aqui"
+                        value = {formulario.nome}
+                        onChange = {atualizarCampo}
                     />
 
                     {/* Nascimento e CPF */}
-                    <div className="grid grid-cols-2 gap-[15px]">
-
+                    <div className = "grid grid-cols-1 min-[400px]:grid-cols-2 gap-[15px]">
                         <Campo
-                            label="Data de nascimento"
-                            name="nascimento"
-                            placeholder="DD/MM/AAAA"
-                            value={formulario.nascimento}
-                            onChange={atualizarCampo}
+                            label = "Data de nascimento"
+                            name = "nascimento"
+                            placeholder = "DD/MM/AAAA"
+                            value = {formulario.nascimento}
+                            onChange = {atualizarCampo}
                         />
-
                         <Campo
-                            label="CPF"
-                            name="cpf"
-                            placeholder="000.000.000-00"
-                            value={formulario.cpf}
-                            inputMode="numeric"
-                            onChange={atualizarCampo}
+                            label = "CPF"
+                            name = "cpf"
+                            placeholder = "000.000.000-00"
+                            value = {formulario.cpf}
+                            inputMode = "numeric"
+                            onChange = {atualizarCampo}
                         />
-
                     </div>
 
                     {/* E-mail */}
                     <Campo
-                        label="E-mail"
-                        name="email"
-                        placeholder="seuemail@exemplo.com"
-                        type="email"
-                        value={formulario.email}
-                        onChange={atualizarCampo}
+                        label = "E-mail"
+                        name = "email"
+                        placeholder = "seuemail@exemplo.com"
+                        type = "email"
+                        value = {formulario.email}
+                        onChange = {atualizarCampo}
                     />
 
                     {/* Telefone */}
                     <Campo
-                        label="Telefone"
-                        name="telefone"
-                        placeholder="(00) 00000-0000"
-                        type="tel"
-                        value={formulario.telefone}
-                        inputMode="tel"
-                        onChange={atualizarCampo}
+                        label = "Telefone"
+                        name = "telefone"
+                        placeholder = "(00) 00000-0000"
+                        type = "tel"
+                        value = {formulario.telefone}
+                        inputMode = "tel"
+                        onChange = {atualizarCampo}
                     />
 
                     {/* Senha */}
                     <CampoSenha
-                        label="Senha"
-                        name="senha"
-                        placeholder="Crie uma senha"
-                        mostrar={mostrarSenha}
-                        alternar={() => setMostrarSenha(!mostrarSenha)}
-                        value={formulario.senha}
-                        onChange={atualizarCampo}
+                        label = "Senha"
+                        name = "senha"
+                        placeholder = "Crie uma senha"
+                        mostrar = {mostrarSenha}
+                        alternar = {() => setMostrarSenha(!mostrarSenha)}
+                        value = {formulario.senha}
+                        onChange = {atualizarCampo}
                     />
 
                     {/* Confirmar senha */}
                     <CampoSenha
-                        label="Confirmar senha"
-                        name="confirmarSenha"
-                        placeholder="Repita a senha"
-                        mostrar={mostrarConfirmacao}
-                        alternar={() =>
+                        label = "Confirmar senha"
+                        name = "confirmarSenha"
+                        placeholder = "Repita a senha"
+                        mostrar = {mostrarConfirmacao}
+                        alternar = {() =>
                             setMostrarConfirmacao(!mostrarConfirmacao)
                         }
-                        value={formulario.confirmarSenha}
-                        onChange={atualizarCampo}
+                        value = {formulario.confirmarSenha}
+                        onChange = {atualizarCampo}
                     />
 
                     {/* Termos */}
-                    <label className="flex cursor-pointer items-center gap-[9px] pt-[18px] text-[11px] leading-[16px] text-[#666]">
-
+                    <label className = "flex cursor-pointer items-center gap-[9px] pt-[18px] text-[11px] leading-[16px] text-[#666]">
                         <input
-                            type="checkbox"
-                            checked={aceitouTermos}
-                            onChange={(e) =>
+                            type = "checkbox"
+                            checked = {aceitouTermos}
+                            onChange = {(e) =>
                                 setAceitouTermos(e.target.checked)
                             }
-                            className="h-[16px] w-[16px] shrink-0 cursor-pointer accent-[#55B75D]"
+                            className = "h-[16px] w-[16px] shrink-0 cursor-pointer accent-[#55B75D]"
                         />
-
                         <span>
                             Aceito os{" "}
                             <a
-                                href="#termos"
-                                className="font-medium text-[#399B43] underline underline-offset-2"
+                                href = "#termos"
+                                className = "font-medium text-[#399B43] underline underline-offset-2"
                             >
                                 Termos de Serviço
                             </a>{" "}
                             e{" "}
                             <a
-                                href="#privacidade"
-                                className="font-medium text-[#399B43] underline underline-offset-2"
+                                href = "#privacidade"
+                                className = "font-medium text-[#399B43] underline underline-offset-2"
                             >
                                 Privacidade
                             </a>
                         </span>
-
                     </label>
 
                     {/* Erro */}
                     {erro && (
                         <p
-                            role="alert"
-                            className="text-center text-xs text-red-500"
+                            role = "alert"
+                            className = "text-center text-xs text-red-500"
                         >
                             {erro}
                         </p>
                     )}
 
                     {/* Botão */}
-                    <div className="pt-[23px]">
+                    <div className = "pt-[23px]">
                         <button
-                            type="submit"
-                            className="mx-auto flex h-[35px] w-full items-center justify-center rounded-[12px] bg-[#7548C8] text-[16px] font-bold text-white transition hover:bg-[#6539B8] active:scale-[0.99] sm:w-[calc(100%-72px)]"
+                            type = "submit"
+                            className = "mx-auto flex h-[35px] w-full items-center justify-center rounded-[12px] bg-[#7548C8] text-[16px] font-bold text-white transition hover:bg-[#6539B8] active:scale-[0.99] sm:w-[calc(100%-72px)]"
                         >
                             Criar conta
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>
