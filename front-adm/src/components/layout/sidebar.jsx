@@ -9,8 +9,8 @@ import dashboardIcon from '../../assets/icons/menu/dashboard.png'
 
 export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
   return (
-    <div className = "bg-[#FFFFFF] flex flex-col w-[20%] items-center gap-1.5">
-      <img src = {logo} alt = "" className = "w-[12.5rem] mt-8 pb-5" />
+    <div className = "bg-[#FFFFFF] flex w-full shrink-0 flex-row items-center gap-1.5 overflow-x-auto p-2 md:w-[20%] md:flex-col md:py-0">
+      <img src = {logo} alt = "" className = "hidden w-[12.5rem] mt-8 pb-5 md:block" />
 
       <BotaoMenu
         ativo = {ativa === "home"}
@@ -66,7 +66,7 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
         onClick = {() => setAtiva("dashboard")}
       />
 
-        <div className = "mt-auto mb-8">
+        <div className = "ml-auto md:mt-auto md:mb-8">
           <button 
             onClick = {aoClicarSair}
             className = "bg-[#E43E42] text-white text-base w-full max-w-[10rem] min-h-[2.5rem] px-4 rounded-[0.5rem] cursor-pointer">

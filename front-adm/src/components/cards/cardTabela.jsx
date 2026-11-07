@@ -1,7 +1,6 @@
-import CardBotaoTabela from "./cardBotaoTabela.jsx"
 import TextoTabela from "../ui/textoTabela.jsx"
 
-export default function CardTabela({ corBolinha, categoria, pontosBase, condExcelente, condBom, condRegular }) {
+export default function CardTabela({ corBolinha, categoria, pontosBase, condExcelente, condBom, condRegular, ativo, onToggle, onEdit }) {
   return (
     <div className = "w-full flex flex-row items-center justify-between py-4 px-4 border-b border-[#F3F4F6]">
 
@@ -21,7 +20,7 @@ export default function CardTabela({ corBolinha, categoria, pontosBase, condExce
       </div>
 
       <div className = "w-[clamp(80px,8vw,100px)] flex flex-row justify-end items-center gap-3 pr-2">
-        <CardBotaoTabela />
+        <button type="button" onClick={onEdit} className="text-sm font-semibold text-[#7350B9] hover:underline">Editar</button>
       </div>
 
     </div>

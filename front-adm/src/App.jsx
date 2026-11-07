@@ -23,10 +23,10 @@ export default function App() {
   }
 
   return (
-    <div className = "flex flex-row min-w-[1366px] min-h-screen bg-[#F5F5F5]">
+    <div className = "flex min-h-screen w-full min-w-0 flex-col bg-[#F5F5F5] md:flex-row">
       <Sidebar ativa = {ativa} setAtiva = {setAtiva} aoClicarSair = {() => setMostrarCard(true)} />
 
-      <div className = "w-[80%]">
+      <div className = "min-w-0 flex-1 overflow-x-hidden">
         {ativa === "home" && <Home />}
         {ativa === "chamados" && <Chamados />}
         {ativa === "coleta" && <Coleta />}

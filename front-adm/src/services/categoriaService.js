@@ -1,4 +1,9 @@
+import { apiFetch } from "./api.js"
 const URL_API = "http://localhost:8080/meraki/ecowayer/admin/categoria"
+
+export async function atualizarCategoriaPontos(id, categoria, pontos) {
+  return apiFetch(`/categoria/${id}`, { method: "PUT", body: JSON.stringify({ nome: categoria.nome, pontos, id_tipo_categoria: categoria.id_tipo_categoria, img: categoria.img }) })
+}
 
 export async function listarCategorias() {
   const resposta = await fetch(URL_API)

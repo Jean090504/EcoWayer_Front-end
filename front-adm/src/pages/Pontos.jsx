@@ -1,16 +1,16 @@
 import { useEffect, useState, useCallback } from "react"
 import Titulo from "../components/ui/titulo.jsx"
 import CardStatus from "../components/cards/cardStatus.jsx"
-import CardConversao from "../components/cards/cardConversao.jsx"
 import CardValidador from "../components/cards/cardValidador.jsx"
 import TabelaPontuacao from "../components/tabela/tabelaPontuacao.jsx"
-import { getDashboardPontos } from "../services/pontos.js"
+import { getDashboardPontos, listarCategoriasParaRegra, listarRegrasPontuacao } from "../services/pontos.js"
 
 export default function Pontos() {
   // 1. Estados para guardar a resposta da API, loading e erro
   const [dados, setDados] = useState(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState(null)
+  const [categorias, setCategorias] = useState([])
 
   // 2. Função assíncrona onde o trecho foi inserido
   const carregarDados = useCallback(async () => {
@@ -18,11 +18,17 @@ export default function Pontos() {
       setLoading(true)
       setErro(null)
 
-      const response = await getDashboardPontos()
+      const [response, categoriasResponse, regrasResponse] = await Promise.all([
+        getDashboardPontos(),
+        listarCategoriasParaRegra(),
+        listarRegrasPontuacao()
+      ])
       // Se o controller envelopar em response.response:
       const payload = response.response || response
 
       setDados(payload)
+      setCategorias(categoriasResponse)
+      setDados((atual) => ({ ...payload, regrasPontuacao: regrasResponse }))
     } catch (error) {
       console.error("Erro ao carregar dados do dashboard:", error)
       setErro(error.message || "Falha ao carregar as informações.")
@@ -67,15 +73,34 @@ export default function Pontos() {
   }
 
   // 4. Desestruturação dos dados recebidos do backend
-  const { metricas, configuracaoConversao, regrasPontuacao } = dados || {}
+  const { metricas, configuracaoConversao, regrasPontuacao = [] } = dados || {}
+  const regrasPorCategoria = new Map(regrasPontuacao.map((regra) => [
+    regra.id_categoria ?? regra.categoria?.id ?? regra.id,
+    regra
+  ]))
+  const tabelaCategorias = categorias.map((categoria) => {
+    const regra = regrasPontuacao.find((item) => String(item.categoria?.id ?? item.id_categoria) === String(categoria.id)) || regrasPorCategoria.get(categoria.id)
+    const multiplicador = (nome) => regra?.condicao?.find((item) => item.nome?.toLowerCase() === nome)?.multiplicador
+    return {
+      id: categoria.id,
+      cat: categoria.nome,
+      base: categoria.pontos ?? regra?.pontos_base ?? regra?.base ?? 0,
+      cor: categoria.cor ?? regra?.cor ?? "#65BA69",
+      regraId: regra?.regraId ?? regra?.id,
+      ativo: regra?.ativo ?? regra?.status ?? false,
+      exc: multiplicador("excelente") ? `${multiplicador("excelente")}x` : "—",
+      bom: multiplicador("bom") ? `${multiplicador("bom")}x` : "—",
+      reg: multiplicador("regular") ? `${multiplicador("regular")}x` : "—"
+    }
+  })
 
   return (
     <div>
       <Titulo texto="Pontos" />
 
       <div className="flex flex-col items-center justify-center mt-5">
-        <div className="w-[95%] min-h-[85vh]">
-          <div className="flex flex-row gap-5">
+        <div className="mx-auto w-[95%] min-h-[85vh]">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-4">
             <CardStatus 
               titulo="Taxa de Conversão" 
               valor={metricas?.taxaConversao?.valor ?? "--"} 
@@ -103,14 +128,13 @@ export default function Pontos() {
             />
           </div>
 
-          <div className="flex flex-row gap-6 w-full mx-auto mt-8 pb-8">
-            <div className="flex flex-col gap-5 shrink-0">
-              <CardConversao dados={configuracaoConversao} onUpdate={carregarDados} />
+          <div className="mt-8 grid w-full grid-cols-1 gap-6 pb-8 xl:grid-cols-[minmax(240px,0.8fr)_minmax(0,2fr)]">
+            <div className="flex min-w-0 flex-col gap-5">
               <CardValidador onUpdate={carregarDados} />
             </div>
 
             <div className="flex-1">
-              <TabelaPontuacao dados={regrasPontuacao} onUpdate={carregarDados} />
+              <TabelaPontuacao dados={tabelaCategorias} onUpdate={carregarDados} />
             </div>
           </div>
         </div>
