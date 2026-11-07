@@ -4,10 +4,10 @@ import Botao from "../ui/botao.jsx";
 
 export default function Categorias() {
 
-    // Controla qual categoria está selecionada.
+    // Controla qual categoria está selecionada
     const [categoriaSelecionada, setCategoriaSelecionada] = useState("Tudo");
 
-    // Controla se as categorias estão visíveis.
+    // Controla se as categorias estão visíveis (aberto ou fechado)
     const [mostrarCategorias, setMostrarCategorias] = useState(false);
 
     const listaCategorias = [
