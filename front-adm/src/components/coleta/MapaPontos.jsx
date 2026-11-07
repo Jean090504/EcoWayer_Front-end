@@ -10,6 +10,18 @@ import LegendaMapa from "./LegendaMapa.jsx";
 // Token público do Mapbox vem do .env (nunca deixe fixo no código)
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
+// O Mapbox GL envia eventos de telemetria para events.mapbox.com. Essa chamada
+// não participa do desenho do mapa e falha em ambientes sem acesso a esse host,
+// gerando erros não tratados no console. O mapa continua funcionando sem ela.
+try {
+  Object.defineProperty(mapboxgl.config, "EVENTS_URL", {
+    configurable: true,
+    value: null,
+  });
+} catch {
+  // Algumas versões do Mapbox podem expor a configuração como não configurável.
+}
+
 // Centro inicial do mapa: São Paulo [lng, lat]
 const CENTRO_SP = [-46.65, -23.55];
 
@@ -47,6 +59,8 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
 
   // 1) Cria o mapa uma única vez
   useEffect(() => {
+    if (!containerRef.current || !mapboxgl.accessToken) return undefined;
+
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: "mapbox://styles/mapbox/streets-v12", // estilo padrão do Mapbox (ruas coloridas)
@@ -74,10 +88,11 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
   // 2) Cria/atualiza os marcadores quando a lista de pontos muda
   useEffect(() => {
     const map = mapRef.current;
+    if (!map) return;
     Object.values(marcadoresRef.current).forEach(({ marker }) => marker.remove());
     marcadoresRef.current = {};
 
-    pontos.forEach((p) => {
+    pontos.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng)).forEach((p) => {
       const el = criarElementoPin(p, p.id === selecionadoId);
       el.addEventListener("click", () => onSelect(p.id));
       const marker = new mapboxgl.Marker({ element: el }).setLngLat([p.lng, p.lat]).addTo(map);
@@ -89,6 +104,7 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
   // 3) Quando a seleção muda: destaca o pin, voa até ele e abre o popup
   useEffect(() => {
     const map = mapRef.current;
+    if (!map) return;
     pontos.forEach((p) => {
       const item = marcadoresRef.current[p.id];
       if (item) item.el.className = estiloPin(p.status, p.id === selecionadoId);
@@ -105,7 +121,7 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
   // Centraliza no usuário usando a geolocalização do navegador
   const localizar = () => {
     navigator.geolocation?.getCurrentPosition(({ coords }) =>
-      mapRef.current.flyTo({ center: [coords.longitude, coords.latitude], zoom: 14 })
+      mapRef.current?.flyTo({ center: [coords.longitude, coords.latitude], zoom: 14 })
     );
   };
 

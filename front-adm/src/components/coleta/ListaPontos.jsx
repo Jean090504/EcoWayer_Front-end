@@ -1,6 +1,6 @@
 import CardPonto from "./CardPonto.jsx";
 
-export default function ListaPontos({ pontos, selecionadoId, onSelect, onGerenciar }) {
+export default function ListaPontos({ pontos, selecionadoId, onSelect, onGerenciar, onCadastrar }) {
   const operando = pontos.filter((p) => p.status === "ativo").length;
 
   return (
@@ -30,6 +30,7 @@ export default function ListaPontos({ pontos, selecionadoId, onSelect, onGerenci
             selecionado={p.id === selecionadoId}
             onSelect={onSelect}
             onGerenciar={onGerenciar}
+            onCadastrar={onCadastrar}
           />
         ))}
       </div>

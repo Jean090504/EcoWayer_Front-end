@@ -5,6 +5,10 @@ export async function atualizarCategoriaPontos(id, categoria, pontos) {
   return apiFetch(`/categoria/${id}`, { method: "PUT", body: JSON.stringify({ nome: categoria.nome, pontos, id_tipo_categoria: categoria.id_tipo_categoria, img: categoria.img }) })
 }
 
+export async function excluirCategoria(id) {
+  return apiFetch(`/categoria/${id}`, { method: "DELETE" })
+}
+
 export async function listarCategorias() {
   const resposta = await fetch(URL_API)
   const dados = await resposta.json()
@@ -35,11 +39,11 @@ export async function criarCategoria({ nome, pontos, id_tipo_categoria, img }) {
 
 const URL_ITEM = "http://localhost:8080/meraki/ecowayer/admin/item" // ajuste para a sua rota real
 
-export async function criarItem({ nome, descricao, pontos_base, status, id_categoria }) {
+export async function criarItem({ nome, descricao, pontos_base, status, id_categoria, img }) {
   const resposta = await fetch(URL_ITEM, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nome, descricao, pontos_base, status, id_categoria })
+    body: JSON.stringify({ nome, descricao, pontos_base, status, id_categoria, img })
   })
 
   const dados = await resposta.json().catch(() => null)

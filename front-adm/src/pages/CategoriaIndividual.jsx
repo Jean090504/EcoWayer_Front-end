@@ -4,13 +4,15 @@ import { Search } from "lucide-react"
 import BotaoPower from "../assets/icons/ui/button_power.png"
 import BotaoReset from "../assets/icons/ui/button_reset.png"
 import TabelaItens from "../components/tabela/tabelaItens.jsx"
-import { buscarCategoria } from "../services/categoriaService.js"
+import { buscarCategoria, excluirCategoria } from "../services/categoriaService.js"
 import ModalNovoItem from "../components/modal/ModalNovoItem.jsx"
+import ModalExcluirCategoria from "../components/modal/ModalExcluirCategoria.jsx"
 
 const URL_IMAGENS = "http://localhost:8080"
 
 function urlImagem(img) {
   if (!img) return ""
+  if (img.includes("storage.ecowayer.test")) return ""
   return img.startsWith("http") ? img : `${URL_IMAGENS}/${img}`
 }
 
@@ -24,6 +26,9 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
 
   const [modalAberto, setModalAberto] = useState(false)
   const [recarregar, setRecarregar] = useState(0)
+  const [modalExcluir, setModalExcluir] = useState(false)
+  const [excluindo, setExcluindo] = useState(false)
+  const [erroExclusao, setErroExclusao] = useState("")
 
   useEffect(() => {
     async function carregar() {
@@ -56,6 +61,12 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
     setStatus("")
   }
 
+  async function excluirAtual() {
+    try { setExcluindo(true); await excluirCategoria(categoriaId); aoVoltar() }
+    catch (e) { setErroExclusao(e.message || "Não foi possível excluir a categoria.") }
+    finally { setExcluindo(false) }
+  }
+
   return (
     <div>
       <button className="text-[#9A9A9A] pt-5 pl-6 cursor-pointer" onClick={aoVoltar}>
@@ -70,7 +81,7 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
 
           {categoria && (
             <>
-              <div className="flex flex-row items-center justify-center bg-[#FFFFFF] min-h-[150px] gap-5 mb-2">
+              <div className="flex flex-wrap items-center bg-[#FFFFFF] min-h-[150px] gap-4 px-5 py-5 mb-2">
                 {categoria.img && (
                   <img
                     src={urlImagem(categoria.img)}
@@ -88,7 +99,7 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
                   Categoria Ativa
                 </div>
 
-                <button className="ml-auto bg-[#E43E42] text-[#FFFFFF] rounded-[10px] cursor-pointer text-[10px] w-[125px] h-[30px] flex items-center justify-center">
+                <button onClick={() => { setErroExclusao(""); setModalExcluir(true) }} className="ml-auto bg-[#E43E42] text-[#FFFFFF] rounded-[10px] cursor-pointer text-[10px] w-[125px] h-[30px] flex items-center justify-center">
                   excluir categoria
                 </button>
 
@@ -140,7 +151,7 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
                   </button>
                 </div>
 
-                <TabelaItens itens={itensFiltrados} total={itens.length} />
+                <TabelaItens itens={itensFiltrados} total={itens.length} imagemCategoria={urlImagem(categoria.img)} />
               </div>
             </>
           )}
@@ -157,6 +168,7 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
           }}
         />
       )}
+      {modalExcluir && <ModalExcluirCategoria categoria={categoria} aoFechar={() => setModalExcluir(false)} aoConfirmar={async (ok) => { if (!ok) return setErroExclusao("Digite exatamente o texto solicitado para confirmar."); await excluirAtual() }} salvando={excluindo} erro={erroExclusao} />}
     </div>
   )
 }

@@ -5,19 +5,24 @@ import CardCategoria from "../components/cards/cardCategoria.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
 import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria.jsx"
-import { listarCategorias } from "../services/categoriaService.js"
+import { listarCategorias, excluirCategoria } from "../services/categoriaService.js"
+import ModalExcluirCategoria from "../components/modal/ModalExcluirCategoria.jsx"
 
 const URL_IMAGENS = "http://localhost:8080"
 
 // monta a URL da imagem sem gerar ".../undefined"
 function urlImagem(img) {
   if (!img) return ""
+  if (img.includes("storage.ecowayer.test")) return ""
   return img.startsWith("http") ? img : `${URL_IMAGENS}/${img}`
 }
 
 export default function Categorias({ aoAbrirCategoria }) {
   const [modalAberto, setModalAberto] = useState(false)
   const [modalAdd, setModalAdd] = useState(false)
+  const [categoriaExcluir, setCategoriaExcluir] = useState(null)
+  const [excluindo, setExcluindo] = useState(false)
+  const [erroExclusao, setErroExclusao] = useState("")
 
   const [categorias, setCategorias] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -59,6 +64,13 @@ export default function Categorias({ aoAbrirCategoria }) {
     const bateTipo = !tipoSelecionado || String(c.id_tipo_categoria) === tipoSelecionado
     return bateNome && bateTipo
   })
+
+  async function confirmarExclusao(confirmado) {
+    if (!confirmado) return setErroExclusao("Digite exatamente o texto solicitado para confirmar.")
+    try { setExcluindo(true); await excluirCategoria(categoriaExcluir.id); setCategoriaExcluir(null); await carregarCategorias() }
+    catch (e) { setErroExclusao(e.message || "Não foi possível excluir a categoria.") }
+    finally { setExcluindo(false) }
+  }
 
   return (
     <div>
@@ -117,6 +129,7 @@ export default function Categorias({ aoAbrirCategoria }) {
           tipos={tipos}
           aoCriar={carregarCategorias}
         />
+        {categoriaExcluir && <ModalExcluirCategoria categoria={categoriaExcluir} aoFechar={() => setCategoriaExcluir(null)} aoConfirmar={confirmarExclusao} salvando={excluindo} erro={erroExclusao} />}
       </div>
     </div>
   )

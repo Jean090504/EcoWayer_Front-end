@@ -5,6 +5,14 @@ const CATEGORIA_URL = `${BASE}/categoria`;
 const ENDERECO_URL = `${BASE}/endereco`;
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 const GEO_URL = "https://api.mapbox.com/search/geocode/v6";
+const OSM_GEOCODE_URL = "https://nominatim.openstreetmap.org/search";
+const OSM_OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+const OSM_OVERPASS_SERVERS = [
+  OSM_OVERPASS_URL,
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+];
+const osmCache = new Map();
 
 const cabecalhos = () => {
   const token = localStorage.getItem("token");
@@ -62,7 +70,6 @@ function adaptarPonto(p) {
     cep,
     cidade,
     status: String(p.status ?? "").trim().toLowerCase(), // ativo | inativo
-    capacidade: p.capacidade ?? p.capacidade_atual, // não aparece na tela
     categoria: p.categoria?.nome ?? p.categoria ?? p.nome_categoria ?? "",
     idCategoria: p.id_categoria ?? null,
     materiais: materiaisObj.map((m) => m.nome),
@@ -135,6 +142,52 @@ export async function listarPontos() {
   return (json.response?.ponto_coleta ?? []).map(adaptarPonto);
 }
 
+export async function buscarPontosOpenStreetMap(termo) {
+  const busca = String(termo ?? "").trim();
+  if (busca.length < 3) return [];
+  const cacheKey = busca.toLowerCase();
+  const cached = osmCache.get(cacheKey);
+  if (cached && Date.now() - cached.criadoEm < 10 * 60 * 1000) return cached.dados;
+  const geoRes = await fetch(`${OSM_GEOCODE_URL}?q=${encodeURIComponent(`${busca}, Brasil`)}&format=jsonv2&limit=1`);
+  if (!geoRes.ok) throw new Error("Não foi possível localizar a região pesquisada");
+  const regiao = (await geoRes.json())[0];
+  if (!regiao?.boundingbox) return [];
+  const [sul, norte, oeste, leste] = regiao.boundingbox.map(Number);
+  const query = `[out:json][timeout:25];(nwr["amenity"="recycling"](${sul},${oeste},${norte},${leste});nwr["amenity"="waste_disposal"](${sul},${oeste},${norte},${leste}););out center tags;`;
+  let osmJson = null;
+  for (const servidor of OSM_OVERPASS_SERVERS) {
+    try {
+      const osmRes = await fetch(`${servidor}?data=${encodeURIComponent(query)}`);
+      if (osmRes.ok) {
+        osmJson = await osmRes.json();
+        break;
+      }
+      if (![429, 503, 504].includes(osmRes.status)) break;
+    } catch {
+      // Tenta o próximo servidor público.
+    }
+  }
+  if (!osmJson) throw new Error("A fonte pública de pontos está temporariamente indisponível");
+  const dados = (osmJson.elements ?? []).map((item) => {
+    const tags = item.tags ?? {};
+    return {
+      id: `osm-${item.type}-${item.id}`,
+      nome: tags.name || "Ponto de reciclagem (OpenStreetMap)",
+      endereco: [tags["addr:street"], tags["addr:housenumber"], tags["addr:suburb"], tags["addr:city"]].filter(Boolean).join(", ") || busca,
+      cidade: tags["addr:city"] || busca,
+      cep: tags["addr:postcode"] || "",
+      status: "ativo",
+      materiais: [tags.recycling_type, tags.recycling_materials].filter(Boolean).join(", ").split(/[;,]/).map((x) => x.trim()).filter(Boolean),
+      lat: Number(item.lat ?? item.center?.lat),
+      lng: Number(item.lon ?? item.center?.lon),
+      externo: true,
+      origem: "OpenStreetMap",
+    };
+  }).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+  osmCache.set(cacheKey, { criadoEm: Date.now(), dados });
+  return dados;
+}
+
 // Lista todos os materiais disponíveis para escolher nos modais
 export async function listarMateriais() {
   const res = await fetch(MATERIAL_URL, { headers: cabecalhos() });
@@ -192,7 +245,6 @@ export async function atualizarPonto(ponto, { status, materiaisIds, coords }) {
     latitude: coords?.lat ?? ponto.lat,
     longitude: coords?.lng ?? ponto.lng,
     id_categoria,
-    ...(ponto.capacidade !== undefined && { capacidade: ponto.capacidade }),
     endereco: ponto.enderecoIds.map((id) => ({ id })),
     material_aceito: materiaisIds.map((id) => ({ id })),
   };

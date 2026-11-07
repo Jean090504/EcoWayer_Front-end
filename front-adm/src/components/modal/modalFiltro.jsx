@@ -2,8 +2,8 @@ export default function ModalFiltro({ modalAberto, onFechar, titulo, opcoes, sel
   return (
     <>
       {modalAberto && (
-        <div className = "fixed inset-0 bg-black/50 flex items-center justify-center" onClick = {onFechar}>
-          <div className = "bg-white p-6 rounded-xl w-[400px]" onClick = {(e) => e.stopPropagation()}>
+        <div className = "fixed inset-0 z-[90] bg-[#b8c5e3]/65 flex items-center justify-center p-4" onClick = {onFechar}>
+          <div role="dialog" aria-modal="true" aria-label={titulo} className = "bg-white p-6 rounded-xl w-full max-w-[400px] shadow-2xl" onClick = {(e) => e.stopPropagation()}>
             <h2 className = "text-xl font-bold mb-4">{titulo}</h2>
 
             <div className = "flex flex-col gap-2">

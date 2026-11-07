@@ -3,11 +3,13 @@ import { useState } from "react"
 import Login from "./pages/Login.jsx"
 import Home from "./pages/Home.jsx"
 import Chamados from "./pages/Chamados.jsx"
+import ChamadoIndividual from "./pages/ChamadoIndividual.jsx"
 import Coleta from "./pages/Coleta.jsx"
 import Categorias from "./pages/Categorias.jsx"
 import Pontos from "./pages/Pontos.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
 import CategoriaIndividual from "./pages/CategoriaIndividual.jsx"
+import AssistenteChat from "./components/AssistenteChat.jsx"
 
 import Sidebar from "./components/layout/sidebar.jsx"
 import CardSair from "./components/layout/cardSair.jsx"
@@ -17,6 +19,7 @@ export default function App() {
   const [ativa, setAtiva] = useState("home")
   const [mostrarCard, setMostrarCard] = useState(false)
   const [categoriaAberta, setCategoriaAberta] = useState(null) // id da categoria aberta
+  const [chamadoAberto, setChamadoAberto] = useState(null)
 
   if (!logado) {
     return <Login aoLogar = {() => setLogado(true)} />
@@ -28,7 +31,7 @@ export default function App() {
 
       <div className = "min-w-0 flex-1 overflow-x-hidden">
         {ativa === "home" && <Home />}
-        {ativa === "chamados" && <Chamados />}
+        {ativa === "chamados" && (chamadoAberto ? <ChamadoIndividual alerta={chamadoAberto} aoVoltar={() => setChamadoAberto(null)} /> : <Chamados aoAbrir={setChamadoAberto} />)}
         {ativa === "coleta" && <Coleta />}
         {ativa === "categorias" && (
           categoriaAberta
@@ -51,6 +54,7 @@ export default function App() {
           }}
         />
       )}
+      <AssistenteChat />
     </div>
   )
 }

@@ -6,7 +6,7 @@ import Paginacao from "../Paginacao/paginacao.jsx"
 
 const ITENS_POR_PAGINA = 6
 
-export default function TabelaItens({ itens = [], total = 0 }) {
+export default function TabelaItens({ itens = [], total = 0, imagemCategoria }) {
   const [paginaAtual, setPaginaAtual] = useState(1)
 
   const totalPaginas = Math.max(1, Math.ceil(itens.length / ITENS_POR_PAGINA))
@@ -42,6 +42,7 @@ export default function TabelaItens({ itens = [], total = 0 }) {
             nome={item.nome}
             pontos={item.pontos_base}
             status={item.status}
+            imagem={item.img && !item.img.includes("storage.ecowayer.test") ? item.img : imagemCategoria}
           />
         ))}
       </div>

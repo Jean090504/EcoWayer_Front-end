@@ -1,11 +1,10 @@
 import StatusBadge from "./StatusBadge.jsx";
 import TagMaterial from "./TagMaterial.jsx";
-import BarraCapacidade from "./BarraCapacidade.jsx";
 
 // Bolinha colorida ao lado do nome (verde = ativo, amarela = manutenção)
 const COR_BOLINHA = { ativo: "bg-green-500", manutencao: "bg-yellow-400", cheio: "bg-red-500" };
 
-export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar }) {
+export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, onCadastrar }) {
   return (
     // Card clicável do ponto; ganha borda verde quando está selecionado no mapa
     <div
@@ -38,9 +37,16 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar })
       </div>
 
       {/* Rodapé: barra de capacidade + botão Gerenciar */}
-      <div className="mt-3 flex items-end gap-3 border-t border-gray-100 pt-2">
-        <BarraCapacidade valor={ponto.capacidade} />
-        <button
+      <div className="mt-3 flex justify-end border-t border-gray-100 pt-2">
+        {ponto.externo ? <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onCadastrar?.(ponto);
+          }}
+          className="rounded-md bg-green-500 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-green-600"
+        >
+          Cadastrar
+        </button> : <button
           onClick={(e) => {
             e.stopPropagation(); // evita selecionar o card ao clicar no botão
             onGerenciar(ponto.id);
@@ -48,7 +54,7 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar })
           className="rounded-md bg-[#7350B9] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-purple-700"
         >
           Gerenciar
-        </button>
+        </button>}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { criarItem } from "../../services/categoriaService.js"
+import { uploadImagem } from "../../services/claudnaryService.js"
 
 export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
   const [nome, setNome] = useState("")
@@ -7,6 +8,11 @@ export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
   const [descricao, setDescricao] = useState("")
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState("")
+  const [arquivo, setArquivo] = useState(null)
+
+  function fechar() {
+    setNome(""); setPontos(""); setDescricao(""); setArquivo(null); setErro(""); aoFechar()
+  }
 
   async function salvar() {
     const pontosNum = Number(pontos)
@@ -18,12 +24,14 @@ export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
     try {
       setSalvando(true)
       setErro("")
+      const img = arquivo ? await uploadImagem(arquivo) : null
       await criarItem({
         nome: nome.trim(),
         descricao: descricao.trim() || null,
         pontos_base: pontosNum,
         status: "ativo",
         id_categoria: Number(categoriaId),
+        img,
       })
       await aoSalvar() // recarrega a categoria e fecha o modal
     } catch (e) {
@@ -54,7 +62,10 @@ export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
         </div>
 
         <div className="flex flex-row gap-4">
-          <div className="w-[80px] h-[80px] rounded-[8px] bg-[#D9D9D9] shrink-0" />
+          <label className="w-[80px] h-[80px] rounded-[8px] bg-[#D9D9D9] shrink-0 overflow-hidden flex items-center justify-center cursor-pointer">
+            {arquivo ? <img src={URL.createObjectURL(arquivo)} alt="Prévia" className="h-full w-full object-contain" /> : <span className="text-center text-xs text-slate-500">Adicionar imagem</span>}
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => setArquivo(e.target.files?.[0] || null)} />
+          </label>
           <div className="flex-1">
             <label className="text-[13px] font-bold">Nome do Item</label>
             <input
@@ -98,7 +109,7 @@ export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
 
         <div className="flex flex-row justify-end gap-3">
           <button
-            onClick={aoFechar}
+            onClick={fechar}
             disabled={salvando}
             className="bg-[#E43E42] text-white rounded-[8px] text-[12px] w-[100px] h-[32px] cursor-pointer"
           >

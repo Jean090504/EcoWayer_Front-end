@@ -32,7 +32,7 @@ function Campo({ rotulo, className = "", children }) {
   );
 }
 
-export default function ModalNovoPonto({ onClose, onSaved }) {
+export default function ModalNovoPonto({ onClose, onSaved, pontoInicial = null }) {
   const [dados, setDados] = useState({ nome: "", descricao: "", status: "ativo", id_categoria: "" });
   const [end, setEnd] = useState({
     rua: "", numero: "", complemento: "", bairro: "", cep: "", cidade: "", estado: "", sigla: "",
@@ -57,6 +57,14 @@ export default function ModalNovoPonto({ onClose, onSaved }) {
       .catch((e) => setErro(e.message));
     return () => clearTimeout(timerRef.current);
   }, []);
+
+  useEffect(() => {
+    if (!pontoInicial) return;
+    setDados((d) => ({ ...d, nome: pontoInicial.nome || d.nome }));
+    setEnd((e) => ({ ...e, rua: pontoInicial.endereco || e.rua, cidade: pontoInicial.cidade || e.cidade }));
+    setCoords({ lat: String(pontoInicial.lat ?? ""), lng: String(pontoInicial.lng ?? "") });
+    setAviso("Ponto externo carregado. Confira o endereço, categoria e materiais antes de cadastrar.");
+  }, [pontoInicial]);
 
   // ESC fecha, mas não enquanto salva
   useEffect(() => {

@@ -3,7 +3,7 @@ import barra from "../../assets/icons/imagens/barra-input.png"
 
 export default function InputBusca({ placeholder, aoFiltrar, value, onChange }) {
   return (
-    <div className = "relative min-w-[500px] w-[20vw]">
+    <div className = "relative w-full max-w-[500px]">
       <Search
         size = {17}
         className = "absolute left-4 top-1/2 -translate-y-1/2 shrink-0 text-gray-400"

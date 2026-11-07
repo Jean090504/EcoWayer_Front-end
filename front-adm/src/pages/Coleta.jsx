@@ -5,7 +5,7 @@ import ListaPontos from "../components/coleta/ListaPontos.jsx";
 import MapaPontos from "../components/coleta/MapaPontos.jsx";
 import ModalPonto from "../components/coleta/ModalPonto.jsx";
 import ModalNovoPonto from "../components/coleta/ModalNovoPonto.jsx";
-import { listarPontos } from "../services/pontoColetaService.js";
+import { listarPontos, buscarPontosOpenStreetMap } from "../services/pontoColetaService.js";
 
 // Remove acentos e deixa minúsculo para a busca não depender disso
 const normalizar = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -16,6 +16,10 @@ export default function Coleta() {
   const [erro, setErro] = useState(null);
   const [termo, setTermo] = useState("");
   const [selecionadoId, setSelecionadoId] = useState(null);
+  const [pontosExternos, setPontosExternos] = useState([]);
+  const [buscandoExternos, setBuscandoExternos] = useState(false);
+  const [erroExterno, setErroExterno] = useState(null);
+  const [pontoParaCadastrar, setPontoParaCadastrar] = useState(null);
 
   // Modal de edição (id do ponto) e modal de cadastro (aberto/fechado)
   const [modalId, setModalId] = useState(null);
@@ -41,6 +45,28 @@ export default function Coleta() {
     carregar();
   }, [carregar]);
 
+  useEffect(() => {
+    const busca = termo.trim();
+    if (busca.length < 3) {
+      setPontosExternos([]);
+      setErroExterno(null);
+      return undefined;
+    }
+    const timer = setTimeout(async () => {
+      setBuscandoExternos(true);
+      try {
+        setPontosExternos(await buscarPontosOpenStreetMap(busca));
+        setErroExterno(null);
+      } catch {
+        setPontosExternos([]);
+        setErroExterno("Não foi possível consultar os pontos públicos agora.");
+      } finally {
+        setBuscandoExternos(false);
+      }
+    }, 700);
+    return () => clearTimeout(timer);
+  }, [termo]);
+
   // Atualiza os cards depois de excluir: tira o ponto da tela na hora e confirma com o servidor
   const aoExcluir = useCallback(
     async (idExcluido) => {
@@ -55,10 +81,11 @@ export default function Coleta() {
   const pontosFiltrados = useMemo(() => {
     const t = normalizar(termo.trim());
     if (!t) return pontos;
-    return pontos.filter((p) =>
+    const locais = pontos.filter((p) =>
       normalizar([p.nome, p.endereco, p.cep, p.cidade, ...p.materiais].join(" ")).includes(t)
     );
-  }, [termo, pontos]);
+    return locais.length ? locais : pontosExternos;
+  }, [termo, pontos, pontosExternos]);
 
   return (
     <div className="min-h-screen w-[80%] pr-6">
@@ -84,6 +111,8 @@ export default function Coleta() {
 
       {carregando && <p className="mt-5 pl-[34px] text-sm text-gray-500">Carregando pontos...</p>}
       {erro && <p className="mt-5 pl-[34px] text-sm text-red-500">Não foi possível carregar os pontos: {erro}</p>}
+      {buscandoExternos && <p className="mt-3 pl-[34px] text-xs text-gray-500">Consultando pontos públicos próximos...</p>}
+      {erroExterno && <p className="mt-3 pl-[34px] text-xs text-orange-600">{erroExterno}</p>}
 
       <div className="mt-5 flex gap-5 pl-[34px]">
         <ListaPontos
@@ -91,6 +120,7 @@ export default function Coleta() {
           selecionadoId={selecionadoId}
           onSelect={setSelecionadoId}
           onGerenciar={setModalId}
+          onCadastrar={setPontoParaCadastrar}
         />
         <MapaPontos pontos={pontosFiltrados} selecionadoId={selecionadoId} onSelect={setSelecionadoId} />
       </div>
@@ -104,12 +134,15 @@ export default function Coleta() {
         />
       )}
 
-      {novoAberto && (
+      {(novoAberto || pontoParaCadastrar) && (
         <ModalNovoPonto
-          onClose={() => setNovoAberto(false)}
+          onClose={() => { setNovoAberto(false); setPontoParaCadastrar(null); }}
+          pontoInicial={pontoParaCadastrar}
           onSaved={async (idNovo) => {
             await carregar();
             if (idNovo) setSelecionadoId(idNovo);
+            setPontoParaCadastrar(null);
+            setNovoAberto(false);
           }}
         />
       )}

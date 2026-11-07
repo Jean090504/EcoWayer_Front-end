@@ -169,7 +169,7 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
         <Cabecalho largura="w-[clamp(150px,20vw,250px)]" alinhamento="text-center" texto="Condições" textoCor="text-[#FFFFFF]" />
         <Cabecalho largura="w-[clamp(80px,8vw,100px)]" alinhamento="text-right pr-8.5" texto="Ações" textoCor="text-[#FFFFFF]" />
       </div>
-      
+
 
       {/* Linhas da tabela populadas via Back-end */}
       <div className="flex flex-col w-full px-2 min-h-[220px]">
@@ -195,20 +195,24 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-3 border-b border-[#F3F4F6] px-4 py-3 text-xs text-slate-500">
-        <span className="font-bold uppercase">Legenda:</span>
-        <span className="rounded bg-green-100 px-2 py-1 text-green-700">Excelente</span>
-        <span className="rounded bg-purple-100 px-2 py-1 text-purple-700">Bom</span>
-        <span className="rounded bg-orange-100 px-2 py-1 text-orange-700">Regular</span>
-      </div>
-
       {/* Rodapé com controle de paginação */}
-      <div className="flex flex-row items-center justify-end gap-2 px-6 pt-4 mt-auto border-t border-[#F3F4F6]">
+      <div className="flex flex-row items-center justify-between px-6 pt-4 mt-auto border-t border-[#F3F4F6]">
+
+        {/* Legenda na esquerda */}
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span className="font-bold uppercase mr-1">Legenda:</span>
+          <span className="rounded bg-orange-100 px-2 py-1 text-orange-700">Regular</span>
+          <span className="rounded bg-purple-100 px-2 py-1 text-purple-700">Bom</span>
+          <span className="rounded bg-green-100 px-2 py-1 text-green-700">Excelente</span>
+        </div>
+
+        {/* Paginação na direita */}
         <Paginacao
           paginaAtual={paginaAtual}
           totalPaginas={totalPaginas}
           onMudarPagina={setPaginaAtual}
         />
+
       </div>
     </div>
   )

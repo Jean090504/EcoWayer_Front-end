@@ -11,6 +11,7 @@ import Home from "./pages/telaHome.jsx";
 import Login from "./pages/login.jsx";
 import CriarConta from "./pages/criarConta.jsx";
 import VerificacaoNumero from "./pages/verificarNumero.jsx";
+import AssistenteChat from "./components/AssistenteChat.jsx";
 
 // ---------------------------------------------------------------
 // 1. O App guarda quem está logado (usuario) e quais cards estão abertos.
@@ -180,6 +181,7 @@ export default function App() {
 
             {/* Footer: sempre aqui também */}
             <Footer />
+            <AssistenteChat />
 
             {/* Card de login */}
             {abrirLogin && (

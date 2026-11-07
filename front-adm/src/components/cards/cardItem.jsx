@@ -9,7 +9,7 @@ const CORES = {
   "em revisão": "bg-[#F5A623]",
 }
 
-export default function CardItem({ nome, pontos, status }) {
+export default function CardItem({ nome, pontos, status, imagem }) {
   const chave = (status ?? "").toLowerCase()
 
   return (
@@ -17,7 +17,7 @@ export default function CardItem({ nome, pontos, status }) {
 
       {/* Coluna 1: ícone + nome */}
       <div className="w-[35%] flex flex-row items-center gap-3 px-4">
-        <div className="w-[36px] h-[36px] rounded-lg bg-[#7350B9] shrink-0" />
+        {imagem ? <img src={imagem} alt="" onError={(e) => { e.currentTarget.style.display = "none" }} className="h-[36px] w-[36px] rounded-lg object-contain" /> : <div className="w-[36px] h-[36px] rounded-lg bg-[#7350B9] shrink-0" />}
         <span className="font-bold text-[#202735]">{nome}</span>
       </div>
 
