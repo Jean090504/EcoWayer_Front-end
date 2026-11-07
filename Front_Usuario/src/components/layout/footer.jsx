@@ -1,10 +1,12 @@
-
 export default function Footer() {
     return (
         <footer className="flex items-center w-full bg-white text-gray-600">
 
             {/* Parte superior do footer */}
-            <div className="max-w-[1280px] mx-auto px-6 pt-14 pb-8">
+            <div 
+                className="mx-auto px-6 pt-14 pb-8"
+                style={{ width: "clamp(1280px, 87.5vw, 1680px)" }}
+            >
 
                 {/* Colunas de informações */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

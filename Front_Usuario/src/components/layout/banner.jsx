@@ -1,6 +1,6 @@
 import { useState } from "react";
-import fundo1 from "../../assets/icons/img/banner.png";
-import fundo2 from "../../assets/icons/img/banner02.png";
+import fundo1 from "../../assets/icons/img/banner1.png";
+import fundo2 from "../../assets/icons/img/banner2.png";
 import fundo3 from "../../assets/icons/img/banner3.png";
 
 export default function Banner() {
@@ -39,7 +39,7 @@ export default function Banner() {
             <div className="relative w-full">
 
                 {/* Área do banner (imagem + botões) */}
-                <div className="relative h-[210px] overflow-hidden rounded-2xl bg-gray-100">
+                <div className = "relative w-full h-[clamp(160px,20vw,210px)] overflow-hidden rounded-2xl bg-gray-100">
 
                     {/* Imagem de fundo */}
                     <img
