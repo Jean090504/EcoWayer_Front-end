@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 // Layout fixo que aparece em todas as telas
-import Header from "./components/layout/cima.jsx";
-import Footer from "./components/layout/baixo.jsx";
+import Header from "./components/layout/header.jsx";
+import Footer from "./components/layout/footer.jsx"; 
 
 // Telas que mudam dentro do <main>
 import Home from "./pages/telaHome.jsx";
