@@ -1,4 +1,6 @@
+import { Award, Recycle, ShieldCheck } from "lucide-react"
 import CardAvaliacao from "../components/cards/cardAvaliacao"
+import CardBeneficio from "../components/cards/cardBeneficio"
 
 export default function AvaliacaoAnuncio({ aoVoltar }) {
   const dadosTeste = {
@@ -11,6 +13,30 @@ export default function AvaliacaoAnuncio({ aoVoltar }) {
     ecoPontos: 40,
     localEntrega: "EcoPonto Pinheiros",
   }
+
+  const beneficios = [
+    {
+      id: 1,
+      icone: Award,
+      titulo:
+        dadosTeste.ecoPontos > 0
+          ? `+${dadosTeste.ecoPontos} EcoPontos Liberados`
+          : "Nenhum EcoPonto nesta negociação",
+      descricao: "Crédito direto na sua carteira",
+    },
+    {
+      id: 2,
+      icone: Recycle,
+      titulo: "Economia Circular Ativa",
+      descricao: "Mais um ciclo de vida estendido",
+    },
+    {
+      id: 3,
+      icone: ShieldCheck,
+      titulo: "Garantia EcoWayer",
+      descricao: "Transação 100% assegurada",
+    },
+  ]
 
   return (
     <main className="flex flex-1 w-full flex-col items-center bg-[#FAF8FF]">
@@ -25,8 +51,8 @@ export default function AvaliacaoAnuncio({ aoVoltar }) {
 
           <span className="inline-flex items-center gap-2 bg-white rounded-full px-3 py-1 text-[11px] text-[#3E4A3D]">
             <span className="w-2 h-2 rounded-full bg-[#4CAF50]" />
-            Protocolo #{dadosTeste.protocolo} 
-          </span> 
+            Protocolo #{dadosTeste.protocolo}
+          </span>
         </div>
 
         <CardAvaliacao
@@ -34,6 +60,17 @@ export default function AvaliacaoAnuncio({ aoVoltar }) {
           onEnviar={(avaliacao) => console.log(avaliacao)}
           onAdiar={() => console.log("avaliar depois")}
         />
+
+        <div className="flex flex-row gap-4 mt-6 mb-10">
+          {beneficios.map((b) => (
+            <CardBeneficio
+              key={b.id}
+              icone={b.icone}
+              titulo={b.titulo}
+              descricao={b.descricao}
+            />
+          ))}
+        </div>
       </div>
     </main>
   )
