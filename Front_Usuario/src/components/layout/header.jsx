@@ -1,80 +1,75 @@
 import { useEffect, useState } from "react";
+import { Search, MapPin, Mail, Wallet, MessageSquare } from "lucide-react";
 
-import logo from "../../assets/icons/logo/Ecomarket.png";
-import lupa from "../../assets/icons/icones/lupa.png";
-import filtro from "../../assets/icons/icones/filtro.png";
-import carta from "../../assets/icons/icones/carta.png";
-import carteira from "../../assets/icons/icones/carteira.png";
-import chat from "../../assets/icons/icones/menssagem.png";
+import ItemNavegacao from "../ui/itemNavegacao.jsx"
+import BotaoHeader from "../ui/botao.jsx"
+
 import perfil from "../../assets/icons/icones/foto.png";
 
+// ---------------------------------------------------------------------------
+// Constantes
+// ---------------------------------------------------------------------------
+const IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades";
 
-// verifica se o usuario é = null -> mostra "Criar Conta" e "Logar"
-// - usuario != null -> mostra foto + nome + botão de "Anunciar"
+// Tamanhos responsivos (base: 1366px). Precisam estar escritos por inteiro
+// para o Tailwind enxergar as classes.
+const TEXTO_XS = "text-[length:clamp(12px,0.88vw,15px)]";
+const TEXTO_SM = "text-[length:clamp(14px,1.025vw,18px)]";
+const ICONE_NAV = "h-[clamp(20px,1.46vw,28px)] w-[clamp(20px,1.46vw,28px)]";
 
-export default function Header({
-    onAbrirCriarConta,
-    onAbrirLogin,
-    usuario
-}) {
+// Espaçamentos que crescem só acima de 1366px (20px em 1366, ~45px em 1920).
+const GAP_GRUPOS = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.045),52px)]";
+const GAP_NAV = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.05),60px)]";
+const GAP_ITEM = "gap-[clamp(12px,calc(12px_+_(100vw_-_1366px)*0.02),24px)]";
 
-    // Abre/fecha o menu de localização
+export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
+    // -----------------------------------------------------------------------
+    // Estados: interface
+    // -----------------------------------------------------------------------
     const [mostrarFiltro, setMostrarFiltro] = useState(false);
 
-    // Estados que vêm da API do IBGE
+    // -----------------------------------------------------------------------
+    // Estados: estados (UF)
+    // -----------------------------------------------------------------------
     const [estados, setEstados] = useState([]);
-
-    // Código IBGE do estado selecionado
     const [ufSelecionada, setUfSelecionada] = useState("");
-
-    // Municípios que vêm da API
-    const [cidades, setCidades] = useState([]);
-
-    // Código IBGE do município selecionado
-    const [cidadeSelecionada, setCidadeSelecionada] = useState("");
-
-    // Carregamento dos estados e das cidades
     const [carregandoEstados, setCarregandoEstados] = useState(false);
-    const [carregandoCidades, setCarregandoCidades] = useState(false);
-
-    // Erros nas consultas
     const [erroEstados, setErroEstados] = useState(false);
+
+    // -----------------------------------------------------------------------
+    // Estados: cidades
+    // -----------------------------------------------------------------------
+    const [cidades, setCidades] = useState([]);
+    const [cidadeSelecionada, setCidadeSelecionada] = useState("");
+    const [carregandoCidades, setCarregandoCidades] = useState(false);
     const [erroCidades, setErroCidades] = useState(false);
 
-
-    // Busca todos os estados na API do IBGE (só uma vez quando abre a página)
+    // -----------------------------------------------------------------------
+    // Efeitos
+    // -----------------------------------------------------------------------
     useEffect(() => {
-
         const controller = new AbortController();
 
         async function buscarEstados() {
-
             setCarregandoEstados(true);
             setErroEstados(false);
 
             try {
-                const resposta = await fetch(
-                    "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome",
-                    { signal: controller.signal }
-                );
+                const resposta = await fetch(`${IBGE_API}/estados?orderBy=nome`, {
+                    signal: controller.signal,
+                });
 
                 if (!resposta.ok) {
                     throw new Error("Não foi possível carregar os estados.");
                 }
 
-                const dados = await resposta.json();
-
-                setEstados(dados);
-
+                setEstados(await resposta.json());
             } catch (erro) {
-
                 if (erro.name !== "AbortError") {
                     console.error("Erro ao buscar estados:", erro);
                     setErroEstados(true);
                 }
-
             } finally {
-
                 if (!controller.signal.aborted) {
                     setCarregandoEstados(false);
                 }
@@ -82,15 +77,10 @@ export default function Header({
         }
 
         buscarEstados();
-
         return () => controller.abort();
-
     }, []);
 
-
-    // Busca as cidades sempre que escolho um uf
     useEffect(() => {
-
         if (!ufSelecionada) {
             setCidades([]);
             setCidadeSelecionada("");
@@ -101,15 +91,13 @@ export default function Header({
         const controller = new AbortController();
 
         async function buscarCidades() {
-
             setCarregandoCidades(true);
             setErroCidades(false);
             setCidades([]);
 
             try {
-
                 const resposta = await fetch(
-                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufSelecionada}/municipios?orderBy=nome`,
+                    `${IBGE_API}/estados/${ufSelecionada}/municipios?orderBy=nome`,
                     { signal: controller.signal }
                 );
 
@@ -117,19 +105,13 @@ export default function Header({
                     throw new Error("Não foi possível carregar as cidades.");
                 }
 
-                const dados = await resposta.json();
-
-                setCidades(dados);
-
+                setCidades(await resposta.json());
             } catch (erro) {
-
                 if (erro.name !== "AbortError") {
                     console.error("Erro ao buscar cidades:", erro);
                     setErroCidades(true);
                 }
-
             } finally {
-
                 if (!controller.signal.aborted) {
                     setCarregandoCidades(false);
                 }
@@ -137,54 +119,49 @@ export default function Header({
         }
 
         buscarCidades();
-
         return () => controller.abort();
-
     }, [ufSelecionada]);
 
+    // -----------------------------------------------------------------------
+    // Funções
+    // -----------------------------------------------------------------------
+    function selecionarEstado(e) {
+        setUfSelecionada(e.target.value);
+        setCidadeSelecionada("");
+    }
 
-    // Limpa a localização selecionada.
     function limparLocalizacao() {
         setUfSelecionada("");
         setCidadeSelecionada("");
         setCidades([]);
     }
 
-
+    // -----------------------------------------------------------------------
+    // Render
+    // -----------------------------------------------------------------------
     return (
-        <header className="mt-3 h-[72px] w-full border-b border-gray-100 bg-white">
-
+        <header className="mt-3 h-[clamp(72px,5.27vw,104px)] w-full border-b border-gray-100 bg-white">
             {/* Contêiner dos elementos */}
-            <div className="mx-auto flex h-full w-full max-w-[1360px] items-center justify-between gap-5 px-6">
+            <div className={`mx-auto flex h-full w-full max-w-[clamp(1360px,99.5vw,1800px)] items-center justify-between ${GAP_GRUPOS} px-[clamp(24px,1.76vw,40px)]`}>
 
                 {/* Logo */}
                 <div className="flex shrink-0 items-center">
-                    <img
-                        src={logo}
-                        alt="EcoMarket"
-                        className="h-5 w-auto object-contain"
-                    />
+                    <p className="font-bold text-[clamp(25px,2vw,32px)] text-[#4CAF50]">Eco<span className="text-[#724BC2]">market</span></p>
                 </div>
 
-
                 {/* Campo de pesquisa */}
-                <div className="relative flex h-11 min-w-[220px] max-w-[560px] flex-1 items-center rounded-xl border border-gray-200 bg-white px-3 shadow-sm">
-
+                <div className="relative flex h-[clamp(44px,3.22vw,60px)] min-w-[220px] max-w-[clamp(560px,41vw,820px)] flex-1 items-center rounded-xl border border-gray-200 bg-white px-[clamp(12px,0.88vw,18px)] shadow-sm">
                     <input
                         type="text"
                         placeholder="Buscar ponto de coleta, bairro..."
-                        className="min-w-0 flex-1 text-sm text-gray-700 outline-none placeholder:text-gray-400"
+                        className={`min-w-0 flex-1 ${TEXTO_SM} text-gray-700 outline-none placeholder:text-gray-400`}
+                    />
+                    <Search
+                    size = {25}
+                    className = "ml-3 h-[clamp(16px,1.17vw,24px)] w-[clamp(16px,1.17vw,24px)] shrink-0 text-[#8C8C8C]"
                     />
 
-                    <img
-                        src={lupa}
-                        alt="Pesquisar"
-                        className="ml-3 h-4 w-4 shrink-0 object-contain"
-                    />
-
-
-                    <div className="ml-3 flex h-7 shrink-0 items-center border-l border-gray-200 pl-2">
-
+                    <div className="ml-3 flex h-[clamp(28px,2.05vw,38px)] shrink-0 items-center border-l border-gray-200 pl-2">
                         {/* Botão do filtro */}
                         <button
                             type="button"
@@ -193,54 +170,36 @@ export default function Header({
                             onClick={() => setMostrarFiltro(!mostrarFiltro)}
                             className="flex items-center justify-center rounded-md p-1 transition hover:bg-gray-100"
                         >
-                            <img
-                                src={filtro}
-                                alt=""
-                                className="h-4 w-4 object-contain"
-                            />
+                            <MapPin className={`${ICONE_NAV} object-contain text-[#8C8C8C]`} />
                         </button>
-
                     </div>
-
 
                     {/* Menu suspenso de localização */}
                     {mostrarFiltro && (
-
-                        <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
-
+                        <div className="absolute right-0 top-full z-50 mt-2 w-[clamp(256px,18.7vw,360px)] rounded-xl border border-gray-200 bg-white p-[clamp(16px,1.17vw,24px)] shadow-lg">
                             <div className="mb-3 flex items-center justify-between">
-
-                                <h3 className="text-sm font-semibold text-gray-800">
+                                <h3 className={`${TEXTO_SM} font-semibold text-gray-800`}>
                                     Filtrar localização
                                 </h3>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setMostrarFiltro(false)}
-                                    className="text-lg text-gray-400 transition hover:text-gray-700"
-                                    aria-label="Fechar filtro"
+                                <BotaoHeader
+                                    onClick = {() => setMostrarFiltro(false)}
+                                    className = "text-[length:clamp(18px,1.32vw,24px)] text-gray-400 transition hover:text-gray-700"
+                                    aria-label = "Fechar filtro"
                                 >
-                                    ×
-                                </button>
-
+                                ×
+                                </BotaoHeader>
                             </div>
 
-
-                            {/* Estado */}
-                            <label className="mb-1 block text-xs font-semibold text-gray-600">
+                            {/* Seleção do estado */}
+                            <label className={`mb-1 block ${TEXTO_XS} font-semibold text-gray-600`}>
                                 Estado (UF)
                             </label>
-
                             <select
                                 value={ufSelecionada}
-                                onChange={(e) => {
-                                    setUfSelecionada(e.target.value);
-                                    setCidadeSelecionada("");
-                                }}
+                                onChange={selecionarEstado}
                                 disabled={carregandoEstados || erroEstados}
-                                className="mb-4 h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-[#4CAF50] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
+                                className={`mb-4 h-[clamp(40px,2.93vw,54px)] w-full rounded-lg border border-gray-200 bg-white px-3 ${TEXTO_SM} text-gray-700 outline-none focus:border-[#4CAF50] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
                             >
-
                                 <option value="">
                                     {carregandoEstados
                                         ? "Carregando estados..."
@@ -248,33 +207,23 @@ export default function Header({
                                             ? "Erro ao carregar estados"
                                             : "Selecione um estado"}
                                 </option>
-
                                 {estados.map((estado) => (
-
-                                    <option
-                                        key={estado.id}
-                                        value={estado.id}
-                                    >
+                                    <option key={estado.id} value={estado.id}>
                                         {estado.nome} ({estado.sigla})
                                     </option>
-
                                 ))}
-
                             </select>
 
-
-                            {/* Cidade */}
-                            <label className="mb-1 block text-xs font-semibold text-gray-600">
+                            {/* Seleção da cidade */}
+                            <label className={`mb-1 block ${TEXTO_XS} font-semibold text-gray-600`}>
                                 Cidade
                             </label>
-
                             <select
                                 value={cidadeSelecionada}
                                 onChange={(e) => setCidadeSelecionada(e.target.value)}
                                 disabled={!ufSelecionada || carregandoCidades || erroCidades || cidades.length === 0}
-                                className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-[#4CAF50] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
+                                className={`h-[clamp(40px,2.93vw,54px)] w-full rounded-lg border border-gray-200 bg-white px-3 ${TEXTO_SM} text-gray-700 outline-none focus:border-[#4CAF50] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
                             >
-
                                 <option value="">
                                     {!ufSelecionada
                                         ? "Selecione primeiro o estado"
@@ -286,161 +235,75 @@ export default function Header({
                                                     ? "Nenhuma cidade disponível"
                                                     : "Selecione uma cidade"}
                                 </option>
-
                                 {cidades.map((cidade) => (
-
-                                    <option
-                                        key={cidade.id}
-                                        value={cidade.id}
-                                    >
+                                    <option key={cidade.id} value={cidade.id}>
                                         {cidade.nome}
                                     </option>
-
                                 ))}
-
                             </select>
-
 
                             {/* Limpar filtros */}
                             <button
                                 type="button"
                                 onClick={limparLocalizacao}
-                                className="mt-4 w-full rounded-lg py-2 text-xs font-semibold text-[#4CAF50] transition hover:bg-green-50"
+                                className={`mt-4 w-full rounded-lg py-2 ${TEXTO_XS} font-semibold text-[#4CAF50] transition hover:bg-green-50`}
                             >
                                 Limpar localização
                             </button>
-
                         </div>
-
                     )}
-
                 </div>
 
-
                 {/* Navegação */}
-                <nav className="flex shrink-0 items-center gap-5">
-
-                    {/* Meus anúncios */}
-                    <button
-                        type="button"
-                        className="flex items-center gap-1.5 whitespace-nowrap"
-                    >
-                        <img
-                            src={carta}
-                            alt=""
-                            className="h-7 w-6 object-contain"
-                        />
-
-                        <span className="text-sm font-medium text-gray-600">
-                            Meus anúncios
-                        </span>
-                    </button>
-
-
-                    {/* Carteira */}
-                    <button
-                        type="button"
-                        className="flex items-center gap-1.5 whitespace-nowrap"
-                    >
-                        <img
-                            src={carteira}
-                            alt=""
-                            className="h-5 w-5 object-contain"
-                        />
-
-                        <span className="text-sm font-medium text-gray-600">
-                            Carteira
-                        </span>
-                    </button>
-
-
-                    {/* Chat */}
-                    <button
-                        type="button"
-                        className="flex items-center gap-1.5 whitespace-nowrap"
-                    >
-                        <img
-                            src={chat}
-                            alt=""
-                            className="h-6 w-6 object-contain"
-                        />
-
-                        <span className="text-sm font-medium text-gray-600">
-                            Chat
-                        </span>
-                    </button>
-
+                <nav className={`flex shrink-0 items-center ${GAP_NAV}`}>
+                    <ItemNavegacao Icone = {Mail} texto = "Meus anúncios" />
+                    <ItemNavegacao Icone = {Wallet} texto = "Carteira" />
+                    <ItemNavegacao Icone = {MessageSquare} texto = "Chat" />
                 </nav>
 
-
-                {/* Logado ou deslogado: quem decide é o "usuario" que vem do App */}
+                {/* Renderização condicional: usuário logado ou deslogado */}
                 {usuario ? (
-
-                    <div className="flex shrink-0 items-center gap-3">
-
-                        {/* Foto e nome do usuário */}
-                        <div className="flex shrink-0 items-center gap-2">
-
-                            {/* Foto da conta (Google ou padrão)
-                                referrerPolicy: sem isso a foto do Google às vezes não carrega.
-                                onError: se a foto falhar, volta pra foto padrão */}
+                    <div className={`flex shrink-0 items-center ${GAP_ITEM}`}>
+                        {/* Perfil do usuário */}
+                        <div className={`flex shrink-0 items-center ${GAP_ITEM}`}>
                             <img
                                 src={usuario.foto || perfil}
                                 alt="Foto de perfil"
-                                referrerPolicy="no-referrer"
-                                onError={(e) => {
-                                    e.currentTarget.onerror = null;
-                                    e.currentTarget.src = perfil;
-                                }}
-                                className="h-10 w-10 rounded-full object-cover"
+                                className="h-[clamp(40px,2.93vw,56px)] w-[clamp(40px,2.93vw,56px)] rounded-full object-cover"
                             />
-
-                            <span className="whitespace-nowrap text-sm font-semibold text-black">
+                            <span className={`whitespace-nowrap ${TEXTO_SM} font-semibold text-black`}>
                                 {usuario.nome}
                             </span>
-
                         </div>
 
-
                         {/* Botão anunciar */}
-                        <button
-                            type="button"
-                            className="flex h-10 shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-10 text-sm font-semibold text-white transition hover:bg-purple-700"
+                        <BotaoHeader
+                            className = {`flex h-[clamp(40px,2.93vw,56px)] shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-[clamp(40px,2.93vw,56px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
                         >
                             Anunciar
-                        </button>
-
+                        </BotaoHeader>
                     </div>
-
                 ) : (
-
                     <div className="flex shrink-0 items-center gap-3">
-
                         {/* Botão criar conta */}
-                        <button
-                            type="button"
-                            onClick={onAbrirCriarConta}
-                            className="flex h-9 items-center justify-center rounded-full border border-gray-300 bg-white px-6 text-sm font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600"
-                        >
-                            Criar Conta
-                        </button>
+                        <div className="flex shrink-0 items-center gap-3">
+                            <BotaoHeader
+                                onClick={onAbrirCriarConta}
+                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full border border-gray-300 bg-white px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600`}
+                            >
+                                Criar Conta
+                            </BotaoHeader>
 
-
-                        {/* Botão login */}
-                        <button
-                            type="button"
-                            onClick={onAbrirLogin}
-                            className="flex h-9 items-center justify-center rounded-full bg-[#724BC2] px-6 text-sm font-semibold text-white transition hover:bg-purple-700"
-                        >
-                            Logar
-                        </button>
-
+                            <BotaoHeader
+                                onClick={onAbrirLogin}
+                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full bg-[#724BC2] px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
+                            >
+                                Logar
+                            </BotaoHeader>
+                        </div>
                     </div>
-
                 )}
-
             </div>
-
         </header>
     );
 }
