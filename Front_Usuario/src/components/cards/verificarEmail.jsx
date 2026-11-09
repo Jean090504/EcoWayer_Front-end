@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import iconeEmail from "../assets/icons/icones/emailVerificado.png";
-import folha from "../assets/icons/icones/folha.png";
+import iconeEmail from "../../assets/icons/icones/emailVerificado.png";
+import folha from "../../assets/icons/icones/folha.png";
 
 // Quantos dígitos tem o código
 const TAMANHO_CODIGO = 6;
