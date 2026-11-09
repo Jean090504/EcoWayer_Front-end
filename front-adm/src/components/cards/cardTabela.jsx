@@ -2,16 +2,16 @@ import TextoTabela from "../ui/textoTabela.jsx"
 
 export default function CardTabela({ corBolinha, categoria, pontosBase, condExcelente, condBom, condRegular, ativo, onToggle, onEdit }) {
   return (
-    <div className="w-full flex flex-row items-center justify-between py-4 px-4 border-b border-[#F3F4F6]">
+      <div className="group flex w-full flex-row items-center justify-between border-b border-slate-100 px-4 py-4 transition hover:bg-green-50/50">
 
-      <div className="flex flex-row items-center gap-2 w-[clamp(100px,12vw,150px)]">
-        <div className={`w-[10px] h-[10px] rounded-full shrink-0 ${corBolinha}`}></div>
-        <span className="text-[clamp(12px,0.8vw,16px)] font-medium text-[#202735]">{categoria}</span>
+      <div className="flex w-[clamp(100px,12vw,150px)] flex-row items-center gap-2">
+        <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${corBolinha || "bg-slate-300"}`}></div>
+        <span className="truncate text-sm font-semibold text-slate-700">{categoria}</span>
       </div>
 
-      <span className="w-[clamp(80px,8vw,100px)] text-center text-[clamp(12px,0.8vw,16px)] font-bold text-[#202735]">{pontosBase}</span>
+      <span className="w-[clamp(80px,8vw,100px)] text-center text-sm font-extrabold text-slate-800">{pontosBase}</span>
 
-      <div className="w-[clamp(150px,20vw,250px)] flex flex-row justify-center items-center gap-2">
+      <div className="flex w-[clamp(150px,20vw,250px)] flex-row items-center justify-center gap-1.5">
         <TextoTabela texto={condRegular} corTexto="text-orange-700" background="bg-orange-100" />
 
         <TextoTabela texto={condBom} corTexto="text-purple-700" background="bg-purple-100" />
@@ -19,8 +19,8 @@ export default function CardTabela({ corBolinha, categoria, pontosBase, condExce
         <TextoTabela texto={condExcelente} corTexto="text-green-700" background="bg-green-100" />
       </div>
 
-      <div className="w-[clamp(80px,8vw,100px)] flex flex-row justify-end items-center gap-3 pr-2">
-        <button type="button" onClick={onEdit} className="text-sm font-semibold text-[#7350B9] hover:underline">Editar</button>
+      <div className="flex w-[clamp(80px,8vw,100px)] flex-row items-center justify-end gap-3 pr-2">
+        <button type="button" onClick={onEdit} className="rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#65BA69] transition hover:bg-green-100">Editar</button>
       </div>
 
     </div>

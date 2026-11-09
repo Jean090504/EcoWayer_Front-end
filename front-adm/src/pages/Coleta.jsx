@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Titulo from "../components/ui/titulo.jsx";
 import SearchBar from "../components/dashboard/SearchBar.jsx";
 import ListaPontos from "../components/coleta/ListaPontos.jsx";
 import MapaPontos from "../components/coleta/MapaPontos.jsx";
@@ -88,33 +87,32 @@ export default function Coleta() {
   }, [termo, pontos, pontosExternos]);
 
   return (
-    <div className="min-h-screen w-[80%] pr-6">
-      <Titulo texto="Pontos de Coleta" />
+    <div className="min-h-full bg-[#f6f7fb] pb-10">
+      <main className="mx-auto w-full max-w-[1800px] px-5 py-7 sm:px-8 lg:px-10">
+        <header className="mb-6 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#65BA69]">Operação</p>
+            <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800 sm:text-4xl">Pontos de coleta</h1>
+            <p className="mt-2 text-sm text-slate-500">Gerencie locais, materiais aceitos e disponibilidade no mapa.</p>
+          </div>
+          <div className="flex gap-2">
+            <button className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#7350B9] shadow-sm transition hover:border-[#7350B9] hover:bg-violet-50">Todos os resíduos</button>
+            <button onClick={() => setNovoAberto(true)} className="rounded-xl bg-[#65BA69] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#51a856]">+ Adicionar ponto</button>
+          </div>
+        </header>
 
-      <div className="mt-1 flex items-center justify-between gap-4 pl-[34px]">
-        <div className="flex h-[50px] w-[492px] shrink-0">
-          <SearchBar onSearch={setTermo} onFilterClick={() => console.log("Abrir Filtros")} />
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex w-full max-w-[500px] shrink-0">
+          <SearchBar maxWidth="max-w-none" onSearch={setTermo} onFilterClick={() => console.log("Abrir Filtros")} />
+          </div>
         </div>
 
-        <div className="flex gap-3">
-          <button className="rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-purple-700">
-            Todos os Resíduos
-          </button>
-          <button
-            onClick={() => setNovoAberto(true)}
-            className="rounded-lg bg-green-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-600"
-          >
-            + Adicionar Ponto
-          </button>
-        </div>
-      </div>
+        {carregando && <p className="mt-4 rounded-xl bg-white p-4 text-sm text-slate-500 shadow-sm">Carregando pontos...</p>}
+        {erro && <p className="mt-4 rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-500">Não foi possível carregar os pontos: {erro}</p>}
+        {buscandoExternos && <p className="mt-3 text-xs text-slate-500">Consultando pontos públicos próximos...</p>}
+        {erroExterno && <p className="mt-3 text-xs text-orange-600">{erroExterno}</p>}
 
-      {carregando && <p className="mt-5 pl-[34px] text-sm text-gray-500">Carregando pontos...</p>}
-      {erro && <p className="mt-5 pl-[34px] text-sm text-red-500">Não foi possível carregar os pontos: {erro}</p>}
-      {buscandoExternos && <p className="mt-3 pl-[34px] text-xs text-gray-500">Consultando pontos públicos próximos...</p>}
-      {erroExterno && <p className="mt-3 pl-[34px] text-xs text-orange-600">{erroExterno}</p>}
-
-      <div className="mt-5 flex gap-5 pl-[34px]">
+      <div className="mt-5 flex flex-col gap-5 xl:flex-row">
         <ListaPontos
           pontos={pontosFiltrados}
           selecionadoId={selecionadoId}
@@ -146,6 +144,7 @@ export default function Coleta() {
           }}
         />
       )}
+      </main>
     </div>
   );
 }

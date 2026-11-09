@@ -30,7 +30,7 @@ export default function App() {
       <Sidebar ativa = {ativa} setAtiva = {setAtiva} aoClicarSair = {() => setMostrarCard(true)} />
 
       <div className = "min-w-0 flex-1 overflow-x-hidden">
-        {ativa === "home" && <Home />}
+        {ativa === "home" && <Home setAtiva={setAtiva} />}
         {ativa === "chamados" && (chamadoAberto ? <ChamadoIndividual alerta={chamadoAberto} aoVoltar={() => setChamadoAberto(null)} /> : <Chamados aoAbrir={setChamadoAberto} />)}
         {ativa === "coleta" && <Coleta />}
         {ativa === "categorias" && (

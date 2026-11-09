@@ -10,11 +10,11 @@ export default function CardCategoria({ titulo, quantidade, imagem, onClick, onD
   onClick={onClick}
   onDelete={onDelete}
 >
-      <p className="font-semibold text-[18px]">{titulo}</p>
+      <p className="truncate text-sm font-bold text-slate-800 sm:text-base">{titulo}</p>
 
-      <div className="flex flex-row items-center gap-3 text-[16px]">
-        <p>Quantidade de itens registrados</p>
-        <span className="border border-gray-300 rounded-md px-3 py-0.5 text-[#7350B9]">
+      <div className="flex flex-row items-center gap-2 text-xs text-slate-400">
+        <p>Itens registrados</p>
+        <span className="rounded-full border border-violet-100 bg-violet-50 px-2.5 py-0.5 font-bold text-[#7350B9]">
           {quantidade}
         </span>
       </div>

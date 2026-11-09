@@ -6,7 +6,7 @@ import Paginacao from "../Paginacao/paginacao.jsx"
 
 const ITENS_POR_PAGINA = 6
 
-export default function TabelaItens({ itens = [], total = 0, imagemCategoria }) {
+export default function TabelaItens({ itens = [], total = 0, imagemCategoria, onView, onEdit, onDelete }) {
   const [paginaAtual, setPaginaAtual] = useState(1)
 
   const totalPaginas = Math.max(1, Math.ceil(itens.length / ITENS_POR_PAGINA))
@@ -20,9 +20,9 @@ export default function TabelaItens({ itens = [], total = 0, imagemCategoria }) 
   const itensPagina = itens.slice(inicio, inicio + ITENS_POR_PAGINA)
 
   return (
-    <div className="bg-white rounded-[16px] shadow-sm border border-[#F3F4F6] w-full">
+    <div className="w-full bg-white">
 
-      <div className="flex flex-row items-center py-4 bg-[#F9FAFB] text-xs font-bold uppercase text-[#6B7280]">
+      <div className="flex flex-row items-center bg-slate-50 px-1 py-3 text-[10px] font-bold uppercase tracking-wide text-slate-500">
         <Cabecalho largura="w-[35%]" alinhamento="px-4" texto="Item / Identificação" />
         <Cabecalho largura="w-[20%]" alinhamento="text-center" texto="Pontuação Base" />
         <Cabecalho largura="w-[25%]" alinhamento="text-center" texto="Status" />
@@ -31,7 +31,7 @@ export default function TabelaItens({ itens = [], total = 0, imagemCategoria }) 
 
       <div className="flex flex-col">
         {itensPagina.length === 0 && (
-          <p className="text-center text-[#6B7280] py-10">
+          <p className="py-10 text-center text-sm text-slate-400">
             Nenhum item cadastrado nesta categoria.
           </p>
         )}
@@ -43,12 +43,15 @@ export default function TabelaItens({ itens = [], total = 0, imagemCategoria }) 
             pontos={item.pontos_base}
             status={item.status}
             imagem={item.img && !item.img.includes("storage.ecowayer.test") ? item.img : imagemCategoria}
+            onView={() => onView?.(item)}
+            onEdit={() => onEdit?.(item)}
+            onDelete={() => onDelete?.(item)}
           />
         ))}
       </div>
 
-      <div className="flex flex-row items-center justify-between gap-2 px-6 py-4 mt-auto border-t border-[#F3F4F6]">
-        <p className="text-xs text-[#6B7280]">
+      <div className="mt-auto flex flex-row items-center justify-between gap-2 border-t border-slate-100 px-5 py-4">
+        <p className="text-xs text-slate-400">
           {itens.length === 0
             ? "Nenhum item"
             : `Mostrando ${inicio + 1} a ${inicio + itensPagina.length} de ${total} itens cadastrados`}

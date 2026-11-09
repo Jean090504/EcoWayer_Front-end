@@ -9,8 +9,8 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, o
     // Card clicável do ponto; ganha borda verde quando está selecionado no mapa
     <div
       onClick={() => onSelect(ponto.id)}
-      className={`cursor-pointer rounded-xl border bg-white p-3 shadow-sm transition hover:shadow-md ${
-        selecionado ? "border-green-500" : "border-gray-100"
+      className={`cursor-pointer rounded-2xl border bg-white p-4 shadow-[0_6px_24px_rgba(31,41,55,0.04)] transition hover:-translate-y-0.5 hover:shadow-md ${
+        selecionado ? "border-[#65BA69] ring-2 ring-green-100" : "border-slate-100"
       }`}
     >
       {/* Topo: nome + bolinha de status à esquerda, selo de status à direita */}
@@ -19,11 +19,11 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, o
         <div>
           {/* Nome com a bolinha de status */}
           <div className="flex items-center gap-1.5">
-            <h3 className="text-sm font-semibold text-gray-800">{ponto.nome}</h3>
+            <h3 className="max-w-[190px] truncate text-sm font-bold text-slate-800">{ponto.nome}</h3>
             <span className={`h-1.5 w-1.5 rounded-full ${COR_BOLINHA[ponto.status]}`} />
           </div>
           {/* Endereço do ponto */}
-          <p className="mt-0.5 text-[10px] text-gray-400">{ponto.endereco}</p>
+          <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-slate-400">{ponto.endereco}</p>
         </div>
 
         <StatusBadge status={ponto.status} />
@@ -37,13 +37,13 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, o
       </div>
 
       {/* Rodapé: barra de capacidade + botão Gerenciar */}
-      <div className="mt-3 flex justify-end border-t border-gray-100 pt-2">
+      <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
         {ponto.externo ? <button
           onClick={(e) => {
             e.stopPropagation();
             onCadastrar?.(ponto);
           }}
-          className="rounded-md bg-green-500 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-green-600"
+          className="rounded-lg bg-[#65BA69] px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-[#51a856]"
         >
           Cadastrar
         </button> : <button
@@ -51,7 +51,7 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, o
             e.stopPropagation(); // evita selecionar o card ao clicar no botão
             onGerenciar(ponto.id);
           }}
-          className="rounded-md bg-[#7350B9] px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-purple-700"
+          className="rounded-lg bg-[#7350B9] px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-[#6140a5]"
         >
           Gerenciar
         </button>}

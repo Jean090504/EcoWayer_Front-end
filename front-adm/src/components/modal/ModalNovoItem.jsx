@@ -1,14 +1,21 @@
-import { useState } from "react"
-import { criarItem } from "../../services/categoriaService.js"
+import { useEffect, useState } from "react"
+import { atualizarItem, criarItem } from "../../services/categoriaService.js"
 import { uploadImagem } from "../../services/claudnaryService.js"
 
-export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
-  const [nome, setNome] = useState("")
-  const [pontos, setPontos] = useState("")
-  const [descricao, setDescricao] = useState("")
+export default function ModalNovoItem({ categoriaId, item, aoFechar, aoSalvar }) {
+  const editando = Boolean(item)
+  const [nome, setNome] = useState(item?.nome || "")
+  const [pontos, setPontos] = useState(item?.pontos_base?.toString() || "")
+  const [descricao, setDescricao] = useState(item?.descricao || "")
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState("")
   const [arquivo, setArquivo] = useState(null)
+
+  useEffect(() => {
+    setNome(item?.nome || "")
+    setPontos(item?.pontos_base?.toString() || "")
+    setDescricao(item?.descricao || "")
+  }, [item])
 
   function fechar() {
     setNome(""); setPontos(""); setDescricao(""); setArquivo(null); setErro(""); aoFechar()
@@ -25,14 +32,15 @@ export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
       setSalvando(true)
       setErro("")
       const img = arquivo ? await uploadImagem(arquivo) : null
-      await criarItem({
+      const dados = {
         nome: nome.trim(),
         descricao: descricao.trim() || null,
         pontos_base: pontosNum,
-        status: "ativo",
-        id_categoria: Number(categoriaId),
+        status: item?.status || "ativo",
         img,
-      })
+      }
+      if (editando) await atualizarItem(item.id, dados)
+      else await criarItem({ ...dados, id_categoria: Number(categoriaId) })
       await aoSalvar() // recarrega a categoria e fecha o modal
     } catch (e) {
       console.error(e)
@@ -55,9 +63,9 @@ export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div>
-          <h2 className="text-[16px] font-bold">Adicionar Novo Item</h2>
+          <h2 className="text-[16px] font-bold">{editando ? "Editar item" : "Adicionar novo item"}</h2>
           <p className="text-[13px] text-[#6B7280] mt-1">
-            Cadastre um novo móvel para pontuação
+            {editando ? "Atualize os dados e a pontuação do item." : "Cadastre um novo item para pontuação."}
           </p>
         </div>
 
@@ -120,7 +128,7 @@ export default function ModalNovoItem({ categoriaId, aoFechar, aoSalvar }) {
             disabled={salvando}
             className="bg-[#65BA69] text-white rounded-[8px] text-[12px] w-[100px] h-[32px] cursor-pointer disabled:opacity-60"
           >
-            {salvando ? "Salvando..." : "Salvar Item"}
+            {salvando ? "Salvando..." : editando ? "Salvar alterações" : "Salvar item"}
           </button>
         </div>
       </div>

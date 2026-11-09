@@ -1,4 +1,7 @@
+import { useState } from "react"
+
 export default function ItemRanking({ posicao, nome, pontos, variacao, isLast, fotoUrl }) {
+  const [imagemComErro, setImagemComErro] = useState(false)
   // Define a cor da bolinha apenas para o Top 3
   const corBolinha = 
     posicao === 1 ? "bg-[#E8C888]" : 
@@ -12,34 +15,35 @@ export default function ItemRanking({ posicao, nome, pontos, variacao, isLast, f
   const inicialNome = nome ? nome.charAt(0).toUpperCase() : "?";
 
   return (
-    <div className = {`flex flex-row shrink-0 items-center gap-6 py-4 ${!isLast ? "border-b border-[#E5E7EB]" : ""}`}>
+    <div className = {`flex shrink-0 items-center gap-3 py-3 ${!isLast ? "border-b border-slate-100" : ""}`}>
       
       {/* Número da Posição (só aparece pro Top 3) */}
-      <div className = {`w-[45px] h-[45px] rounded-full flex items-center justify-center text-[20px] font-bold text-[#202735] ${corBolinha}`}>
+      <div className = {`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-slate-700 ${corBolinha}`}>
         {posicao <= 3 ? posicao : ""}
       </div>
 
       {/* Foto ou Avatar com Inicial */}
-      {fotoUrl ? (
+      {fotoUrl && !imagemComErro ? (
         <img 
           src = {fotoUrl} 
           alt = {`Foto de ${nome}`} 
-          className = "w-[70px] h-[70px] rounded-full bg-gray-200 object-cover" 
+          onError = {() => setImagemComErro(true)}
+          className = "h-10 w-10 rounded-full bg-gray-200 object-cover"
         />
       ) : (
-        <div className = "w-[70px] h-[70px] rounded-full bg-[#7350B9] flex items-center justify-center text-[24px] font-bold text-[#FFFFFF]">
+        <div className = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-600 text-base font-bold text-white">
           {inicialNome}
         </div>
       )}
       
       {/* Nome e Pontos */}
       <div className = "flex flex-col flex-1">
-        <span className = "text-[18px] font-semibold text-[#202735]">{nome}</span>
-        <span className = "text-[14px] text-[#8A8A8A] font-medium">Pontos: {pontos}</span>
+        <span className = "truncate text-sm font-semibold text-slate-700">{nome}</span>
+        <span className = "text-xs font-medium text-slate-400">{Number(pontos || 0).toLocaleString("pt-BR")} pontos</span>
       </div>
       
       {/* Variação */}
-      <span className = {`text-[16px] font-medium ${corVariacao}`}>{variacao}</span>
+      <span className = {`text-xs font-bold ${corVariacao}`}>{variacao}</span>
     </div>
   )
 }
