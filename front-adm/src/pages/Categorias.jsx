@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
 
-import Titulo from "../components/ui/titulo.jsx"
 import CardCategoria from "../components/cards/cardCategoria.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
@@ -73,33 +72,31 @@ export default function Categorias({ aoAbrirCategoria }) {
   }
 
   return (
-    <div>
-      <Titulo texto="Categorias" />
+    <div className="min-h-full bg-[#f6f7fb] pb-10">
+      <main className="mx-auto w-full max-w-[1600px] px-5 py-7 sm:px-8 lg:px-10">
+          <header className="mb-6 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#65BA69]">Catálogo</p>
+              <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800 sm:text-4xl">Categorias</h1>
+              <p className="mt-2 text-sm text-slate-500">Organize materiais, pontuação e itens disponíveis na plataforma.</p>
+            </div>
+            <button className="w-fit rounded-xl bg-[#65BA69] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#51a856]" onClick={() => setModalAdd(true)}>Adicionar categoria</button>
+          </header>
 
-      <div className="flex flex-col items-center justify-center gap-4 mt-5">
-        <div className="flex flex-col w-[95%] h-[85vh]">
-
-          <div className="flex flex-row items-center w-full">
+          <div className="flex w-full items-center">
             <InputBusca
               placeholder="Buscar categoria"
-              valor={busca}
-              aoDigitar={(e) => setBusca(e.target.value)}
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
               aoFiltrar={() => setModalAberto(true)}
             />
-
-            <button
-              className="bg-[#65BA69] text-[#FFFFFF] text-[clamp(18px,1.2vw,20px)] w-[clamp(200px,15vw,260px)] h-[clamp(50px,5vh,60px)] rounded-[10px] ml-auto cursor-pointer"
-              onClick={() => setModalAdd(true)}
-            >
-              Adicionar Categoria
-            </button>
           </div>
 
-          <div className="mt-8 flex-1 min-h-0 space-y-4 overflow-y-auto overflow-x-hidden">
-            {carregando && <p>Carregando...</p>}
-            {erro && <p className="text-red-500">{erro}</p>}
+          <div className="mt-5 min-h-0 space-y-3 overflow-y-auto overflow-x-hidden">
+            {carregando && <p className="rounded-2xl bg-white p-5 text-sm text-slate-500 shadow-sm">Carregando categorias...</p>}
+            {erro && <p className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-500">{erro}</p>}
             {!carregando && !erro && categoriasFiltradas.length === 0 && (
-              <p>Nenhuma categoria encontrada.</p>
+              <p className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500">Nenhuma categoria encontrada.</p>
             )}
 
             {categoriasFiltradas.map((categoria) => (
@@ -112,8 +109,6 @@ export default function Categorias({ aoAbrirCategoria }) {
               />
             ))}
           </div>
-        </div>
-
         <ModalFiltro
           modalAberto={modalAberto}
           onFechar={() => setModalAberto(false)}
@@ -130,7 +125,7 @@ export default function Categorias({ aoAbrirCategoria }) {
           aoCriar={carregarCategorias}
         />
         {categoriaExcluir && <ModalExcluirCategoria categoria={categoriaExcluir} aoFechar={() => setCategoriaExcluir(null)} aoConfirmar={confirmarExclusao} salvando={excluindo} erro={erroExclusao} />}
-      </div>
+      </main>
     </div>
   )
 }

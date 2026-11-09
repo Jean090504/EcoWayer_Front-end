@@ -1,95 +1,70 @@
-export default function GraficoCss() {
-  // Dados fictícios (em porcentagem de altura para facilitar o CSS)
-  // O mês 12 (Dez) é o maior, então ele será o 100% de altura.
-  const dados = [
-    { mes: "Jan", cad: "30%", at: "15%" },
-    { mes: "Fev", cad: "33%", at: "18%" },
-    { mes: "Mar", cad: "45%", at: "25%" },
-    { mes: "Abr", cad: "50%", at: "23%" },
-    { mes: "Mai", cad: "60%", at: "32%" },
-    { mes: "Jun", cad: "65%", at: "40%" },
-    { mes: "Jul", cad: "73%", at: "42%" },
-    { mes: "Ago", cad: "73%", at: "44%" },
-    { mes: "Set", cad: "73%", at: "46%" },
-    { mes: "Out", cad: "82%", at: "50%" },
-    { mes: "Nov", cad: "90%", at: "55%" },
-    { mes: "Dez", cad: "100%", at: "52%" },
-  ]
+const formatarData = (valor, mostrarAno = false) => {
+  if (!valor) return "—"
+  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", ...(mostrarAno ? { year: "2-digit" } : {}) }).format(new Date(`${valor}T12:00:00`))
+}
+
+const opcoes = [
+  { id: "7d", label: "7 dias" },
+  { id: "30d", label: "30 dias" },
+  { id: "90d", label: "90 dias" },
+]
+
+export default function GraficoCss({ dados = [], periodo = "30d", onPeriodoChange = () => {} }) {
+  const maior = Math.max(...dados.map((item) => Number(item.acumulado || 0)), 1)
+  const pontos = dados.map((item, index) => {
+    const x = dados.length <= 1 ? 50 : (index / (dados.length - 1)) * 100
+    const y = 100 - (Number(item.acumulado || 0) / maior) * 100
+    return { ...item, x, y }
+  })
+  const area = pontos.length ? `0,100 ${pontos.map((item) => `${item.x},${item.y}`).join(" ")} 100,100` : ""
+  const linha = pontos.map((item) => `${item.x},${item.y}`).join(" ")
+  const ultimo = dados[dados.length - 1]?.acumulado || 0
+  const linhas = [maior, maior * 0.75, maior * 0.5, maior * 0.25, 0]
 
   return (
-    <div className = "bg-[#FFFFFF] rounded-[25px] p-[clamp(16px,2vw,32px)] w-full min-h-[clamp(450px,55vh,600px)] shadow-md flex flex-col justify-between mb-5">
-      
-      <h2 className = "text-center text-[22px] font-semibold text-[#202735] mb-4">
-        Usuários Ativos X Cadastrados
-      </h2>
-      
-      <div className = "flex flex-row items-stretch h-[300px] w-full gap-2">
-        
-        {/* Eixo Y Esquerdo */}
-        <div className = "flex flex-col justify-between items-end pr-2 text-[12px] text-[#8C8C8C] font-medium border-r border-[#E5E7EB] w-[50px]">
-          <span>5000</span><span>4000</span><span>3000</span><span>2000</span><span>1000</span><span>0</span>
+    <article className="min-w-0 rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_8px_30px_rgba(31,41,55,0.05)] sm:p-6">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Desempenho de pontos</p>
+          <h2 className="mt-1 text-xl font-bold text-slate-800">Pontos acumulados</h2>
+          <p className="mt-1 text-sm text-slate-400">Evolução diária da pontuação validada</p>
         </div>
+        <select value={periodo} onChange={(event) => onPeriodoChange(event.target.value)} className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 outline-none transition focus:border-[#65BA69] focus:ring-2 focus:ring-green-100">
+          {opcoes.map((opcao) => <option key={opcao.id} value={opcao.id}>{opcao.label}</option>)}
+        </select>
+      </div>
 
-        {/* Área do Gráfico */}
-        <div className = "flex-1 flex flex-row items-end justify-between relative pb-2 border-b border-[#E5E7EB]">
-          
-          {/* Linhas Horizontais de fundo */}
-          <div className = "absolute inset-0 flex flex-col justify-between pointer-events-none">
-            <div className = "border-b border-[#F3F4F6] w-full"></div>
-            <div className = "border-b border-[#F3F4F6] w-full"></div>
-            <div className = "border-b border-[#F3F4F6] w-full"></div>
-            <div className = "border-b border-[#F3F4F6] w-full"></div>
-            <div className = "border-b border-[#F3F4F6] w-full"></div>
-            <div className = "border-b border-[#E5E7EB] w-full"></div>
+      <div className="mt-5 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Total no período</p>
+          <p className="mt-1 text-4xl font-extrabold tracking-tight text-slate-800">{Number(ultimo).toLocaleString("pt-BR")}</p>
+        </div>
+        <p className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-600">{opcoes.find((opcao) => opcao.id === periodo)?.label}</p>
+      </div>
+
+      <div className="mt-7 flex h-[280px] gap-3 sm:h-[330px]">
+        <div className="flex w-9 shrink-0 flex-col justify-between pb-8 text-right text-[10px] font-medium text-slate-400">
+          {linhas.map((linha, index) => <span key={index}>{Math.round(linha).toLocaleString("pt-BR")}</span>)}
+        </div>
+        <div className="relative min-w-0 flex-1">
+          <div className="pointer-events-none absolute inset-0 bottom-8 flex flex-col justify-between">
+            {linhas.map((_, index) => <span key={index} className="border-t border-dashed border-slate-100" />)}
           </div>
-
-          {/* Colunas de Dados */}
-          {dados.map((item, index) => (
-            <div key = {index} className = "flex flex-row items-end gap-1 relative h-full w-full justify-center group cursor-pointer">
-              
-              {/* Linha/Bolinha Cadastrados (Escura) */}
-              <div className = "relative h-full w-[4px] bg-[#2F4F2F] flex flex-col justify-end items-center z-10" style = {{ height: item.cad }}>
-                <div className = "w-[12px] h-[12px] bg-[#2F4F2F] rounded-full absolute -bottom-[6px]"></div>
-              </div>
-
-              {/* Linha/Bolinha Ativos (Clara e Tracejada) */}
-              <div className = "relative h-full w-[4px] flex flex-col justify-end items-center z-10" 
-                   style = {{ 
-                     height: item.at, 
-                     backgroundImage: 'linear-gradient(to bottom, #A3C9A3 50%, transparent 50%)', 
-                     backgroundSize: '4px 10px' 
-                   }}>
-                <div className = "w-[12px] h-[12px] bg-[#A3C9A3] rounded-full absolute -bottom-[6px]"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Eixo Y Direito */}
-        <div className = "flex flex-col justify-between items-start pl-2 text-[12px] text-[#8C8C8C] font-medium border-l border-[#E5E7EB] w-[50px]">
-          <span>3000</span><span>2500</span><span>2000</span><span>1500</span><span>1000</span><span>0</span>
+          <svg viewBox="0 0 100 110" preserveAspectRatio="none" className="relative h-full w-full overflow-visible pb-8">
+            {area && <polygon points={area} fill="rgba(88,162,77,0.12)" />}
+            {linha && <polyline points={linha} fill="none" stroke="#438b4b" strokeWidth="1.2" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" />}
+            {pontos.map((item, index) => (
+              <g key={item.data || index}>
+                <title>{formatarData(item.data, true)}: {Number(item.acumulado || 0).toLocaleString("pt-BR")} pontos acumulados</title>
+                <circle cx={item.x} cy={item.y} r={index === pontos.length - 1 ? 1.9 : 1.1} fill="#438b4b" vectorEffect="non-scaling-stroke" />
+              </g>
+            ))}
+          </svg>
+          <div className="absolute inset-x-0 bottom-0 flex justify-between text-[10px] font-semibold text-slate-400">
+            {pontos.length > 0 && [pontos[0], pontos[Math.floor((pontos.length - 1) / 2)], pontos[pontos.length - 1]].map((item, index) => <span key={index}>{formatarData(item.data)}</span>)}
+          </div>
         </div>
       </div>
-
-      {/* Nomes dos Meses (embaixo do gráfico) */}
-      <div className = "flex flex-row justify-between w-full pl-[50px] pr-[50px] mt-2 text-[12px] text-[#202735] font-medium">
-        {dados.map((item, index) => (
-          <span key = {index}>{item.mes}</span>
-        ))}
-      </div>
-
-      {/* Legenda */}
-      <div className = "flex flex-row justify-center gap-8 mt-4 text-[14px] font-bold text-[#202735]">
-        <div className = "flex items-center gap-2">
-          <div className = "w-[30px] h-[10px] bg-[#2F4F2F]"></div>
-          <span>Usuários Cadastrados</span>
-        </div>
-        <div className = "flex items-center gap-2">
-          <div className = "w-[30px] h-[10px] border-2 border-dashed border-[#A3C9A3] bg-[#E8F3E8]"></div>
-          <span>Usuários Ativos</span>
-        </div>
-      </div>
-
-    </div>
+    </article>
   )
 }

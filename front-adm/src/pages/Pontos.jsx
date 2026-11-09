@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react"
-import Titulo from "../components/ui/titulo.jsx"
 import CardStatus from "../components/cards/cardStatus.jsx"
 import CardValidador from "../components/cards/cardValidador.jsx"
 import TabelaPontuacao from "../components/tabela/tabelaPontuacao.jsx"
@@ -46,8 +45,8 @@ export default function Pontos() {
   if (loading) {
     return (
       <div>
-        <Titulo texto="Pontos" />
-        <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="mx-auto w-full max-w-[1600px] px-5 pt-7 sm:px-8 lg:px-10"><h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Pontos</h1></div>
+        <div className="flex min-h-[60vh] items-center justify-center">
           <p className="text-gray-500 font-medium animate-pulse">Carregando painel de pontos...</p>
         </div>
       </div>
@@ -58,8 +57,8 @@ export default function Pontos() {
   if (erro) {
     return (
       <div>
-        <Titulo texto="Pontos" />
-        <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4">
+        <div className="mx-auto w-full max-w-[1600px] px-5 pt-7 sm:px-8 lg:px-10"><h1 className="text-3xl font-extrabold tracking-tight text-slate-800">Pontos</h1></div>
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
           <p className="text-red-600 font-medium">{erro}</p>
           <button
             onClick={carregarDados}
@@ -73,7 +72,7 @@ export default function Pontos() {
   }
 
   // 4. Desestruturação dos dados recebidos do backend
-  const { metricas, configuracaoConversao, regrasPontuacao = [] } = dados || {}
+  const { metricas, regrasPontuacao = [] } = dados || {}
   const regrasPorCategoria = new Map(regrasPontuacao.map((regra) => [
     regra.id_categoria ?? regra.categoria?.id ?? regra.id,
     regra
@@ -96,16 +95,18 @@ export default function Pontos() {
 
   return (
     <div>
-      <Titulo texto="Pontos" />
-
-      <div className="flex flex-col items-center justify-center mt-5">
-        <div className="mx-auto w-[95%] min-h-[85vh]">
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-4">
+      <div className="mx-auto w-full max-w-[1600px] px-5 pb-10 pt-7 sm:px-8 lg:px-10">
+        <div className="mb-7 flex items-end justify-between gap-4">
+          <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600">Gestão da pontuação</p><h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800">Pontos</h1><p className="mt-1 text-sm text-slate-400">Acompanhe regras, categorias e validações da comunidade.</p></div>
+        </div>
+        <div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             <CardStatus 
               titulo="Taxa de Conversão" 
               valor={metricas?.taxaConversao?.valor ?? "--"} 
               porcentagem={metricas?.taxaConversao?.porcentagem} 
               textoRodape={metricas?.taxaConversao?.textoRodape}
+              accent="green"
             />
 
             <CardStatus 
@@ -113,6 +114,7 @@ export default function Pontos() {
               valor={metricas?.itensValidados?.valor ?? "--"} 
               porcentagem={metricas?.itensValidados?.porcentagem} 
               textoRodape={metricas?.itensValidados?.textoRodape}
+              accent="purple"
             />
               
             <CardStatus 
@@ -120,15 +122,17 @@ export default function Pontos() {
               valor={metricas?.pontosGerados?.valor ?? "--"} 
               porcentagem={metricas?.pontosGerados?.porcentagem} 
               textoRodape={metricas?.pontosGerados?.textoRodape}
+              accent="green"
             />
               
             <CardStatus 
               titulo="Regras Ativas" 
               valor={metricas?.regrasAtivas?.valor ?? "--"}
+              accent="purple"
             />
           </div>
 
-          <div className="mt-8 grid w-full grid-cols-1 gap-6 pb-8 xl:grid-cols-[minmax(240px,0.8fr)_minmax(0,2fr)]">
+          <div className="mt-6 grid w-full grid-cols-1 gap-6 pb-8 xl:grid-cols-[minmax(280px,0.8fr)_minmax(0,2fr)]">
             <div className="flex min-w-0 flex-col gap-5">
               <CardValidador onUpdate={carregarDados} />
             </div>
@@ -137,8 +141,8 @@ export default function Pontos() {
               <TabelaPontuacao dados={tabelaCategorias} onUpdate={carregarDados} />
             </div>
           </div>
-        </div>
       </div>
+    </div>
     </div>
   )
 }

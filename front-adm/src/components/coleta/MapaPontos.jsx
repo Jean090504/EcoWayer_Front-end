@@ -127,7 +127,7 @@ export default function MapaPontos({ pontos, selecionadoId, onSelect }) {
 
   return (
     // Container do mapa com cantos arredondados
-    <section className="relative h-[calc(100vh-200px)] min-h-[420px] flex-1 overflow-hidden rounded-2xl shadow-inner">
+    <section className="relative h-[calc(100vh-260px)] min-h-[520px] flex-1 overflow-hidden rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgba(31,41,55,0.08)]">
       {/* Div onde o Mapbox renderiza o mapa (h-full w-full: o CSS do Mapbox força position:relative, então não use absolute aqui) */}
       <div ref={containerRef} className="h-full w-full" />
 

@@ -54,3 +54,11 @@ export async function criarItem({ nome, descricao, pontos_base, status, id_categ
 
   return dados
 }
+
+export async function atualizarItem(id, { nome, descricao, pontos_base, status, img }) {
+  return apiFetch(`/item/${id}`, { method: "PUT", body: JSON.stringify({ nome, descricao, pontos_base, status, img }) })
+}
+
+export async function excluirItem(id) {
+  return apiFetch(`/item/${id}`, { method: "DELETE" })
+}

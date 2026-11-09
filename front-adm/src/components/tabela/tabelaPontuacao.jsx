@@ -109,22 +109,25 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
   }
 
   return (
-    <div className="bg-[#FFFFFF] rounded-[16px] shadow-sm border border-[#F3F4F6] w-full h-full flex flex-col pb-4">
+    <div className="flex h-full w-full flex-col rounded-2xl border border-slate-100 bg-white pb-4 shadow-[0_8px_30px_rgba(31,41,55,0.05)]">
       {/* Cabeçalho superior com barra de busca e botão de ação */}
-      <div className="flex flex-row justify-between items-center p-4 border-b border-[#F3F4F6]">
-        <h2 className="text-[clamp(12px,1vw,16px)] font-bold text-[#202735]">
+      <div className="flex flex-col items-start justify-between gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-center">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#65BA69]">Configuração</p>
+          <h2 className="mt-1 text-lg font-extrabold tracking-tight text-slate-800">
           Pontuação Base por Categoria
-        </h2>
+          </h2>
+        </div>
 
-        <div className="flex flex-row items-center gap-4">
-          <div className="flex flex-row items-center w-[clamp(140px,18vw,200px)] h-[clamp(30px,1vw,35px)] border border-[#E5E7EB] rounded-[8px] px-3 focus-within:border-[#65BA69] transition-colors">
-            <Search size={14} className="text-[#8A8A8A]" />
+        <div className="flex w-full flex-row items-center gap-4 sm:w-auto">
+          <div className="flex h-10 w-full flex-row items-center rounded-xl border border-slate-200 px-3 transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100 sm:w-[220px]">
+            <Search size={14} className="text-slate-400" />
             <input
               type="text"
               value={busca}
               onChange={handleBuscar}
               placeholder="Filtrar categoria..."
-              className="w-full outline-none text-[clamp(12px,0.8vw,14px)] bg-transparent placeholder-[#8A8A8A] pl-2 text-[#202735]"
+              className="w-full bg-transparent pl-2 text-sm text-slate-700 outline-none placeholder:text-slate-400"
             />
           </div>
 
@@ -163,7 +166,7 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
       )}
 
       {/* Cabeçalho da grade da tabela */}
-      <div className="bg-[#65BA69] w-full flex flex-row items-center justify-between py-3 px-4 mt-2">
+      <div className="mx-3 mt-3 flex w-[calc(100%-1.5rem)] flex-row items-center justify-between rounded-xl bg-[#65BA69] px-4 py-3">
         <Cabecalho largura="w-[clamp(90px,12vw,150px)]" alinhamento="text-left pl-3.5" texto="Categoria" textoCor="text-[#FFFFFF]" />
         <Cabecalho largura="w-[clamp(90px,8vw,100px)]" alinhamento="text-center pl-1" texto="Pontos Base" textoCor="text-[#FFFFFF]" />
         <Cabecalho largura="w-[clamp(150px,20vw,250px)]" alinhamento="text-center" texto="Condições" textoCor="text-[#FFFFFF]" />

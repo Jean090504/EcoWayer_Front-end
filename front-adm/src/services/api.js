@@ -17,10 +17,15 @@ export async function apiFetch(endpoint, options = {}) {
   // endpoint deve começar com '/'
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
 
-  const response = await fetch(url, {
-    ...options,
-    headers
-  })
+  let response
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers
+    })
+  } catch {
+    throw new Error(`Não foi possível conectar à API Admin em ${BASE_ORIGIN}. Inicie o backend Admin e tente novamente.`)
+  }
 
   if (response.status === 401) {
     localStorage.removeItem('token')
