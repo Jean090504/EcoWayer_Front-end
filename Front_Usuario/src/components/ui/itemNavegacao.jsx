@@ -6,5 +6,5 @@ export default function ItemNavegacao({ Icone, texto }) {
             {texto}
         </span>
     </button>
-    );
+    )
 }

@@ -3,8 +3,8 @@ import { useState } from "react";
 import Header from "./components/layout/header.jsx";
 import Footer from "./components/layout/footer.jsx";
 
-import Login from "./pages/Login.jsx";
-import CriarConta from "./pages/CriarConta.jsx";
+import Login from "./components/cards/conta/cardLogin.jsx";
+import CriarConta from "./components/cards/conta/cardCriarConta.jsx";
 
 import Home from "./pages/Home.jsx";
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
