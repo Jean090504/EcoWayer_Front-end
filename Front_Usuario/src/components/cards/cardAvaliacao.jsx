@@ -34,7 +34,7 @@ export default function CardAvaliacao({ negociacao, onEnviar, onAdiar }) {
   }
 
   return (
-    <div className="flex flex-col w-full max-w-[860px] mx-auto bg-white rounded-[32px] p-12 mb-15">
+    <div className="flex flex-col w-full max-w-[860px] mx-auto bg-white rounded-[32px] p-12 mb-3">
       <span className="inline-flex items-center gap-1.5 self-start bg-[#4CAF50] text-white text-[11px] font-semibold rounded-full px-3 py-1">
         <BadgeCheck size={14} />
         Transação Concluída com Sucesso
@@ -109,7 +109,7 @@ export default function CardAvaliacao({ negociacao, onEnviar, onAdiar }) {
             onClick={() => marcarOuDesmarcarTag(tag.id)}
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold cursor-pointer ${
               selectedTags.includes(tag.id)
-                ? "bg-[#6D32C9] text-white"
+                ? "bg-[#724BC2] text-white"
                 : "bg-[#F3F3F3] text-[#191C1E]"
             }`}
           >
@@ -122,7 +122,7 @@ export default function CardAvaliacao({ negociacao, onEnviar, onAdiar }) {
       <button
         onClick={() => setRecommend(!recommend)}
         className={`mt-3 self-start inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold cursor-pointer ${
-          recommend ? "bg-[#6D32C9] text-white" : "bg-[#F3F3F3] text-[#191C1E]"
+          recommend ? "bg-[#724BC2] text-white" : "bg-[#F3F3F3] text-[#191C1E]"
         }`}
       >
         <ThumbsUp size={16} />
@@ -152,7 +152,7 @@ export default function CardAvaliacao({ negociacao, onEnviar, onAdiar }) {
       <div className="mt-10 flex items-center justify-between">
         <button
           onClick={onAdiar}
-          className="rounded-xl border border-[#6D32C9]/40 px-6 py-3 text-[14px] font-semibold text-[#6D32C9] cursor-pointer"
+          className="rounded-xl border border-[#724BC2]/40 px-6 py-3 text-[14px] font-semibold text-[#724BC2] cursor-pointer"
         >
           Avaliar mais tarde
         </button>
@@ -160,7 +160,7 @@ export default function CardAvaliacao({ negociacao, onEnviar, onAdiar }) {
         <button
           onClick={enviar}
           disabled={rating === 0}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#6D32C9] px-6 py-3 text-[14px] font-semibold text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#724BC2] px-6 py-3 text-[14px] font-semibold text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <CircleCheck size={18} />
           Enviar avaliação
