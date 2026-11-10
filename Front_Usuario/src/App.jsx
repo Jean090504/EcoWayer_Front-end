@@ -8,11 +8,13 @@ import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx";
 
 import Home from "./pages/Home.jsx";
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
+import CriarNovoAnuncio from "./pages/CriarNovoAnuncio.jsx";
+
 
 export default function App() {
     const [usuario, setUsuario] = useState(null);
 
-    // Controla a tela ativa.
+    // Controla a tela ativa: "home", "avaliacao" ou "novoAnuncio".
     const [telaAtiva, setTelaAtiva] = useState("home");
 
     // Controla a abertura dos cards.
@@ -36,20 +38,22 @@ export default function App() {
                 usuario={usuario}
                 onAbrirLogin={() => setAbrirLogin(true)}
                 onAbrirCriarConta={() => setAbrirCadastro(true)}
+                onAbrirNovoAnuncio={() => navegar("novoAnuncio")}
                 onNavegar={navegar}
             />
 
             <main className="flex flex-1 flex-col">
-                {/* {telaAtiva === "home" && (
-                    <Home onNavegar = {navegar} />
+                {telaAtiva === "home" && (
+                    <Home onNavegar={navegar} />
                 )}
 
                 {telaAtiva === "avaliacao" && (
-                    <AvaliacaoAnuncio onNavegar = {navegar} />
-                )} */}
+                    <AvaliacaoAnuncio onNavegar={navegar} />
+                )}
 
-                <Home />
-                {/* <AvaliacaoAnuncio/> */}
+                {telaAtiva === "novoAnuncio" && (
+                    <CriarNovoAnuncio onNavegar={navegar} />
+                )}
             </main>
 
             <Footer />

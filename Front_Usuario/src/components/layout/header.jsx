@@ -1,33 +1,43 @@
 import { useEffect, useState } from "react";
 import { Search, MapPin, Mail, Wallet, MessageSquare } from "lucide-react";
-import ItemNavegacao from "../ui/itemNavegacao.jsx"
-import BotaoHeader from "../ui/botao.jsx"
+import ItemNavegacao from "../ui/itemNavegacao.jsx";
+import BotaoHeader from "../ui/botao.jsx";
 import perfil from "../../assets/icons/icones/foto.png";
 
 // ---------------------------------------------------------------------------
-// Constantes
+//                              Constantes
 // ---------------------------------------------------------------------------
 const IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades";
-
-// Tamanhos responsivos (base: 1366px). Precisam estar escritos por inteiro
-// para o Tailwind enxergar as classes.
-const TEXTO_XS = "text-[length:clamp(12px,0.88vw,15px)]";
+const TEXTO_XS = "text-[length:clamp(12px,0.88vw,15px)]";                            // Tamanhos responsivos (base: 1366px)
 const TEXTO_SM = "text-[length:clamp(14px,1.025vw,18px)]";
 const ICONE_NAV = "h-[clamp(20px,1.46vw,28px)] w-[clamp(20px,1.46vw,28px)]";
-
-// Espaçamentos que crescem só acima de 1366px (20px em 1366, ~45px em 1920).
-const GAP_GRUPOS = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.045),52px)]";
+const GAP_GRUPOS = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.045),52px)]";    // Espaçamentos que crescem só acima de 1366px (20px em 1366, ~45px em 1920)
 const GAP_NAV = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.05),60px)]";
 const GAP_ITEM = "gap-[clamp(12px,calc(12px_+_(100vw_-_1366px)*0.02),24px)]";
 
-export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
+
+// ---------------------------------------------------------------------------
+//   Props recebidas do App:
+//     usuario             -> dados do usuário logado (ou null)
+//     onAbrirLogin        -> abre o card de login
+//     onAbrirCriarConta   -> abre o fluxo de cadastro
+//     onAbrirNovoAnuncio  -> abre o fluxo de novo anúncio (botão "Anunciar")
+//     onNavegar           -> troca a tela ativa
+// ---------------------------------------------------------------------------
+export default function Header({
+    usuario,
+    onAbrirLogin,
+    onAbrirCriarConta,
+    onAbrirNovoAnuncio,
+    onNavegar
+}) {
     // -----------------------------------------------------------------------
-    // Estados: interface
+    //                         Estados: interface
     // -----------------------------------------------------------------------
     const [mostrarFiltro, setMostrarFiltro] = useState(false);
 
     // -----------------------------------------------------------------------
-    // Estados: estados (UF)
+    //                         Estados: estados (UF)
     // -----------------------------------------------------------------------
     const [estados, setEstados] = useState([]);
     const [ufSelecionada, setUfSelecionada] = useState("");
@@ -35,7 +45,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
     const [erroEstados, setErroEstados] = useState(false);
 
     // -----------------------------------------------------------------------
-    // Estados: cidades
+    //                        Estados: cidades
     // -----------------------------------------------------------------------
     const [cidades, setCidades] = useState([]);
     const [cidadeSelecionada, setCidadeSelecionada] = useState("");
@@ -44,8 +54,10 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
 
 
     // -----------------------------------------------------------------------
-    // Efeitos
+    //                             Efeitos
     // -----------------------------------------------------------------------
+
+    // Busca os estados ao montar o header
     useEffect(() => {
         const controller = new AbortController();
 
@@ -79,6 +91,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
         return () => controller.abort();
     }, []);
 
+    // Busca as cidades sempre que o estado muda
     useEffect(() => {
         if (!ufSelecionada) {
             setCidades([]);
@@ -123,7 +136,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
 
 
     // -----------------------------------------------------------------------
-    // Funções
+    //                                 Funções
     // -----------------------------------------------------------------------
     function selecionarEstado(e) {
         setUfSelecionada(e.target.value);
@@ -138,7 +151,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
 
 
     // -----------------------------------------------------------------------
-    // Header
+    //                                 Tela
     // -----------------------------------------------------------------------
     return (
         <header className="h-[clamp(120px,5.27vw,150px)] w-full border-b border-gray-200 bg-white">
@@ -147,7 +160,9 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
 
                 {/* Logo */}
                 <div className="flex shrink-0 items-center">
-                    <p className="font-bold text-[clamp(25px,2vw,32px)] text-[#4CAF50]">Eco<span className="text-[#724BC2]">market</span></p>
+                    <p className="font-bold text-[clamp(25px,2vw,32px)] text-[#4CAF50]">
+                        Eco<span className="text-[#724BC2]">market</span>
+                    </p>
                 </div>
 
                 {/* Campo de pesquisa */}
@@ -157,10 +172,11 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                         placeholder="Buscar ponto de coleta, bairro..."
                         className={`min-w-0 flex-1 ${TEXTO_SM} text-gray-700 outline-none placeholder:text-gray-400`}
                     />
+
+                    {/* Lupa de pesquisa */}
                     <Search
-                    // Lupa de pesquisa
-                    size = {25}
-                    className = "ml-3 h-[clamp(16px,1.17vw,24px)] w-[clamp(16px,1.17vw,24px)] shrink-0 text-[#8C8C8C]"
+                        size={25}
+                        className="ml-3 h-[clamp(16px,1.17vw,24px)] w-[clamp(16px,1.17vw,24px)] shrink-0 text-[#8C8C8C]"
                     />
 
                     <div className="ml-3 flex h-[clamp(28px,2.05vw,38px)] shrink-0 items-center border-l border-gray-200 pl-2">
@@ -184,11 +200,11 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                                     Filtrar localização
                                 </h3>
                                 <BotaoHeader
-                                    onClick = {() => setMostrarFiltro(false)}
-                                    className = "text-[length:clamp(18px,1.32vw,24px)] text-gray-400 transition hover:text-gray-700"
-                                    aria-label = "Fechar filtro"
+                                    onClick={() => setMostrarFiltro(false)}
+                                    className="text-[length:clamp(18px,1.32vw,24px)] text-gray-400 transition hover:text-gray-700"
+                                    aria-label="Fechar filtro"
                                 >
-                                ×
+                                    ×
                                 </BotaoHeader>
                             </div>
 
@@ -258,9 +274,9 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
 
                 {/* Navegação */}
                 <nav className={`flex shrink-0 items-center ${GAP_NAV}`}>
-                    <ItemNavegacao Icone = {Mail} texto = "Meus anúncios" />
-                    <ItemNavegacao Icone = {Wallet} texto = "Carteira" />
-                    <ItemNavegacao Icone = {MessageSquare} texto = "Chat" />
+                    <ItemNavegacao Icone={Mail} texto="Meus anúncios" />
+                    <ItemNavegacao Icone={Wallet} texto="Carteira" />
+                    <ItemNavegacao Icone={MessageSquare} texto="Chat" />
                 </nav>
 
                 {/* Renderização condicional: usuário logado ou deslogado */}
@@ -278,9 +294,10 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                             </span>
                         </div>
 
-                        {/* Botão anunciar */}
+                        {/* Botão anunciar: abre o fluxo de novo anúncio */}
                         <BotaoHeader
-                            className = {`flex h-[clamp(40px,2.93vw,56px)] shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-[clamp(40px,2.93vw,56px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
+                            onClick={onAbrirNovoAnuncio}
+                            className={`flex h-[clamp(40px,2.93vw,56px)] shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-[clamp(40px,2.93vw,56px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
                         >
                             Anunciar
                         </BotaoHeader>
@@ -288,21 +305,20 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                 ) : (
                     <div className="flex shrink-0 items-center gap-3">
                         {/* Botão criar conta */}
-                        <div className="flex shrink-0 items-center gap-3">
-                            <BotaoHeader
-                                onClick={onAbrirCriarConta}
-                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full border border-gray-300 bg-white px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600`}
-                            >
-                                Criar Conta
-                            </BotaoHeader>
+                        <BotaoHeader
+                            onClick={onAbrirCriarConta}
+                            className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full border border-gray-300 bg-white px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600`}
+                        >
+                            Criar Conta
+                        </BotaoHeader>
 
-                            <BotaoHeader
-                                onClick={onAbrirLogin}
-                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full bg-[#724BC2] px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
-                            >
-                                Logar
-                            </BotaoHeader>
-                        </div>
+                        {/* Botão logar */}
+                        <BotaoHeader
+                            onClick={onAbrirLogin}
+                            className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full bg-[#724BC2] px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
+                        >
+                            Logar
+                        </BotaoHeader>
                     </div>
                 )}
             </div>
