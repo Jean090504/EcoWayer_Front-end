@@ -1,11 +1,5 @@
 // ---------------------------------------------------------------
 // MOCK DA TELA DE CRIAR CONTA
-//
-// O mock faz o papel do backend: cria a conta depois que o número
-// e o e-mail foram verificados.
-// No final fica a função que o App usa: com o mock ligado (.env)
-// responde daqui; senão chama a API.
-// Na integração, só mudam a rota e o formato do JSON.
 // ---------------------------------------------------------------
 
 import { USAR_MOCK, simular, chamarApi } from "./mockBase.js";

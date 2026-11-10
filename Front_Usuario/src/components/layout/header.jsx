@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search, MapPin, Mail, Wallet, MessageSquare } from "lucide-react";
-
 import ItemNavegacao from "../ui/itemNavegacao.jsx"
 import BotaoHeader from "../ui/botao.jsx"
-
 import perfil from "../../assets/icons/icones/foto.png";
 
 // ---------------------------------------------------------------------------
@@ -43,6 +41,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
     const [cidadeSelecionada, setCidadeSelecionada] = useState("");
     const [carregandoCidades, setCarregandoCidades] = useState(false);
     const [erroCidades, setErroCidades] = useState(false);
+
 
     // -----------------------------------------------------------------------
     // Efeitos
@@ -122,6 +121,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
         return () => controller.abort();
     }, [ufSelecionada]);
 
+
     // -----------------------------------------------------------------------
     // Funções
     // -----------------------------------------------------------------------
@@ -136,11 +136,12 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
         setCidades([]);
     }
 
+
     // -----------------------------------------------------------------------
-    // Render
+    // Header
     // -----------------------------------------------------------------------
     return (
-        <header className="mt-3 h-[clamp(72px,5.27vw,104px)] w-full border-b border-gray-100 bg-white">
+        <header className="h-[clamp(120px,5.27vw,150px)] w-full border-b border-gray-200 bg-white">
             {/* Contêiner dos elementos */}
             <div className={`mx-auto flex h-full w-full max-w-[clamp(1360px,99.5vw,1800px)] items-center justify-between ${GAP_GRUPOS} px-[clamp(24px,1.76vw,40px)]`}>
 
@@ -157,6 +158,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                         className={`min-w-0 flex-1 ${TEXTO_SM} text-gray-700 outline-none placeholder:text-gray-400`}
                     />
                     <Search
+                    // Lupa de pesquisa
                     size = {25}
                     className = "ml-3 h-[clamp(16px,1.17vw,24px)] w-[clamp(16px,1.17vw,24px)] shrink-0 text-[#8C8C8C]"
                     />

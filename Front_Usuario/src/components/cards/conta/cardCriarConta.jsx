@@ -1,23 +1,79 @@
 import { useState } from "react";
 
-// Classes que se repetem nos campos
-const inputClass =
-    "w-full h-[40px] rounded-[11px] border border-[#E2E6EB] bg-white px-[12px] text-[12px] text-[#444] placeholder:text-[#929292] outline-none transition focus:border-[#7950CC] focus:ring-1 focus:ring-[#7950CC]/20";
 
-const labelClass =
-    "mb-[4px] block text-[11px] font-medium leading-[14px] text-[#454545]";
+// ===================================================================
+//                         FUNÇÕES AUXILIARES
+// ===================================================================
 
-// Deixa como "somente leitura" para o navegador não 
-// preencher tudo sozinho até que seja clicado no campo
-// assim não vem nada preenchido ao abrir o card
+// Tira o "somente leitura" ao clicar no campo
+// Ele existe só pra o navegador não preencher tudo sozinho ao abrir o card
 function liberarCampo(evento) {
     evento.target.removeAttribute("readonly");
 }
 
-// CAMPO COMUM
+// Telefone: (11) 99999-9999
+function mascararTelefone(valor) {
+    const n = valor.replace(/\D/g, "").slice(0, 11);
 
-// Fica fora do CreateAccount de propósito: se ficasse dentro, seria
-// recriado a cada letra digitada e os campos perderiam o foco.
+    if (n.length === 0) return "";
+    if (n.length <= 2) return `(${n}`;
+    if (n.length <= 6) return `(${n.slice(0, 2)}) ${n.slice(2)}`;
+
+    // Fixo (10 dígitos): (11) 1234-5678
+    if (n.length <= 10) {
+        return `(${n.slice(0, 2)}) ${n.slice(2, 6)}-${n.slice(6)}`;
+    }
+
+    // Celular (11 dígitos): (11) 91234-5678
+    return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
+}
+
+// CPF: 000.000.000-00
+function mascararCpf(valor) {
+    const n = valor.replace(/\D/g, "").slice(0, 11);
+
+    if (n.length <= 3) return n;
+    if (n.length <= 6) return `${n.slice(0, 3)}.${n.slice(3)}`;
+    if (n.length <= 9) {
+        return `${n.slice(0, 3)}.${n.slice(3, 6)}.${n.slice(6)}`;
+    }
+
+    return `${n.slice(0, 3)}.${n.slice(3, 6)}.${n.slice(6, 9)}-${n.slice(9)}`;
+}
+
+// Data: 01/01/2000
+function mascararData(valor) {
+    const n = valor.replace(/\D/g, "").slice(0, 8);
+
+    if (n.length <= 2) return n;
+    if (n.length <= 4) return `${n.slice(0, 2)}/${n.slice(2)}`;
+
+    return `${n.slice(0, 2)}/${n.slice(2, 4)}/${n.slice(4)}`;
+}
+
+
+// ===================================================================
+//                            CONSTANTES
+// ===================================================================
+
+// Classes repetidas nos campos
+const inputClass = "w-full h-[40px] rounded-[11px] border border-[#E2E6EB] bg-white px-[12px] text-[12px] text-[#444] placeholder:text-[#929292] outline-none transition focus:border-[#7950CC] focus:ring-1 focus:ring-[#7950CC]/20";
+const labelClass = "mb-[4px] block text-[11px] font-medium leading-[14px] text-[#454545]";
+const MASCARAS = { // Máscara de cada campo (pelo "name" do input)
+    nascimento: mascararData,
+    cpf: mascararCpf,
+    telefone: mascararTelefone
+};
+
+
+
+// ===================================================================
+//                      CAMPOS REUTILIZÁVEIS
+// Ficam fora do CreateAccount de propósito: se ficassem dentro, seriam
+// recriados a cada letra digitada e os campos perderiam o foco.
+// ===================================================================
+
+// Campo comum
 function Campo({
     label,
     name,
@@ -51,8 +107,7 @@ function Campo({
     );
 }
 
-// CAMPO DE SENHA (com o olhinho)
-// Também fica fora do CreateAccount, pelo mesmo motivo.
+// Campo de senha (com o olhinho)
 function CampoSenha({
     label,
     name,
@@ -112,29 +167,31 @@ function CampoSenha({
     );
 }
 
-// TELA DE CRIAR CONTA
 
-// propriedade que recebo do App:
-// - onClose: fecha o card
-// - onContinuarVerificacao: manda os dados, o App envia o SMS e abre a verificação
-// - dadosIniciais: o que eu já tinha preenchido (quando volto da verificação)
+// ===================================================================
+//                          TELA DE CRIAR CONTA
+//====================================================================
+
+// Props recebidas do fluxo:
+//   onClose                 -> fecha o card
+//   onContinuarVerificacao  -> recebe os dados, envia o SMS e abre a verificação
+//   dadosIniciais           -> dados já preenchidos (quando volta da verificação)
+// ===================================================================
 export default function CreateAccount({
     onClose,
     onContinuarVerificacao,
     dadosIniciais
 }) {
-    // Olhinhos das duas senhas
+
+    // ---------------------------------------------------------------
+    //                            Estados
+    // ---------------------------------------------------------------
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
-
-    // Mensagem de erro que aparece acima do botão
-    const [erro, setErro] = useState("");
-
-    // true enquanto o SMS está sendo enviado (trava o botão)
-    const [enviando, setEnviando] = useState(false);
-
-    // Tudo que preencho -> Se voltei da verificação, começa com os dados de antes
-    const [formulario, setFormulario] = useState(
+    const [erro, setErro] = useState("");                                       // Mensagem acima do botão
+    const [enviando, setEnviando] = useState(false);                            // true enquanto envia o SMS (trava o botão)
+    const [aceitouTermos, setAceitouTermos] = useState(Boolean(dadosIniciais)); // Ao voltar da verificação, os termos já foram aceitos
+    const [formulario, setFormulario] = useState(                               // Ao voltar da verificação, começa com os dados de antes
         dadosIniciais ?? {
             nome: "",
             nascimento: "",
@@ -146,52 +203,49 @@ export default function CreateAccount({
         }
     );
 
-    // Se voltei da verificação, os termos já tinham sido aceitos
-    const [aceitouTermos, setAceitouTermos] = useState(Boolean(dadosIniciais));
+    // ---------------------------------------------------------------
+    //                            Funções
+    // ---------------------------------------------------------------
 
-    // Atualiza o campo que estou digitando
+    // Atualiza o campo digitado (aplicando a máscara, se ele tiver uma)
     function atualizarCampo(event) {
         const { name, value } = event.target;
+        const formatar = MASCARAS[name];
 
         setFormulario((anterior) => ({
             ...anterior,
-            [name]: value
+            [name]: formatar ? formatar(value) : value
         }));
 
         setErro("");
     }
 
-    // Quando clico em "Criar conta"
+    // Clique em "Criar conta"
     async function handleSubmit(event) {
         event.preventDefault();
-
         setErro("");
 
-        // 1. As duas senhas precisam ser iguais
+        // 1. As senhas precisam ser iguais
         if (formulario.senha !== formulario.confirmarSenha) {
             setErro("As senhas informadas não coincidem.");
             return;
         }
 
-        // 2. Garante que a pessoa tenha clicado em "aceitar os termos" -> falta criar a tela que terá o texto dos termos
+        // 2. Os termos precisam estar aceitos (falta criar a tela com o texto dos termos)
         if (!aceitouTermos) {
             setErro("Você precisa aceitar os termos para continuar.");
             return;
         }
 
-        // 3. Garante que o App mandou a função de continuar
+        // 3. O fluxo precisa ter enviado a função de continuar
         if (typeof onContinuarVerificacao !== "function") {
             setErro("Não foi possível abrir a tela de verificação.");
-
-            console.error(
-                "A propriedade onContinuarVerificacao não foi fornecida."
-            );
-
+            console.error("A propriedade onContinuarVerificacao não foi fornecida.");
             return;
         }
 
-        // 4. Manda os dados pro App -> Ele envia o SMS e abre a verificação
-        //    Se o envio der erro, mostra a mensagem aqui mesmo
+        // 4. Manda os dados pro fluxo (ele envia o SMS e abre a verificação).
+        //    Se der erro, a mensagem aparece aqui mesmo.
         setEnviando(true);
 
         try {
@@ -203,6 +257,9 @@ export default function CreateAccount({
         }
     }
 
+    // ---------------------------------------------------------------
+    //                              Tela
+    // ---------------------------------------------------------------
     return (
         // Fundo desfocado
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-2 backdrop-blur-[3px] sm:p-4">
@@ -249,6 +306,7 @@ export default function CreateAccount({
                             name="nascimento"
                             placeholder="DD/MM/AAAA"
                             value={formulario.nascimento}
+                            inputMode="numeric"
                             onChange={atualizarCampo}
                         />
 
@@ -273,7 +331,7 @@ export default function CreateAccount({
                         onChange={atualizarCampo}
                     />
 
-                    {/* Telefone: é pra esse número que vai o SMS */}
+                    {/* Telefone (é pra esse número que vai o SMS) */}
                     <Campo
                         label="Telefone"
                         name="telefone"
@@ -301,9 +359,7 @@ export default function CreateAccount({
                         name="confirmarSenha"
                         placeholder="Repita a senha"
                         mostrar={mostrarConfirmacao}
-                        alternar={() =>
-                            setMostrarConfirmacao(!mostrarConfirmacao)
-                        }
+                        alternar={() => setMostrarConfirmacao(!mostrarConfirmacao)}
                         value={formulario.confirmarSenha}
                         onChange={atualizarCampo}
                     />
@@ -314,9 +370,7 @@ export default function CreateAccount({
                         <input
                             type="checkbox"
                             checked={aceitouTermos}
-                            onChange={(e) =>
-                                setAceitouTermos(e.target.checked)
-                            }
+                            onChange={(e) => setAceitouTermos(e.target.checked)}
                             className="h-[16px] w-[16px] shrink-0 cursor-pointer accent-[#55B75D]"
                         />
 

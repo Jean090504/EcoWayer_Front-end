@@ -4,7 +4,7 @@ import Header from "./components/layout/header.jsx";
 import Footer from "./components/layout/footer.jsx";
 
 import Login from "./components/cards/conta/cardLogin.jsx";
-import CriarConta from "./components/cards/conta/cardCriarConta.jsx";
+import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx";
 
 import Home from "./pages/Home.jsx";
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
@@ -31,15 +31,15 @@ export default function App() {
     }
 
     return (
-        <div className = "flex min-h-screen flex-col gap-6 sm:gap-8">
+        <div className="flex min-h-screen flex-col">
             <Header
-                usuario = {usuario}
-                onAbrirLogin = {() => setAbrirLogin(true)}
-                onAbrirCriarConta = {() => setAbrirCadastro(true)}
-                onNavegar = {navegar}
+                usuario={usuario}
+                onAbrirLogin={() => setAbrirLogin(true)}
+                onAbrirCriarConta={() => setAbrirCadastro(true)}
+                onNavegar={navegar}
             />
 
-            <main className = "flex flex-1 flex-col">
+            <main className="flex flex-1 flex-col">
                 {/* {telaAtiva === "home" && (
                     <Home onNavegar = {navegar} />
                 )}
@@ -48,16 +48,17 @@ export default function App() {
                     <AvaliacaoAnuncio onNavegar = {navegar} />
                 )} */}
 
-                <AvaliacaoAnuncio/>
+                <Home />
+                {/* <AvaliacaoAnuncio/> */}
             </main>
 
             <Footer />
 
             {abrirLogin && (
                 <Login
-                    onClose = {() => setAbrirLogin(false)}
-                    onLoginSuccess = {realizarLogin}
-                    onAbrirCriarConta = {() => {
+                    onClose={() => setAbrirLogin(false)}
+                    onLoginSuccess={realizarLogin}
+                    onAbrirCriarConta={() => {
                         setAbrirLogin(false);
                         setAbrirCadastro(true);
                     }}
@@ -65,8 +66,12 @@ export default function App() {
             )}
 
             {abrirCadastro && (
-                <CriarConta
-                    onClose = {() => setAbrirCadastro(false)}
+                <FluxoCriarConta
+                    onClose={() => setAbrirCadastro(false)}
+                    onContaCriada={(novoUsuario) => {
+                        setUsuario(novoUsuario);
+                        setAbrirCadastro(false);
+                    }}
                 />
             )}
         </div>
