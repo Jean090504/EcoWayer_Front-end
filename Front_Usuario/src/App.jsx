@@ -8,6 +8,7 @@ import CriarConta from "./components/cards/conta/cardCriarConta.jsx";
 
 import Home from "./pages/Home.jsx";
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
+import MinhaCarteira from "./pages/MinhaCarteira.jsx";
 
 export default function App() {
     const [usuario, setUsuario] = useState(null);
@@ -31,7 +32,7 @@ export default function App() {
     }
 
     return (
-        <div className = "flex min-h-screen flex-col gap-6 sm:gap-8">
+        <div className="flex min-h-screen flex-col"> 
             <Header
                 usuario = {usuario}
                 onAbrirLogin = {() => setAbrirLogin(true)}
@@ -48,7 +49,8 @@ export default function App() {
                     <AvaliacaoAnuncio onNavegar = {navegar} />
                 )} */}
 
-                <AvaliacaoAnuncio/>
+                {/* <AvaliacaoAnuncio/> */}
+                <MinhaCarteira/>
             </main>
 
             <Footer />

@@ -140,7 +140,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
     // Render
     // -----------------------------------------------------------------------
     return (
-        <header className="mt-3 h-[clamp(72px,5.27vw,104px)] w-full border-b border-gray-100 bg-white">
+        <header className="h-[clamp(120px,5.27vw,150px)] w-full border-b border-gray-200 bg-white">
             {/* Contêiner dos elementos */}
             <div className={`mx-auto flex h-full w-full max-w-[clamp(1360px,99.5vw,1800px)] items-center justify-between ${GAP_GRUPOS} px-[clamp(24px,1.76vw,40px)]`}>
 

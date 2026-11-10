@@ -1,4 +1,4 @@
-export default function BotaoHeader({ children, onClick, className }) {
+export default function Botao({ children, onClick, className }) {
     // Botões do header (meus anúncios, criar anúncio, login, criar conta) 
     // são todos iguais, então criei esse componente pra não repetir código
     return (

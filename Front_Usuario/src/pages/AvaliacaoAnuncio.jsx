@@ -1,6 +1,6 @@
 import { Award, Recycle, ShieldCheck } from "lucide-react"
-import CardAvaliacao from "../components/cards/cardAvaliacao"
-import CardBeneficio from "../components/cards/cardBeneficio"
+import CardAvaliacao from "../components/cards/avaliacao/cardAvaliacao"
+import CardBeneficio from "../components/cards/avaliacao/cardBeneficio"
 
 export default function AvaliacaoAnuncio({ aoVoltar }) {
   const dadosTeste = {
