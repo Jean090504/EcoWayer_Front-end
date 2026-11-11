@@ -158,7 +158,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                     />
                     <Search
                     size = {25}
-                    className = "ml-3 h-[clamp(16px,1.17vw,24px)] w-[clamp(16px,1.17vw,24px)] shrink-0 text-[#8C8C8C]"
+                    className = "ml-3 h-[clamp(16px,1.17vw,24px)] w-[clamp(16px,1.17vw,24px)] shrink-0 text-[#8C8C8C] cursor-pointer"
                     />
 
                     <div className="ml-3 flex h-[clamp(28px,2.05vw,38px)] shrink-0 items-center border-l border-gray-200 pl-2">
@@ -170,7 +170,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                             onClick={() => setMostrarFiltro(!mostrarFiltro)}
                             className="flex items-center justify-center rounded-md p-1 transition hover:bg-gray-100"
                         >
-                            <MapPin className={`${ICONE_NAV} object-contain text-[#8C8C8C]`} />
+                            <MapPin className={`${ICONE_NAV} object-contain text-[#8C8C8C] cursor-pointer`} />
                         </button>
                     </div>
 
@@ -289,14 +289,14 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                         <div className="flex shrink-0 items-center gap-3">
                             <BotaoHeader
                                 onClick={onAbrirCriarConta}
-                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full border border-gray-300 bg-white px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600`}
+                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full border border-gray-300 bg-white px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-gray-700 transition-colors cursor-pointer hover:border-green-600 hover:text-green-600`}
                             >
                                 Criar Conta
                             </BotaoHeader>
 
                             <BotaoHeader
                                 onClick={onAbrirLogin}
-                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full bg-[#724BC2] px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
+                                className={`flex h-[clamp(36px,2.64vw,50px)] items-center justify-center rounded-full bg-[#724BC2] px-[clamp(24px,1.76vw,34px)] ${TEXTO_SM} font-semibold text-white transition cursor-pointer`}
                             >
                                 Logar
                             </BotaoHeader>

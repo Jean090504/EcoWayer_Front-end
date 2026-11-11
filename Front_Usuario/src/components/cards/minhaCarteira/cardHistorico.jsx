@@ -66,7 +66,7 @@ export default function CardHistorico() {
             key={f.id}
             onClick={() => mudarFiltro(f.id)}
             className={`rounded-full px-4 py-1.5 text-[12px] font-semibold cursor-pointer ${
-              filtro === f.id ? "bg-[#6D32C9] text-white" : "bg-[#F3F3F3] text-[#3E4A3D]"
+              filtro === f.id ? "bg-[#724BC2] text-white" : "bg-[#F3F3F3] text-[#3E4A3D]"
             }`}
           >
             {f.label}

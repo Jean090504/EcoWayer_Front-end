@@ -9,6 +9,7 @@ import CriarConta from "./components/cards/conta/cardCriarConta.jsx";
 import Home from "./pages/Home.jsx";
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
 import MinhaCarteira from "./pages/MinhaCarteira.jsx";
+import PontosBeneficios from "./pages/PontosBeneficios.jsx"
 
 export default function App() {
     const [usuario, setUsuario] = useState(null);
@@ -50,7 +51,8 @@ export default function App() {
                 )} */}
 
                 {/* <AvaliacaoAnuncio/> */}
-                <MinhaCarteira/>
+                {/* <MinhaCarteira/> */}
+                <PontosBeneficios/>
             </main>
 
             <Footer />
@@ -72,5 +74,5 @@ export default function App() {
                 />
             )}
         </div>
-    );
+    )
 }

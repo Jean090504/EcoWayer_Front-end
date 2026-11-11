@@ -15,7 +15,7 @@
 // ---------- CONFIGURAÇÕES ----------
 
 // Endereço do backend (pode trocar no .env com VITE_API_URL)
-export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5173/api";
 
 // Chave que liga o mock
 export const USAR_MOCK = import.meta.env.VITE_USAR_MOCK === "true";
