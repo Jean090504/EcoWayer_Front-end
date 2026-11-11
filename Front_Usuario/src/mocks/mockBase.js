@@ -12,7 +12,7 @@
 // ---------------------------------------------------------------
 
 
-// ---------- CONFIGURAÇÕES ----------
+// <---------- CONFIGURAÇÕES ---------->
 
 // Endereço do backend (pode trocar no .env com VITE_API_URL)
 export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
@@ -21,15 +21,12 @@ export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/ap
 export const USAR_MOCK = import.meta.env.VITE_USAR_MOCK === "true";
 
 
-// ---------- FERRAMENTAS ----------
+// <---------- FERRAMENTAS ---------->
 
 // Espera um tempinho (pra parecer que está falando com um servidor)
 export const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Simula uma chamada ao backend.
-// - resposta: o que devolver (pode ser um valor ou uma função que devolve o valor)
-// - atraso: quantos ms demora (padrão 800)
-// - erro: se eu passar um texto, a chamada falha com essa mensagem
 export async function simular(resposta, { atraso = 800, erro = null } = {}) {
     await esperar(atraso);
 

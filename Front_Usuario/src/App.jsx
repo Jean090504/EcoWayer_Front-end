@@ -8,7 +8,7 @@ import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx";
 
 import Home from "./pages/Home.jsx";
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
-import CriarNovoAnuncio from "./pages/CriarNovoAnuncio.jsx";
+import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx";
 
 
 export default function App() {
