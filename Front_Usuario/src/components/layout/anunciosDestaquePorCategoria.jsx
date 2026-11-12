@@ -17,52 +17,38 @@ const GAP_CARROSSEL = 16; // gap-4 = 16px (tem que bater com o gap do carrossel)
 // Classes repetidas nas setinhas do cabeçalho
 const setaClass = "flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition hover:border-[#724BC2] hover:text-[#724BC2]";
 
-// Anúncios de cada categoria (dados de teste).
+// Um carrossel para cada modalidade (os "id" são os mesmos do card de novo anúncio)
+const MODALIDADES = [
+    { id: "venda", titulo: "Mais recentes em Venda" },
+    { id: "troca", titulo: "Mais recentes em Troca" },
+    { id: "doacao", titulo: "Mais recentes em Doação" }
+];
+
+// Anúncios de teste.
 // Obs.: "precoAntigo" é opcional (aparece riscado) e "destaque" mostra a etiqueta roxa.
-const categoriasDestaque = [
-    {
-        id: "moveis",
-        titulo: "Móveis",
-        anuncios: [
-            { id: 1, nome: "Mesa semi nova", preco: "R$ 170,00", imagem: Mesa, destaque: true, data: "Hoje, 9:20", local: "São Paulo - SP" },
-            { id: 2, nome: "Sofá semi novo - confortável", preco: "R$ 450,00", precoAntigo: "R$ 600,00", imagem: Sofa, destaque: true, data: "Hoje, 9:15", local: "Osasco - SP" },
-            { id: 3, nome: "Poltrona cor creme nova", preco: "R$ 180,00", imagem: Poltrona, destaque: false, data: "11/11/2026, 9:09", local: "Guarulhos - SP" },
-            { id: 4, nome: "Mesa de jantar 4 lugares", preco: "R$ 320,00", imagem: Mesa, destaque: false, data: "10/11/2026, 14:30", local: "São Bernardo do Campo - SP" },
-            { id: 5, nome: "Sofá 2 lugares retrátil", preco: "R$ 800,00", imagem: Sofa, destaque: false, data: "09/11/2026, 10:57", local: "Santo André - SP" },
-            { id: 6, nome: "Poltrona reclinável", preco: "R$ 250,00", imagem: Poltrona, destaque: true, data: "09/11/2026, 8:40", local: "São Paulo - SP" }
-        ]
-    },
-    {
-        id: "fardos",
-        titulo: "Fardos",
-        anuncios: [
-            { id: 7, nome: "Fardo de PET limpo - garrafas", preco: "R$ 64,00", imagem: Garrafas, destaque: true, data: "Hoje, 9:55", local: "Guarulhos - SP" },
-            { id: 8, nome: "Papelão prensado - 50 kg", preco: "R$ 45,00", imagem: Papelao, destaque: false, data: "Hoje, 8:30", local: "São Paulo - SP" },
-            { id: 9, nome: "Fardo de PET - 100 kg", preco: "R$ 110,00", precoAntigo: "R$ 130,00", imagem: Garrafas, destaque: true, data: "11/11/2026, 16:10", local: "Mauá - SP" },
-            { id: 10, nome: "Papelão ondulado limpo", preco: "R$ 52,00", imagem: Papelao, destaque: false, data: "10/11/2026, 11:20", local: "Osasco - SP" },
-            { id: 11, nome: "Garrafas PET sem rótulo", preco: "R$ 38,00", imagem: Garrafas, destaque: false, data: "09/11/2026, 9:00", local: "Diadema - SP" }
-        ]
-    },
-    {
-        id: "eletrodomesticos",
-        titulo: "Eletrodomésticos",
-        anuncios: [
-            { id: 12, nome: "Geladeira nova - branca", preco: "R$ 1.200,00", precoAntigo: "R$ 1.500,00", imagem: Geladeira, destaque: true, data: "Hoje, 9:40", local: "São Paulo - SP" },
-            { id: 13, nome: "Geladeira frost free usada", preco: "R$ 900,00", imagem: Geladeira, destaque: false, data: "11/11/2026, 13:05", local: "Santo André - SP" },
-            { id: 14, nome: "Geladeira duplex 370 L", preco: "R$ 1.050,00", imagem: Geladeira, destaque: false, data: "10/11/2026, 17:45", local: "Guarulhos - SP" },
-            { id: 15, nome: "Geladeira pequena - frigobar", preco: "R$ 350,00", imagem: Geladeira, destaque: true, data: "09/11/2026, 12:00", local: "Osasco - SP" }
-        ]
-    },
-    {
-        id: "dispositivos",
-        titulo: "Dispositivos",
-        anuncios: [
-            { id: 16, nome: "Celular usado - modelo antigo", preco: "R$ 150,00", imagem: Telefone, destaque: true, data: "Hoje, 9:10", local: "São Paulo - SP" },
-            { id: 17, nome: "Celular para peças", preco: "R$ 60,00", imagem: Telefone, destaque: false, data: "Hoje, 7:50", local: "Mauá - SP" },
-            { id: 18, nome: "Smartphone com tela trincada", preco: "R$ 220,00", precoAntigo: "R$ 300,00", imagem: Telefone, destaque: false, data: "11/11/2026, 15:25", local: "Diadema - SP" },
-            { id: 19, nome: "Celular básico funcionando", preco: "R$ 90,00", imagem: Telefone, destaque: false, data: "10/11/2026, 9:30", local: "Guarulhos - SP" }
-        ]
-    }
+// Na troca e na doação, o "preco" mostra o próprio nome da modalidade.
+const anunciosIniciais = [
+
+    // ---------- VENDA ----------
+    { id: 1, modalidade: "venda", nome: "Mesa semi nova", preco: "R$ 170,00", imagem: Mesa, destaque: true, data: "Hoje, 9:20", local: "São Paulo - SP" },
+    { id: 2, modalidade: "venda", nome: "Sofá semi novo - confortável", preco: "R$ 450,00", precoAntigo: "R$ 600,00", imagem: Sofa, destaque: true, data: "Hoje, 9:15", local: "Osasco - SP" },
+    { id: 3, modalidade: "venda", nome: "Fardo de PET limpo - garrafas", preco: "R$ 64,00", imagem: Garrafas, destaque: false, data: "Hoje, 8:30", local: "Guarulhos - SP" },
+    { id: 4, modalidade: "venda", nome: "Geladeira nova - branca", preco: "R$ 1.200,00", precoAntigo: "R$ 1.500,00", imagem: Geladeira, destaque: true, data: "11/11/2026, 13:05", local: "São Paulo - SP" },
+    { id: 5, modalidade: "venda", nome: "Papelão prensado - 50 kg", preco: "R$ 45,00", imagem: Papelao, destaque: false, data: "10/11/2026, 11:20", local: "Osasco - SP" },
+    { id: 6, modalidade: "venda", nome: "Celular usado - modelo antigo", preco: "R$ 150,00", imagem: Telefone, destaque: false, data: "09/11/2026, 9:10", local: "Mauá - SP" },
+
+    // ---------- TROCA ----------
+    { id: 7, modalidade: "troca", nome: "Poltrona cor creme nova", preco: "Troca", imagem: Poltrona, destaque: true, data: "Hoje, 9:05", local: "Guarulhos - SP" },
+    { id: 8, modalidade: "troca", nome: "Celular para peças", preco: "Troca", imagem: Telefone, destaque: false, data: "Hoje, 7:50", local: "Mauá - SP" },
+    { id: 9, modalidade: "troca", nome: "Mesa de jantar 4 lugares", preco: "Troca", imagem: Mesa, destaque: false, data: "11/11/2026, 14:30", local: "São Bernardo do Campo - SP" },
+    { id: 10, modalidade: "troca", nome: "Fardo de papelão limpo", preco: "Troca", imagem: Papelao, destaque: false, data: "10/11/2026, 16:10", local: "Diadema - SP" },
+    { id: 11, modalidade: "troca", nome: "Geladeira frost free usada", preco: "Troca", imagem: Geladeira, destaque: true, data: "09/11/2026, 12:00", local: "Santo André - SP" },
+
+    // ---------- DOAÇÃO ----------
+    { id: 12, modalidade: "doacao", nome: "Garrafas PET sem rótulo", preco: "Doação", imagem: Garrafas, destaque: true, data: "Hoje, 9:40", local: "Diadema - SP" },
+    { id: 13, modalidade: "doacao", nome: "Sofá 2 lugares retrátil", preco: "Doação", imagem: Sofa, destaque: false, data: "Hoje, 8:10", local: "Santo André - SP" },
+    { id: 14, modalidade: "doacao", nome: "Papelão ondulado limpo", preco: "Doação", imagem: Papelao, destaque: false, data: "11/11/2026, 16:45", local: "Osasco - SP" },
+    { id: 15, modalidade: "doacao", nome: "Poltrona reclinável", preco: "Doação", imagem: Poltrona, destaque: false, data: "10/11/2026, 17:45", local: "São Paulo - SP" }
 ];
 
 
@@ -132,8 +118,8 @@ function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
     );
 }
 
-// Um carrossel completo de uma categoria (título, setas e lista de cards)
-function CarrosselCategoria({ categoria }) {
+// Um carrossel completo de uma modalidade (título, setas e lista de cards)
+function CarrosselModalidade({ titulo, anuncios }) {
     const carrosselRef = useRef(null);
     const [favoritos, setFavoritos] = useState([]);
 
@@ -164,14 +150,14 @@ function CarrosselCategoria({ categoria }) {
             {/* Cabeçalho */}
             <div className="mb-3 flex items-center justify-between gap-2">
                 <h2 className="text-[clamp(16px,1.4vw,22px)] font-semibold text-gray-800">
-                    Mais recentes em {categoria.titulo}
+                    {titulo}
                 </h2>
 
                 <div className="flex shrink-0 gap-2">
                     <button
                         type="button"
                         onClick={() => moverCarrossel(-1)}
-                        aria-label={`Ver anúncios anteriores de ${categoria.titulo}`}
+                        aria-label={`Ver anúncios anteriores: ${titulo}`}
                         className={setaClass}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
@@ -182,7 +168,7 @@ function CarrosselCategoria({ categoria }) {
                     <button
                         type="button"
                         onClick={() => moverCarrossel(1)}
-                        aria-label={`Ver próximos anúncios de ${categoria.titulo}`}
+                        aria-label={`Ver próximos anúncios: ${titulo}`}
                         className={setaClass}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
@@ -197,7 +183,7 @@ function CarrosselCategoria({ categoria }) {
                 ref={carrosselRef}
                 className="flex w-full min-w-0 snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-                {categoria.anuncios.map((anuncio) => (
+                {anuncios.map((anuncio) => (
                     <CardAnuncio
                         key={anuncio.id}
                         anuncio={anuncio}
@@ -212,17 +198,35 @@ function CarrosselCategoria({ categoria }) {
 
 
 // ===================================================================
-//              ANÚNCIOS EM DESTAQUE POR CATEGORIA
+//              ANÚNCIOS EM DESTAQUE POR MODALIDADE
 //
-// Mostra um carrossel para cada categoria (Móveis, Fardos, etc.),
+// Mostra um carrossel para cada modalidade (venda, troca e doação),
 // parecido com o "Mais recentes em..." da OLX.
+//
+// Props recebidas da Home:
+//   anunciosNovos -> anúncios publicados nesta sessão (aparecem primeiro)
 // ===================================================================
-export default function AnunciosDestaquePorCategoria() {
+export default function AnunciosDestaquePorCategoria({ anunciosNovos = [] }) {
+
+    // Anúncios novos na frente, depois os de teste
+    const todos = [...anunciosNovos, ...anunciosIniciais];
+
     return (
         <div className="flex w-full flex-col gap-6">
-            {categoriasDestaque.map((categoria) => (
-                <CarrosselCategoria key={categoria.id} categoria={categoria} />
-            ))}
+            {MODALIDADES.map((modalidade) => {
+                const anuncios = todos.filter((a) => a.modalidade === modalidade.id);
+
+                // Modalidade sem nenhum anúncio não aparece
+                if (anuncios.length === 0) return null;
+
+                return (
+                    <CarrosselModalidade
+                        key={modalidade.id}
+                        titulo={modalidade.titulo}
+                        anuncios={anuncios}
+                    />
+                );
+            })}
         </div>
     );
 }
