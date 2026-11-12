@@ -97,7 +97,7 @@ export default function Pontos() {
     <div>
       <div className="mx-auto w-full max-w-[1600px] px-5 pb-10 pt-7 sm:px-8 lg:px-10">
         <div className="mb-7 flex items-end justify-between gap-4">
-          <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-600">Gestão da pontuação</p><h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800">Pontos</h1><p className="mt-1 text-sm text-slate-400">Acompanhe regras, categorias e validações da comunidade.</p></div>
+          <div><p className="text-sm font-bold uppercase tracking-[0.16em] text-[#65BA69]">Gestão da pontuação</p><h1 className="mt-1 text-4xl font-extrabold tracking-tight text-slate-800">Pontos</h1></div>
         </div>
         <div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">

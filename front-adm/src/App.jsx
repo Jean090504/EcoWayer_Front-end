@@ -7,6 +7,8 @@ import ChamadoIndividual from "./pages/ChamadoIndividual.jsx"
 import Coleta from "./pages/Coleta.jsx"
 import Categorias from "./pages/Categorias.jsx"
 import Pontos from "./pages/Pontos.jsx"
+import GiftCards from "./pages/GiftCards.jsx"
+import Resgates from "./pages/Resgates.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
 import CategoriaIndividual from "./pages/CategoriaIndividual.jsx"
 import AssistenteChat from "./components/AssistenteChat.jsx"
@@ -62,6 +64,8 @@ export default function App() {
             : <Categorias aoAbrirCategoria = {setCategoriaAberta} />
         )}
         {ativa === "pontos" && <Pontos />}
+        {ativa === "giftcards" && <GiftCards />}
+        {ativa === "resgates" && <Resgates />}
         {ativa === "dashboard" && <Dashboard />}
       </div>
 

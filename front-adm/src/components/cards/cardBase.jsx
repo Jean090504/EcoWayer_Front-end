@@ -9,7 +9,7 @@ export default function CardBase({ imagem, botaoTexto, children, onClick, onDele
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
-      <button className="rounded-xl bg-[#7350B9] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#6140a5]" onClick={onClick}>
+      <button className="rounded-xl bg-[#7350B9] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#6140a5]" onClick={onClick}>
         {botaoTexto}
       </button>
       {onDelete && <button type="button" onClick={onDelete} className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">Excluir</button>}

@@ -116,8 +116,8 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
       {/* Cabeçalho superior com barra de busca e botão de ação */}
       <div className="flex flex-col items-start justify-between gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-center">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#65BA69]">Configuração</p>
-          <h2 className="mt-1 text-lg font-extrabold tracking-tight text-slate-800">
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#65BA69]">Configuração</p>
+          <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-800">
           Pontuação Base por Categoria
           </h2>
         </div>

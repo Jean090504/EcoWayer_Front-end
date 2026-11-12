@@ -4,7 +4,7 @@ import TagMaterial from "./TagMaterial.jsx";
 // Bolinha colorida ao lado do nome (verde = ativo, amarela = manutenção)
 const COR_BOLINHA = { ativo: "bg-[#65BA69]", manutencao: "bg-[#d8a24a]", cheio: "bg-[#d95b61]" };
 
-export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, onCadastrar }) {
+export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, onCadastrar, onAlterarStatus, statusAlterando }) {
   return (
     // Card clicável do ponto; ganha borda verde quando está selecionado no mapa
     <div
@@ -26,7 +26,18 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, o
           <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-slate-400">{ponto.endereco}</p>
         </div>
 
-        <StatusBadge status={ponto.status} />
+        <button
+          type="button"
+          title="Clique para alternar o status"
+          disabled={statusAlterando}
+          onClick={(e) => {
+            e.stopPropagation();
+            onAlterarStatus?.(ponto);
+          }}
+          className="rounded-md transition hover:scale-105 disabled:cursor-wait disabled:opacity-60"
+        >
+          <StatusBadge status={ponto.status} />
+        </button>
       </div>
 
       {/* Lista de materiais aceitos */}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { ChevronDown } from "lucide-react"
 import { atualizarItem, criarItem } from "../../services/categoriaService.js"
 import { uploadImagem } from "../../services/claudnaryService.js"
 
@@ -7,6 +8,8 @@ export default function ModalNovoItem({ categoriaId, item, aoFechar, aoSalvar })
   const [nome, setNome] = useState(item?.nome || "")
   const [pontos, setPontos] = useState(item?.pontos_base?.toString() || "")
   const [descricao, setDescricao] = useState(item?.descricao || "")
+  const [status, setStatus] = useState(item?.status || "ativo")
+  const [statusAberto, setStatusAberto] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState("")
   const [arquivo, setArquivo] = useState(null)
@@ -15,10 +18,11 @@ export default function ModalNovoItem({ categoriaId, item, aoFechar, aoSalvar })
     setNome(item?.nome || "")
     setPontos(item?.pontos_base?.toString() || "")
     setDescricao(item?.descricao || "")
+    setStatus(item?.status || "ativo")
   }, [item])
 
   function fechar() {
-    setNome(""); setPontos(""); setDescricao(""); setArquivo(null); setErro(""); aoFechar()
+    setNome(""); setPontos(""); setDescricao(""); setStatus("ativo"); setStatusAberto(false); setArquivo(null); setErro(""); aoFechar()
   }
 
   async function salvar() {
@@ -36,7 +40,7 @@ export default function ModalNovoItem({ categoriaId, item, aoFechar, aoSalvar })
         nome: nome.trim(),
         descricao: descricao.trim() || null,
         pontos_base: pontosNum,
-        status: item?.status || "ativo",
+        status,
         img,
       }
       if (editando) await atualizarItem(item.id, dados)
@@ -98,8 +102,32 @@ export default function ModalNovoItem({ categoriaId, item, aoFechar, aoSalvar })
             />
           </div>
           <div className="flex-1">
-            <label className="text-[13px] font-bold">Status Inicial</label>
-            <input className={`${campo} mt-1 text-[#9A9A9A]`} value="Ativo" disabled />
+            <label className="text-[13px] font-bold">Status</label>
+            <div className="relative mt-1">
+              <button
+                type="button"
+                onClick={() => setStatusAberto((aberto) => !aberto)}
+                className={`flex h-10 w-full items-center justify-between rounded-xl border bg-slate-50 px-3 text-left text-sm text-slate-600 outline-none transition ${statusAberto ? "border-[#65BA69] ring-2 ring-green-100" : "border-slate-200 hover:border-slate-300"}`}
+                aria-expanded={statusAberto}
+              >
+                <span className="leading-none">{status === "inativo" ? "Inativo" : "Ativo"}</span>
+                <ChevronDown size={15} strokeWidth={1.8} className={`shrink-0 text-slate-400 transition-transform ${statusAberto ? "rotate-180" : ""}`} />
+              </button>
+              {statusAberto && (
+                <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
+                  {[{ valor: "ativo", label: "Ativo" }, { valor: "inativo", label: "Inativo" }].map((opcao) => (
+                    <button
+                      key={opcao.valor}
+                      type="button"
+                      onClick={() => { setStatus(opcao.valor); setStatusAberto(false) }}
+                      className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${opcao.valor === status ? "bg-green-50 font-bold text-[#65BA69]" : "text-slate-600 hover:bg-slate-50"}`}
+                    >
+                      {opcao.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
