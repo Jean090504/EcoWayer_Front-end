@@ -20,7 +20,7 @@ const produtos = [
 export default function DestaqueAnuncios() {
     const carrosselRef = useRef(null);
     const [favoritos, setFavoritos] = useState([]);
-
+ 
     function moverCarrossel(direcao) {
         if (!carrosselRef.current) return;
 
