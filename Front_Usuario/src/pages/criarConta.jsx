@@ -286,6 +286,11 @@ export default function CreateAccount({
             return;
         }
 
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,128}$/.test(formulario.senha)) {
+            setErro("A senha precisa ter 10 caracteres, maiúscula, minúscula, número e símbolo.");
+            return;
+        }
+
         // 1. As duas senhas precisam ser iguais
         if (formulario.senha !== formulario.confirmarSenha) {
             setErro("As senhas informadas não coincidem.");

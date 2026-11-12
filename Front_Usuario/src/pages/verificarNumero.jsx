@@ -17,6 +17,7 @@ const camposVazios = () => Array(TAMANHO_CODIGO).fill("");
 export default function VerificacaoNumero({
     telefone,
     tipo = "telefone",
+    codigoDesenvolvimento,
     onVoltar,
     onVerificar,
     onReenviar
@@ -182,6 +183,12 @@ export default function VerificacaoNumero({
                     </strong>
                     .
                 </p>
+
+                {codigoDesenvolvimento && (
+                    <p className="mb-[18px] rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-800">
+                        Código de demonstração: <strong className="text-sm tracking-[0.18em]">{codigoDesenvolvimento}</strong>
+                    </p>
+                )}
 
                 <form onSubmit={enviarFormulario}>
 

@@ -30,7 +30,7 @@ export default function App() {
 
     async function continuarVerificacao(dados) {
         const resposta = await apiFetch("/auth/register", { method: "POST", body: JSON.stringify({ nome: dados.nome, cpf: dados.cpf, data_nascimento: dataApi(dados.nascimento), id_genero: Number(dados.id_genero), email: dados.email, telefone: dados.telefone, senha: dados.senha }) });
-        setDadosCadastro({ ...dados, id_usuario: resposta.id_usuario });
+        setDadosCadastro({ ...dados, id_usuario: resposta.id_usuario, codigos_desenvolvimento: resposta.codigos_desenvolvimento });
         setTipoVerificacao("telefone");
         setAbrirCadastro(false);
         setAbrirVerificacao(true);
@@ -58,6 +58,6 @@ export default function App() {
         <Footer /><AssistenteChat />
         {abrirLogin && <Login onClose={() => setAbrirLogin(false)} onLoginSuccess={(dados) => { setUsuario(dados); setAbrirLogin(false); }} onAbrirCriarConta={() => { setAbrirLogin(false); setAbrirCadastro(true); }} />}
         {abrirCadastro && <CriarConta dadosIniciais={dadosCadastro} onClose={() => setAbrirCadastro(false)} onContinuarVerificacao={continuarVerificacao} />}
-        {abrirVerificacao && <VerificacaoNumero telefone={tipoVerificacao === "telefone" ? dadosCadastro?.telefone : dadosCadastro?.email} tipo={tipoVerificacao} onVoltar={() => { setAbrirVerificacao(false); setAbrirCadastro(true); }} onVerificar={verificarCodigo} onReenviar={reenviarCodigo} />}
+        {abrirVerificacao && <VerificacaoNumero telefone={tipoVerificacao === "telefone" ? dadosCadastro?.telefone : dadosCadastro?.email} tipo={tipoVerificacao} codigoDesenvolvimento={dadosCadastro?.codigos_desenvolvimento?.[tipoVerificacao]} onVoltar={() => { setAbrirVerificacao(false); setAbrirCadastro(true); }} onVerificar={verificarCodigo} onReenviar={reenviarCodigo} />}
     </div>;
 }
