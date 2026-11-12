@@ -1,26 +1,14 @@
 import CardPonto from "./CardPonto.jsx";
 
-export default function ListaPontos({ pontos, selecionadoId, onSelect, onGerenciar }) {
-  const operando = pontos.filter((p) => p.status === "ativo").length;
-
+export default function ListaPontos({ pontos, selecionadoId, onSelect, onGerenciar, onCadastrar }) {
   return (
-    // Coluna esquerda: cabeçalho + lista rolável de cards
-    <section className="flex w-[300px] shrink-0 flex-col gap-3">
-      {/* Cabeçalho: total de pontos e quantos estão operando */}
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-          Pontos cadastrados ({pontos.length})
-        </span>
-        <span className="rounded bg-green-500 px-2 py-0.5 text-[10px] font-semibold text-white">
-          {operando} Operando
-        </span>
-      </div>
-
+    // Coluna esquerda com a lista rolável de cards
+    <section className="flex w-full shrink-0 flex-col gap-3 xl:w-[320px]">
       {/* Área rolável com os cards (altura limitada à tela) */}
-      <div className="flex max-h-[calc(100vh-220px)] flex-col gap-3 overflow-y-auto pr-1">
+      <div className="flex max-h-[calc(100vh-260px)] flex-col gap-3 overflow-y-auto pr-1">
         {/* Mensagem quando a busca não encontra nenhum ponto */}
         {pontos.length === 0 && (
-          <p className="rounded-xl bg-white p-4 text-center text-xs text-gray-400">Nenhum ponto encontrado</p>
+          <p className="rounded-2xl border border-slate-100 bg-white p-6 text-center text-xs text-slate-400 shadow-sm">Nenhum ponto encontrado</p>
         )}
 
         {pontos.map((p) => (
@@ -30,6 +18,7 @@ export default function ListaPontos({ pontos, selecionadoId, onSelect, onGerenci
             selecionado={p.id === selecionadoId}
             onSelect={onSelect}
             onGerenciar={onGerenciar}
+            onCadastrar={onCadastrar}
           />
         ))}
       </div>

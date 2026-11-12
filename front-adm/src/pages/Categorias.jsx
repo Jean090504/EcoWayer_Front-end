@@ -1,76 +1,131 @@
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 
-import Titulo from "../components/ui/titulo.jsx"
-import CardCategoria from "../components/cards/cardCategorias/cardCategorias.jsx"
+import CardCategoria from "../components/cards/cardCategoria.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
-import ModalAdicionarCategoria from "../components/modal/modalAdicionarItemCategoria.jsx"
+import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria.jsx"
+import { listarCategorias, excluirCategoria } from "../services/categoriaService.js"
+import ModalExcluirCategoria from "../components/modal/ModalExcluirCategoria.jsx"
+
+const URL_IMAGENS = "http://localhost:8080"
+
+// monta a URL da imagem sem gerar ".../undefined"
+function urlImagem(img) {
+  if (!img) return ""
+  if (img.includes("storage.ecowayer.test")) return ""
+  return img.startsWith("http") ? img : `${URL_IMAGENS}/${img}`
+}
 
 export default function Categorias({ aoAbrirCategoria }) {
   const [modalAberto, setModalAberto] = useState(false)
   const [modalAdd, setModalAdd] = useState(false)
+  const [categoriaExcluir, setCategoriaExcluir] = useState(null)
+  const [excluindo, setExcluindo] = useState(false)
+  const [erroExclusao, setErroExclusao] = useState("")
+
+  const [categorias, setCategorias] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState("")
+
+  const [busca, setBusca] = useState("")
+  const [tipoSelecionado, setTipoSelecionado] = useState("")
+
+  async function carregarCategorias() {
+    try {
+      setCarregando(true)
+      setErro("")
+      const dados = await listarCategorias()
+      setCategorias(Array.isArray(dados) ? dados : [])
+    } catch (e) {
+      console.error(e)
+      setErro("Não foi possível carregar as categorias.")
+    } finally {
+      setCarregando(false)
+    }
+  }
+
+  useEffect(() => {
+    carregarCategorias()
+  }, [])
+
+  const tipos = useMemo(() => {
+    const mapa = new Map()
+    categorias.forEach((c) => {
+      if (c.id_tipo_categoria != null) {
+        mapa.set(c.id_tipo_categoria, c.tipo_categoria ?? "")
+      }
+    })
+    return [...mapa].map(([id, nome]) => ({ valor: String(id), label: nome }))
+  }, [categorias])
+
+  const categoriasFiltradas = categorias.filter((c) => {
+    const bateNome = (c.nome ?? "").toLowerCase().includes(busca.toLowerCase())
+    const bateTipo = !tipoSelecionado || String(c.id_tipo_categoria) === tipoSelecionado
+    return bateNome && bateTipo
+  })
+
+  async function confirmarExclusao(confirmado) {
+    if (!confirmado) return setErroExclusao("Digite exatamente o texto solicitado para confirmar.")
+    try { setExcluindo(true); await excluirCategoria(categoriaExcluir.id); setCategoriaExcluir(null); await carregarCategorias() }
+    catch (e) { setErroExclusao(e.message || "Não foi possível excluir a categoria.") }
+    finally { setExcluindo(false) }
+  }
 
   return (
-    <div>
-      <Titulo texto = "Categorias" />
+    <div className="min-h-full bg-[#f6f7fb] pb-10">
+      <main className="mx-auto w-full max-w-[1600px] px-5 py-7 sm:px-8 lg:px-10">
+          <header className="mb-6 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#65BA69]">Catálogo</p>
+              <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800 sm:text-4xl">Categorias</h1>
+              <p className="mt-2 text-sm text-slate-500">Organize materiais, pontuação e itens disponíveis na plataforma.</p>
+            </div>
+            <button className="w-fit rounded-xl bg-[#65BA69] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#51a856]" onClick={() => setModalAdd(true)}>Adicionar categoria</button>
+          </header>
 
-      <div className = "flex flex-col items-center justify-center gap-4 mt-5">
-
-        <div className = "flex flex-col w-[95%] h-[85vh]"> 
-
-          <div className = "flex flex-row items-center w-full">
-
-            <InputBusca placeholder = "Buscar categoria" aoFiltrar = {() => setModalAberto(true)}/>
-
-            <button 
-              className = "bg-[#65BA69] text-[#FFFFFF] text-[clamp(18px,1.2vw,20px)] w-[clamp(200px,15vw,260px)] h-[clamp(50px,5vh,60px)] rounded-[10px] ml-auto cursor-pointer"
-              onClick = {() => setModalAdd(true)}
-            >
-              Adicionar Categoria
-            </button>
+          <div className="flex w-full items-center">
+            <InputBusca
+              placeholder="Buscar categoria"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              aoFiltrar={() => setModalAberto(true)}
+            />
           </div>
 
-          <div className = "mt-8 flex-1 min-h-0 space-y-4 overflow-y-auto overflow-x-hidden">
-              <CardCategoria 
-                titulo = "Móveis"
-                quantidade = "25"
-                imagem = ""
-                onClick = {() => aoAbrirCategoria("moveis")}
-              />
+          <div className="mt-5 min-h-0 space-y-3 overflow-y-auto overflow-x-hidden">
+            {carregando && <p className="rounded-2xl bg-white p-5 text-sm text-slate-500 shadow-sm">Carregando categorias...</p>}
+            {erro && <p className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-500">{erro}</p>}
+            {!carregando && !erro && categoriasFiltradas.length === 0 && (
+              <p className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500">Nenhuma categoria encontrada.</p>
+            )}
 
-              <CardCategoria 
-                titulo = "Eletrônicos"
-                quantidade = "12"
-                imagem = ""
+            {categoriasFiltradas.map((categoria) => (
+              <CardCategoria
+                key={categoria.id}
+                titulo={categoria.nome}
+                quantidade={Array.isArray(categoria.itens) ? categoria.itens.length : 0}
+                imagem={urlImagem(categoria.img)}
+                onClick={() => aoAbrirCategoria?.(categoria.id)}
               />
-              
-              <CardCategoria 
-                titulo = "Roupas"
-                quantidade = "45"
-                imagem = ""
-              />
+            ))}
           </div>
-        </div>   
-
         <ModalFiltro
-          modalAberto = {modalAberto}
-          onFechar = {() => setModalAberto(false)}
-          titulo = {"Filtrar Categorias"}
-          opcoes = {[
-            { valor: "opcao1", label: "Móveis" }, // vai funcionar pelo tipo de categoria
-            { valor: "opcao2", label: "Eletrônicos" },
-            { valor: "opcao3", label: "Roupas" }
-          ]}
-          selecionado = {""}
-          onSelecionar = {() => {}}
-        />     
-
-        <ModalAdicionarCategoria
-          modalAberto = {modalAdd}
-          onFechar = {() => setModalAdd(false)}
+          modalAberto={modalAberto}
+          onFechar={() => setModalAberto(false)}
+          titulo="Filtrar Categorias"
+          opcoes={tipos}
+          selecionado={tipoSelecionado}
+          onSelecionar={setTipoSelecionado}
         />
 
-      </div>
+        <ModalAdicionarCategoria
+          modalAberto={modalAdd}
+          onFechar={() => setModalAdd(false)}
+          tipos={tipos}
+          aoCriar={carregarCategorias}
+        />
+        {categoriaExcluir && <ModalExcluirCategoria categoria={categoriaExcluir} aoFechar={() => setCategoriaExcluir(null)} aoConfirmar={confirmarExclusao} salvando={excluindo} erro={erroExclusao} />}
+      </main>
     </div>
   )
 }

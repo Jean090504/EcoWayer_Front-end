@@ -1,21 +1,19 @@
 export default function BotaoMenu({ ativo, imagem, larguraImagem, altura: alturaImagem, texto, onClick }) {
-    return (
-      <div className = "relative">
+  return (
+    <div className="w-full">
+      <button
+        onClick={onClick}
+        className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition ${
+          ativo ? "bg-[#65BA69] text-white shadow-sm" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        }`}
+      >
         <img
-          src = {imagem}
-          alt = ""
-          className = {`${larguraImagem} ${alturaImagem} absolute left-0 top-[20px] pl-[15px] -translate-y-1/2  ${
-            ativo ? "brightness-0 invert" : ""
-          }`}
+          src={imagem}
+          alt=""
+          className={`${larguraImagem} ${alturaImagem} shrink-0 object-contain ${ativo ? "brightness-0 invert" : ""}`}
         />
-        <button
-          onClick = {onClick}
-          className = {`w-[clamp(190px,14vw,260px)] h-[clamp(45px,3.3vw,50px)] text-[clamp(16px,1vw,20px)] text-left rounded-[12px] pl-12.5 cursor-pointer ${
-            ativo ? "bg-[#65BA69] text-white" : "bg-transparent text-black"
-          }`}
-        >
-          {texto}
-        </button>
-      </div>
-    )
+        <span className="whitespace-nowrap">{texto}</span>
+      </button>
+    </div>
+  )
 }

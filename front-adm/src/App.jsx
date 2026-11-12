@@ -1,47 +1,64 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import Login from "./pages/Login.jsx"
 import Home from "./pages/Home.jsx"
 import Chamados from "./pages/Chamados.jsx"
+import ChamadoIndividual from "./pages/ChamadoIndividual.jsx"
 import Coleta from "./pages/Coleta.jsx"
 import Categorias from "./pages/Categorias.jsx"
 import Pontos from "./pages/Pontos.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
 import CategoriaIndividual from "./pages/CategoriaIndividual.jsx"
-import ChamadoIndividual from "./pages/ChamadoIndividual.jsx"
+import AssistenteChat from "./components/AssistenteChat.jsx"
 
 import Sidebar from "./components/layout/sidebar.jsx"
 import CardSair from "./components/layout/cardSair.jsx"
+import { apiFetch } from "./services/api.js"
 
 export default function App() {
-  // estado para controlar se o usuário está logado ou não, o setLogado atualiza esse valor e o react redesenha a tela automaticamente quando ele muda
-  const [logado, setLogado] = useState(false) // controla se tá logado
+  const [logado, setLogado] = useState(() => Boolean(localStorage.getItem("token") || sessionStorage.getItem("token")))
   const [ativa, setAtiva] = useState("home")
   const [mostrarCard, setMostrarCard] = useState(false)
-  const [categoriaAberta, setCategoriaAberta] = useState(null)
+  const [categoriaAberta, setCategoriaAberta] = useState(null) // id da categoria aberta
   const [chamadoAberto, setChamadoAberto] = useState(null)
 
-  // se não estiver logado, mostra só o login
-  if (!logado) {
-    return <Login aoLogar = {() => setLogado(true)} />
+  useEffect(() => {
+    const encerrarSessao = () => setLogado(false)
+    window.addEventListener('auth:expired', encerrarSessao)
+    return () => window.removeEventListener('auth:expired', encerrarSessao)
+  }, [])
+
+  const fazerLogin = async (credenciais) => {
+    const resposta = await apiFetch("/acesso/login", {
+      method: "POST",
+      body: JSON.stringify(credenciais),
+    })
+
+    const token = resposta.response?.token
+    if (!token) throw new Error("A API não retornou um token de acesso.")
+
+    sessionStorage.setItem("token", token)
+    setLogado(true)
   }
 
-  // se estiver logado, mostra o home
+  if (!logado) {
+    return <Login aoLogar = {fazerLogin} />
+  }
+
   return (
-    <div className = "flex flex-row min-w-[1366px] min-h-screen bg-[#F5F5F5]">
+    <div className = "flex min-h-screen w-full min-w-0 flex-col bg-[#F5F5F5] md:flex-row">
       <Sidebar ativa = {ativa} setAtiva = {setAtiva} aoClicarSair = {() => setMostrarCard(true)} />
 
-      <div className = "w-[80%]">
-        {ativa === "home" && <Home />}
-        {ativa === "chamados" && (
-          chamadoAberto
-            ? <ChamadoIndividual aoVoltar = {() => setChamadoAberto(null)} />
-            : <Chamados aoAbrirChamado = {setChamadoAberto} />
-        )}
+      <div className = "min-w-0 flex-1 overflow-x-hidden">
+        {ativa === "home" && <Home setAtiva={setAtiva} />}
+        {ativa === "chamados" && (chamadoAberto ? <ChamadoIndividual alerta={chamadoAberto} aoVoltar={() => setChamadoAberto(null)} /> : <Chamados aoAbrir={setChamadoAberto} />)}
         {ativa === "coleta" && <Coleta />}
         {ativa === "categorias" && (
           categoriaAberta
-            ? <CategoriaIndividual aoVoltar = {() => setCategoriaAberta(null)} />
+            ? <CategoriaIndividual
+                categoriaId = {categoriaAberta}
+                aoVoltar = {() => setCategoriaAberta(null)}
+              />
             : <Categorias aoAbrirCategoria = {setCategoriaAberta} />
         )}
         {ativa === "pontos" && <Pontos />}
@@ -49,15 +66,17 @@ export default function App() {
       </div>
 
       {mostrarCard && (
-        <CardSair 
-          aoCancelar = {() => setMostrarCard(false)} 
+        <CardSair
+          aoCancelar = {() => setMostrarCard(false)}
           aoConfirmar = {() => {
             setMostrarCard(false)
+            localStorage.removeItem("token")
+            sessionStorage.removeItem("token")
             setLogado(false)
-          }} 
+          }}
         />
       )}
-
+      <AssistenteChat />
     </div>
   )
 }
