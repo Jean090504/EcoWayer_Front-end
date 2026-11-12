@@ -141,6 +141,7 @@ export default function CreateAccount({
             cpf: "",
             email: "",
             telefone: "",
+            id_genero: "",
             senha: "",
             confirmarSenha: ""
         }
@@ -283,6 +284,18 @@ export default function CreateAccount({
                         inputMode="tel"
                         onChange={atualizarCampo}
                     />
+
+                    <div>
+                        <label htmlFor="id_genero" className={labelClass}>Gênero</label>
+                        <select id="id_genero" name="id_genero" value={formulario.id_genero} onChange={atualizarCampo} className={inputClass} required>
+                            <option value="">Selecione</option>
+                            <option value="1">Masculino</option>
+                            <option value="2">Feminino</option>
+                            <option value="3">Não-binário</option>
+                            <option value="4">Outro</option>
+                            <option value="5">Prefiro não informar</option>
+                        </select>
+                    </div>
 
                     {/* Senha */}
                     <CampoSenha
