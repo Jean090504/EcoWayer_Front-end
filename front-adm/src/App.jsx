@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import Login from "./pages/Login.jsx"
 import Home from "./pages/Home.jsx"
@@ -13,16 +13,36 @@ import AssistenteChat from "./components/AssistenteChat.jsx"
 
 import Sidebar from "./components/layout/sidebar.jsx"
 import CardSair from "./components/layout/cardSair.jsx"
+import { apiFetch } from "./services/api.js"
 
 export default function App() {
-  const [logado, setLogado] = useState(false)
+  const [logado, setLogado] = useState(() => Boolean(localStorage.getItem("token") || sessionStorage.getItem("token")))
   const [ativa, setAtiva] = useState("home")
   const [mostrarCard, setMostrarCard] = useState(false)
   const [categoriaAberta, setCategoriaAberta] = useState(null) // id da categoria aberta
   const [chamadoAberto, setChamadoAberto] = useState(null)
 
+  useEffect(() => {
+    const encerrarSessao = () => setLogado(false)
+    window.addEventListener('auth:expired', encerrarSessao)
+    return () => window.removeEventListener('auth:expired', encerrarSessao)
+  }, [])
+
+  const fazerLogin = async (credenciais) => {
+    const resposta = await apiFetch("/acesso/login", {
+      method: "POST",
+      body: JSON.stringify(credenciais),
+    })
+
+    const token = resposta.response?.token
+    if (!token) throw new Error("A API não retornou um token de acesso.")
+
+    sessionStorage.setItem("token", token)
+    setLogado(true)
+  }
+
   if (!logado) {
-    return <Login aoLogar = {() => setLogado(true)} />
+    return <Login aoLogar = {fazerLogin} />
   }
 
   return (
@@ -50,6 +70,8 @@ export default function App() {
           aoCancelar = {() => setMostrarCard(false)}
           aoConfirmar = {() => {
             setMostrarCard(false)
+            localStorage.removeItem("token")
+            sessionStorage.removeItem("token")
             setLogado(false)
           }}
         />

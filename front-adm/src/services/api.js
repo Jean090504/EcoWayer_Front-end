@@ -27,10 +27,12 @@ export async function apiFetch(endpoint, options = {}) {
     throw new Error(`Não foi possível conectar à API Admin em ${BASE_ORIGIN}. Inicie o backend Admin e tente novamente.`)
   }
 
-  if (response.status === 401) {
+  // No login, o 401 precisa voltar para a tela para que ela mostre a mensagem.
+  // Nas demais rotas, a sessão expirada deve levar o usuário ao login.
+  if (response.status === 401 && !endpoint.includes('/acesso/login')) {
     localStorage.removeItem('token')
     sessionStorage.removeItem('token')
-    window.location.reload()
+    window.dispatchEvent(new Event('auth:expired'))
     throw new Error('Sessão expirada. Faça login novamente.')
   }
 

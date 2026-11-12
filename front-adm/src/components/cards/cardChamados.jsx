@@ -15,7 +15,6 @@ export default function CardChamado({ alerta, onClick }) {
     <div className="min-w-0 flex-1">
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-base font-bold text-slate-800 sm:text-lg">{titulo}</h2>
-        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${denuncia ? "bg-green-50 text-[#65BA69]" : "bg-violet-50 text-[#7350B9]"}`}>{denuncia ? "Denúncia" : "Alerta IA"}</span>
       </div>
       <p className="mt-1 text-sm text-slate-600 sm:text-base">{descricao}</p>
       <p className="mt-1 truncate text-xs text-slate-400">#{alerta.id} · {alerta.anuncio?.[0]?.nome || "Anúncio não vinculado"}</p>

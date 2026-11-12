@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
-import { Search } from "lucide-react"
+import { Check, ChevronDown, Search } from "lucide-react"
 
 import CardTabela from "../cards/cardTabela.jsx"
 import Cabecalho from "./cabecalhoTabela.jsx"
@@ -23,6 +23,7 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
   const [condicoes, setCondicoes] = useState([])
   const [multiplicadores, setMultiplicadores] = useState({})
   const [pontosBase, setPontosBase] = useState(0)
+  const [categoriaMenuAberto, setCategoriaMenuAberto] = useState(false)
 
   useEffect(() => {
     if (!modalAberto) return
@@ -39,6 +40,7 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
     setBonus("0")
     setPontosBase(0)
     setMultiplicadores({})
+    setCategoriaMenuAberto(false)
     setModalAberto(true)
   }
 
@@ -72,6 +74,7 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
     setBonus(String(item.bonus ?? 0))
     setPontosBase(Number(item.base || 0))
     setMultiplicadores(Object.fromEntries((item.condicao || []).map((condicao) => [condicao.id || condicao.id_condicao_item, condicao.multiplicador])))
+    setCategoriaMenuAberto(false)
     setModalAberto(true)
   }
 
@@ -139,18 +142,15 @@ export default function TabelaPontuacao({ dados = [], onUpdate }) {
           <form onSubmit={editando ? salvarEdicao : salvarRegra} className="w-[min(520px,94vw)] rounded-2xl bg-white p-5 shadow-2xl">
             <h3 className="mb-5 border-b border-gray-100 pb-4 text-lg font-bold text-[#202735]">● Gerenciar Regra de Pontuação</h3>
             <div className="grid grid-cols-2 gap-4">
-            <div><label className="mb-2 block text-[11px] font-bold uppercase text-slate-500">Categoria selecionada</label>
-            <select
-              value={categoriaId}
-              onChange={(event) => setCategoriaId(event.target.value)}
-              className="mb-3 w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-[#65BA69]"
-              disabled={salvando}
-            >
-              <option value="">Selecione uma categoria</option>
-              {categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.id}>{categoria.nome}</option>
-              ))}
-            </select>
+            <div className="relative"><label className="mb-2 block text-[11px] font-bold uppercase text-slate-500">Categoria selecionada</label>
+              <button type="button" onClick={() => setCategoriaMenuAberto((aberto) => !aberto)} disabled={salvando} aria-expanded={categoriaMenuAberto} className="flex h-[46px] w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 text-left text-sm font-semibold text-slate-700 outline-none transition hover:border-[#7350B9] focus:border-[#7350B9] focus:ring-2 focus:ring-purple-100 disabled:cursor-not-allowed disabled:opacity-60">
+                <span className={categoriaId ? "text-slate-700" : "text-slate-400"}>{categorias.find((categoria) => String(categoria.id) === String(categoriaId))?.nome || "Selecione uma categoria"}</span>
+                <ChevronDown size={17} className={`text-slate-400 transition-transform ${categoriaMenuAberto ? "rotate-180 text-[#7350B9]" : ""}`} />
+              </button>
+              {categoriaMenuAberto && <div className="absolute left-0 top-[74px] z-30 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_16px_35px_rgba(31,41,55,0.18)]">
+                <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Categorias disponíveis</p>
+                {categorias.map((categoria) => { const selecionada = String(categoria.id) === String(categoriaId); return <button key={categoria.id} type="button" onClick={() => { setCategoriaId(String(categoria.id)); setCategoriaMenuAberto(false) }} className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${selecionada ? "bg-purple-50 font-bold text-[#7350B9]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}><span>{categoria.nome}</span>{selecionada && <Check size={16} className="text-[#65BA69]" />}</button> })}
+              </div>}
             </div>
             <div><label className="mb-2 block text-[11px] font-bold uppercase text-slate-500">Status da regra</label><button type="button" onClick={() => setStatusRegra(!statusRegra)} className={`h-[42px] w-full rounded-lg border text-sm font-semibold ${statusRegra ? "border-green-200 bg-green-50 text-green-700" : "border-gray-200 bg-gray-100 text-gray-500"}`}>{statusRegra ? "● Ativa" : "○ Inativa"}</button></div>
             </div>

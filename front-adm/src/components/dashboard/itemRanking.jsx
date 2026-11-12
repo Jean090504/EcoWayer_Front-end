@@ -18,7 +18,7 @@ export default function ItemRanking({ posicao, nome, pontos, variacao, isLast, f
     <div className = {`flex shrink-0 items-center gap-3 py-3 ${!isLast ? "border-b border-slate-100" : ""}`}>
       
       {/* Número da Posição (só aparece pro Top 3) */}
-      <div className = {`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-slate-700 ${corBolinha}`}>
+      <div className = {`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base font-bold text-slate-700 ${corBolinha}`}>
         {posicao <= 3 ? posicao : ""}
       </div>
 
@@ -31,15 +31,15 @@ export default function ItemRanking({ posicao, nome, pontos, variacao, isLast, f
           className = "h-10 w-10 rounded-full bg-gray-200 object-cover"
         />
       ) : (
-        <div className = "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-600 text-base font-bold text-white">
+        <div className = "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-600 text-lg font-bold text-white">
           {inicialNome}
         </div>
       )}
       
       {/* Nome e Pontos */}
       <div className = "flex flex-col flex-1">
-        <span className = "truncate text-sm font-semibold text-slate-700">{nome}</span>
-        <span className = "text-xs font-medium text-slate-400">{Number(pontos || 0).toLocaleString("pt-BR")} pontos</span>
+        <span className = "truncate text-base font-semibold text-slate-700">{nome}</span>
+        <span className = "text-sm font-medium text-slate-400">{Number(pontos || 0).toLocaleString("pt-BR")} pontos</span>
       </div>
       
       {/* Variação */}

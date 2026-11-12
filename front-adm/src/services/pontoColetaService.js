@@ -15,7 +15,7 @@ const OSM_OVERPASS_SERVERS = [
 const osmCache = new Map();
 
 const cabecalhos = () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
   return {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),

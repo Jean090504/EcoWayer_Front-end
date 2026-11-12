@@ -1,35 +1,33 @@
 import { useState } from "react"
-import barra from '../../assets/icons/imagens/barra-input.png'
+import { Eye, EyeOff } from "lucide-react"
 
-export default function InputLogin({ label, icone, placeholder, tipo, iconeDireita }) {
+export default function InputLogin({ label, icone, placeholder, tipo, value, onChange }) {
   const [mostrarSenha, setMostrarSenha] = useState(false)
-
-  const tipoFinal = tipo === "password" && mostrarSenha ? "text" : tipo
+  const senha = tipo === "password"
+  const tipoFinal = senha && mostrarSenha ? "text" : tipo
 
   return (
-    <div className = "w-full"> {/* Avisa que ocupa a largura toda do pai */}
-      <p className = "text-[#724BC2] font-medium text-[clamp(16px,1vw,20px)]">{label}</p>
-      
-      {/* O container dita a largura responsiva */}
-      <div className = "relative w-[clamp(400px,25vw,450px)]">
-        <img src = {icone} alt = "" className = "absolute left-0 top-[10px] -translate-y-1/2 w-[clamp(17.5px,1.3vw,20px)] h-[clamp(17px,1.3vw,20px)] cursor-pointer"/>
-        <img src = {barra} alt = "" className = "absolute left-[23px] top-[10.5px] -translate-y-1/2 w-[2px] h-[14px]"/>
-        
-        {/* O input ocupa 100% do container, sem largura fixa própria */}
-        <input 
-          type = {tipoFinal} 
-          placeholder = {placeholder} 
-          className = "w-full border-0 border-b border-[#65BA69] bg-transparent outline-none text-gray-600 placeholder-gray-400 mb-8 pl-[30px]"
-        />
-        
-        {iconeDireita && (
-          <img 
-            src = {iconeDireita} 
-            alt = "" 
-            onClick = {() => setMostrarSenha(!mostrarSenha)}
-            className = "absolute right-0 top-[10px] -translate-y-1/2 w-[20px] h-[20px] cursor-pointer"
+    <div className="w-full">
+      <p className="text-[clamp(16px,1vw,20px)] font-medium text-[#724BC2]">{label}</p>
+      <div className="mt-3 w-[clamp(400px,25vw,450px)]">
+        <div className="flex h-14 w-full items-center border-b-2 border-[#65BA69]">
+          <img src={icone} alt="" className="h-6 w-6 shrink-0 object-contain" />
+          <span aria-hidden="true" className="mx-3 h-7 w-[2px] shrink-0 bg-slate-200" />
+          <input
+            type={tipoFinal}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            autoComplete={senha ? "current-password" : "username"}
+            className="h-full min-w-0 flex-1 bg-transparent pb-1 text-gray-600 outline-none placeholder:text-gray-400"
           />
-        )}
+          {senha && (
+            <button type="button" onClick={() => setMostrarSenha((visivel) => !visivel)} aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"} className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
+              {mostrarSenha ? <Eye size={25} strokeWidth={1.8} /> : <EyeOff size={25} strokeWidth={1.8} />}
+            </button>
+          )}
+        </div>
+        <div className="h-8" />
       </div>
     </div>
   )

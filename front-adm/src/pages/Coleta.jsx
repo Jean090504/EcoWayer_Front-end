@@ -93,7 +93,6 @@ export default function Coleta() {
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#65BA69]">Operação</p>
             <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800 sm:text-4xl">Pontos de coleta</h1>
-            <p className="mt-2 text-sm text-slate-500">Gerencie locais, materiais aceitos e disponibilidade no mapa.</p>
           </div>
           <div className="flex gap-2">
             <button className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#7350B9] shadow-sm transition hover:border-[#7350B9] hover:bg-violet-50">Todos os resíduos</button>

@@ -2,7 +2,7 @@ import StatusBadge from "./StatusBadge.jsx";
 import TagMaterial from "./TagMaterial.jsx";
 
 // Bolinha colorida ao lado do nome (verde = ativo, amarela = manutenção)
-const COR_BOLINHA = { ativo: "bg-green-500", manutencao: "bg-yellow-400", cheio: "bg-red-500" };
+const COR_BOLINHA = { ativo: "bg-[#65BA69]", manutencao: "bg-[#d8a24a]", cheio: "bg-[#d95b61]" };
 
 export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, onCadastrar }) {
   return (
@@ -10,7 +10,7 @@ export default function CardPonto({ ponto, selecionado, onSelect, onGerenciar, o
     <div
       onClick={() => onSelect(ponto.id)}
       className={`cursor-pointer rounded-2xl border bg-white p-4 shadow-[0_6px_24px_rgba(31,41,55,0.04)] transition hover:-translate-y-0.5 hover:shadow-md ${
-        selecionado ? "border-[#65BA69] ring-2 ring-green-100" : "border-slate-100"
+        selecionado ? "border-[#65BA69] ring-2 ring-[#eaf6ec]" : "border-slate-100"
       }`}
     >
       {/* Topo: nome + bolinha de status à esquerda, selo de status à direita */}

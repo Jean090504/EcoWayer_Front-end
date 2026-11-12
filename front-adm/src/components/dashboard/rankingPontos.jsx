@@ -1,10 +1,6 @@
 import ItemRanking from "./itemRanking.jsx"
 
-export default function RankingPontos({ 
-  usuarios = [], 
-  filtroAtivo = "semanal", 
-  carregando = false 
-}) {
+export default function RankingPontos({ usuarios = [], carregando = false }) {
   return (
     <article className = "flex min-w-0 flex-col rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_8px_30px_rgba(31,41,55,0.05)] sm:p-6">
       
@@ -12,13 +8,9 @@ export default function RankingPontos({
       <div>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Destaques</p>
-            <h2 className = "mt-1 text-xl font-bold text-slate-800">Ranking de pontos</h2>
+            <h2 className = "mt-1 text-2xl font-bold text-slate-800">Ranking de pontos</h2>
           </div>
         </div>
-        <p className = "mt-2 border-b border-slate-100 pb-4 text-sm text-slate-400">
-          Os usuários que mais pontuaram {filtroAtivo === "diario" ? "hoje" : filtroAtivo === "mensal" ? "este mês" : "esta semana"}
-        </p>
       </div>
 
       {/* Lista com Rolagem */}

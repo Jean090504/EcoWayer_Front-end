@@ -1,9 +1,9 @@
 // Cor e texto de cada status (vem direto do banco: ativo | inativo)
 const ESTILOS = {
-  ativo: { texto: "Ativo", classe: "bg-green-500 text-white" },
-  inativo: { texto: "Inativo", classe: "bg-red-500 text-white" },
-  manutencao: { texto: "Manutenção", classe: "bg-orange-400 text-white" },
-  cheio: { texto: "Cheio", classe: "bg-red-500 text-white" },
+  ativo: { texto: "Ativo", classe: "bg-[#eaf6ec] text-[#4da558]" },
+  inativo: { texto: "Inativo", classe: "bg-[#fcebec] text-[#c9363d]" },
+  manutencao: { texto: "Manutenção", classe: "bg-[#fff5e6] text-[#b7791f]" },
+  cheio: { texto: "Cheio", classe: "bg-[#fcebec] text-[#c9363d]" },
 };
 
 export default function StatusBadge({ status }) {

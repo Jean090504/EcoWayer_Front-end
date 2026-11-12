@@ -5,8 +5,8 @@ import {
 } from "../../services/pontoColetaService.js";
 
 const STATUS = [
-  { valor: "ativo", rotulo: "Ativo", cor: "bg-green-500 text-white" },
-  { valor: "inativo", rotulo: "Inativo", cor: "bg-red-500 text-white" },
+  { valor: "ativo", rotulo: "Ativo", cor: "bg-[#65BA69] text-white" },
+  { valor: "inativo", rotulo: "Inativo", cor: "bg-[#d95b61] text-white" },
 ];
 
 const paraNumero = (v) => (v == null || v === "" ? NaN : Number(String(v).replace(",", ".")));
@@ -21,12 +21,12 @@ const formatarCep = (v) => {
 };
 
 const input =
-  "w-full rounded-md border border-gray-200 px-2 py-1 text-sm text-gray-800 outline-none focus:border-purple-600 disabled:bg-gray-50";
+  "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#7350B9] focus:ring-2 focus:ring-[#f0ebfa] disabled:bg-slate-50";
 
 function Campo({ rotulo, className = "", children }) {
   return (
     <label className={`flex flex-col gap-0.5 ${className}`}>
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">{rotulo}</span>
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{rotulo}</span>
       {children}
     </label>
   );
@@ -41,6 +41,7 @@ export default function ModalNovoPonto({ onClose, onSaved, pontoInicial = null }
   const [materiaisIds, setMateriaisIds] = useState([]);
   const [materiais, setMateriais] = useState([]);
   const [categorias, setCategorias] = useState([]);
+  const [categoriaAberta, setCategoriaAberta] = useState(false);
 
   const [aviso, setAviso] = useState(null);
   const [erro, setErro] = useState(null);
@@ -68,10 +69,14 @@ export default function ModalNovoPonto({ onClose, onSaved, pontoInicial = null }
 
   // ESC fecha, mas não enquanto salva
   useEffect(() => {
-    const aoApertar = (e) => e.key === "Escape" && !salvando && onClose();
+    const aoApertar = (e) => {
+      if (e.key !== "Escape" || salvando) return;
+      if (categoriaAberta) return setCategoriaAberta(false);
+      onClose();
+    };
     window.addEventListener("keydown", aoApertar);
     return () => window.removeEventListener("keydown", aoApertar);
-  }, [onClose, salvando]);
+  }, [onClose, salvando, categoriaAberta]);
 
   const mudarDados = (k, v) => setDados((d) => ({ ...d, [k]: v }));
   const mudarEnd = (k, v) => setEnd((e) => ({ ...e, [k]: v }));
@@ -190,7 +195,7 @@ export default function ModalNovoPonto({ onClose, onSaved, pontoInicial = null }
       let lng = paraNumero(coords.lng);
       if (!latOk(lat) || !lngOk(lng)) {
         const r = await geocodificar(end);
-        if (!r) throw new Error("Informe as coordenadas: não consegui achar pelo endereço");
+        if (!r) throw new Error("Não consegui localizar o ponto pelo endereço informado");
         lat = r.lat; lng = r.lng;
       }
       if (!noBrasil(lat, lng) && !window.confirm("Essas coordenadas estão fora do Brasil. Salvar mesmo assim?")) {
@@ -264,11 +269,41 @@ export default function ModalNovoPonto({ onClose, onSaved, pontoInicial = null }
           </Campo>
 
           <div className="grid grid-cols-2 gap-3">
-            <Campo rotulo="Categoria">
-              <select className={input} value={dados.id_categoria} onChange={(e) => mudarDados("id_categoria", e.target.value)}>
-                <option value="">Selecione...</option>
-                {categorias.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-              </select>
+            <Campo rotulo="Categoria selecionada">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setCategoriaAberta((aberta) => !aberta)}
+                  aria-haspopup="listbox"
+                  aria-expanded={categoriaAberta}
+                  className={`flex min-h-12 w-full items-center justify-between rounded-xl border-2 bg-white px-4 text-left text-sm outline-none transition ${categoriaAberta || dados.id_categoria ? "border-[#65BA69] ring-4 ring-[#eaf6ec]" : "border-slate-200 hover:border-[#65BA69]"}`}
+                >
+                  <span className={dados.id_categoria ? "text-slate-700" : "text-slate-400"}>
+                    {categorias.find((c) => String(c.id) === String(dados.id_categoria))?.nome || "Selecione uma categoria"}
+                  </span>
+                  <span className="ml-3 text-base font-bold text-slate-400">{categoriaAberta ? "⌃" : "⌄"}</span>
+                </button>
+                {categoriaAberta && <div role="listbox" className="absolute inset-x-0 top-full z-30 mt-2 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-[0_16px_34px_rgba(31,41,55,0.14)]">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={!dados.id_categoria}
+                    onClick={() => { mudarDados("id_categoria", ""); setCategoriaAberta(false); }}
+                    className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${!dados.id_categoria ? "bg-[#eaf6ec] font-semibold text-[#65BA69]" : "text-slate-500 hover:bg-slate-50"}`}
+                  >Selecione uma categoria</button>
+                  {categorias.map((c) => {
+                    const selecionada = String(c.id) === String(dados.id_categoria);
+                    return <button
+                      key={c.id}
+                      type="button"
+                      role="option"
+                      aria-selected={selecionada}
+                      onClick={() => { mudarDados("id_categoria", String(c.id)); setCategoriaAberta(false); }}
+                      className={`w-full rounded-lg px-3 py-2 text-left text-sm transition ${selecionada ? "bg-[#eaf6ec] font-semibold text-[#65BA69]" : "text-slate-700 hover:bg-slate-50"}`}
+                    >{c.nome}</button>;
+                  })}
+                </div>}
+              </div>
             </Campo>
 
             <Campo rotulo="Status">
@@ -326,31 +361,8 @@ export default function ModalNovoPonto({ onClose, onSaved, pontoInicial = null }
             </div>
           </div>
 
-          {/* Digitar as coordenadas preenche o endereço; o botão faz o caminho inverso */}
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Coordenadas</p>
-              <button
-                type="button"
-                onClick={coordenadaPorEndereco}
-                disabled={buscando || salvando}
-                className="text-[11px] font-semibold text-purple-600 hover:underline disabled:opacity-50"
-              >
-                {buscando ? "Buscando..." : "Buscar pelo endereço"}
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Campo rotulo="Latitude">
-                <input className={input} inputMode="decimal" placeholder="-23.5110" value={coords.lat} onChange={(e) => mudarCoord("lat", e.target.value)} />
-              </Campo>
-              <Campo rotulo="Longitude">
-                <input className={input} inputMode="decimal" placeholder="-46.8760" value={coords.lng} onChange={(e) => mudarCoord("lng", e.target.value)} />
-              </Campo>
-            </div>
-          </div>
-
           <Campo rotulo="Materiais aceitos">
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-2">
               {materiais.map((m) => {
                 const marcado = materiaisIds.includes(m.id);
                 return (
@@ -359,7 +371,7 @@ export default function ModalNovoPonto({ onClose, onSaved, pontoInicial = null }
                     type="button"
                     onClick={() => alternarMaterial(m.id)}
                     className={`rounded-md border px-3 py-1 text-xs font-semibold transition ${
-                      marcado ? "border-purple-600 bg-purple-600 text-white" : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"
+                      marcado ? "border-[#7350B9] bg-[#7350B9] text-white" : "border-slate-200 bg-slate-50 text-slate-600 hover:border-[#cfc2eb] hover:bg-[#f7f4fc]"
                     }`}
                   >
                     {m.nome}

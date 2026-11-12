@@ -36,7 +36,6 @@ export default function Chamados({ aoAbrir }) {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#65BA69]">Moderação</p>
           <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800 sm:text-4xl">Chamados</h1>
-          <p className="mt-2 text-sm text-slate-500">Revise alertas automáticos e denúncias pendentes.</p>
         </div>
         <div className="flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">
           <span className="h-2 w-2 rounded-full bg-[#65BA69]" /> {chamados.length} pendente{chamados.length === 1 ? "" : "s"}
@@ -45,7 +44,7 @@ export default function Chamados({ aoAbrir }) {
 
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-[0_8px_30px_rgba(31,41,55,0.05)] sm:p-5">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-          <div><h2 className="text-base font-bold text-slate-800">Fila de moderação</h2><p className="mt-1 text-xs text-slate-400">Chamados aguardando uma decisão administrativa.</p></div>
+          <div><h2 className="text-2xl font-bold text-slate-800 sm:text-3xl">Fila de moderação</h2></div>
           <InputBusca placeholder="Buscar denúncia ou alerta" value={busca} onChange={(e) => setBusca(e.target.value)} aoFiltrar={() => setModalAberto(true)} />
         </div>
         <div className="mt-5 flex flex-col gap-3">
