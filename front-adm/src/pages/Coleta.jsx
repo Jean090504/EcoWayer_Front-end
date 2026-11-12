@@ -4,7 +4,7 @@ import ListaPontos from "../components/coleta/ListaPontos.jsx";
 import MapaPontos from "../components/coleta/MapaPontos.jsx";
 import ModalPonto from "../components/coleta/ModalPonto.jsx";
 import ModalNovoPonto from "../components/coleta/ModalNovoPonto.jsx";
-import { listarPontos, buscarPontosOpenStreetMap, atualizarPonto } from "../services/pontoColetaService.js";
+import { listarPontos, buscarPontosOpenStreetMap } from "../services/pontoColetaService.js";
 
 // Remove acentos e deixa minúsculo para a busca não depender disso
 const normalizar = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -19,7 +19,6 @@ export default function Coleta() {
   const [buscandoExternos, setBuscandoExternos] = useState(false);
   const [erroExterno, setErroExterno] = useState(null);
   const [pontoParaCadastrar, setPontoParaCadastrar] = useState(null);
-  const [statusAlterandoId, setStatusAlterandoId] = useState(null);
 
   // Modal de edição (id do ponto) e modal de cadastro (aberto/fechado)
   const [modalId, setModalId] = useState(null);
@@ -78,23 +77,6 @@ export default function Coleta() {
     [carregar]
   );
 
-  const aoAlterarStatus = useCallback(async (ponto) => {
-    const novoStatus = ponto.status === "ativo" ? "inativo" : "ativo";
-    setStatusAlterandoId(ponto.id);
-    try {
-      await atualizarPonto(ponto, {
-        status: novoStatus,
-        materiaisIds: ponto.materiaisObj.map((material) => material.id).filter((id) => id != null),
-        coords: null,
-      });
-      setPontos((atual) => atual.map((item) => item.id === ponto.id ? { ...item, status: novoStatus } : item));
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setStatusAlterandoId(null);
-    }
-  }, []);
-
   const pontosFiltrados = useMemo(() => {
     const t = normalizar(termo.trim());
     if (!t) return pontos;
@@ -120,7 +102,7 @@ export default function Coleta() {
 
         <div className="flex items-center justify-between gap-4">
           <div className="flex w-full max-w-[500px] shrink-0">
-          <SearchBar maxWidth="max-w-none" onSearch={setTermo} />
+          <SearchBar maxWidth="max-w-none" onSearch={setTermo} onFilterClick={() => console.log("Abrir Filtros")} />
           </div>
         </div>
 
@@ -136,8 +118,6 @@ export default function Coleta() {
           onSelect={setSelecionadoId}
           onGerenciar={setModalId}
           onCadastrar={setPontoParaCadastrar}
-          onAlterarStatus={aoAlterarStatus}
-          statusAlterandoId={statusAlterandoId}
         />
         <MapaPontos pontos={pontosFiltrados} selecionadoId={selecionadoId} onSelect={setSelecionadoId} />
       </div>

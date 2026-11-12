@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { ChevronDown, Search } from "lucide-react"
+import { Search } from "lucide-react"
 
 import TabelaItens from "../components/tabela/tabelaItens.jsx"
 import { buscarCategoria, excluirCategoria, excluirItem } from "../services/categoriaService.js"
@@ -21,17 +21,18 @@ function FiltroStatus({ value, onChange }) {
     { valor: "", label: "Status (Todos)" },
     { valor: "ativo", label: "Ativo" },
     { valor: "inativo", label: "Inativo" },
+    { valor: "em revisão", label: "Em Revisão" },
   ]
   const atual = opcoes.find((opcao) => opcao.valor === value) || opcoes[0]
 
   return (
-    <div className="relative w-[190px] shrink-0">
-      <button type="button" onClick={() => setAberto((estado) => !estado)} className={`flex h-10 w-full items-center justify-between rounded-xl border bg-slate-50 px-3 text-left text-base text-slate-600 outline-none transition ${aberto ? "border-[#65BA69] ring-2 ring-green-100" : "border-slate-200 hover:border-slate-300"}`}>
-        <span className="whitespace-nowrap leading-none">{atual.label}</span>
-        <ChevronDown size={15} strokeWidth={1.8} className={`shrink-0 text-slate-400 transition-transform ${aberto ? "rotate-180" : ""}`} />
+    <div className="relative w-[150px]">
+      <button type="button" onClick={() => setAberto((estado) => !estado)} className={`flex h-10 w-full items-center justify-between rounded-xl border bg-slate-50 px-3 text-left text-sm text-slate-600 outline-none transition ${aberto ? "border-[#65BA69] ring-2 ring-green-100" : "border-slate-200 hover:border-slate-300"}`}>
+        <span>{atual.label}</span>
+        <span className={`text-slate-400 transition-transform ${aberto ? "rotate-180" : ""}`}>⌄</span>
       </button>
       {aberto && <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
-        {opcoes.map((opcao) => <button key={opcao.valor || "todos"} type="button" onClick={() => { onChange(opcao.valor); setAberto(false) }} className={`block w-full rounded-lg px-3 py-2.5 text-left text-base transition ${opcao.valor === value ? "bg-green-50 font-bold text-[#65BA69]" : "text-slate-600 hover:bg-slate-50"}`}>{opcao.label}</button>)}
+        {opcoes.map((opcao) => <button key={opcao.valor || "todos"} type="button" onClick={() => { onChange(opcao.valor); setAberto(false) }} className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${opcao.valor === value ? "bg-green-50 font-bold text-[#65BA69]" : "text-slate-600 hover:bg-slate-50"}`}>{opcao.label}</button>)}
       </div>}
     </div>
   )
@@ -113,7 +114,7 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
   return (
     <div className="min-h-full bg-[#f6f7fb] pb-10">
       <main className="mx-auto w-full max-w-[1600px] px-5 py-7 sm:px-8 lg:px-10">
-      <button className="mb-5 text-base font-semibold text-slate-500 transition hover:text-[#7350B9]" onClick={aoVoltar}>
+      <button className="mb-5 text-sm font-semibold text-slate-500 transition hover:text-[#7350B9]" onClick={aoVoltar}>
         ← Voltar para categorias
       </button>
 
@@ -131,7 +132,7 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
                     className="h-14 w-14 rounded-xl object-contain"
                   />
                 )}
-                <div className="min-w-[180px] flex-1"><p className="text-sm font-bold uppercase tracking-[0.14em] text-[#65BA69]">Categoria</p><h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800">{categoria.nome}</h1></div>
+                <div className="min-w-[180px] flex-1"><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#65BA69]">Categoria</p><h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-800">{categoria.nome}</h1><p className="mt-1 text-sm text-slate-400">Itens e pontuação cadastrados nesta categoria.</p></div>
 
                 <div className="rounded-full bg-violet-50 px-3 py-1.5 text-xs font-bold text-[#7350B9]">
                   {itens.length} itens
@@ -141,13 +142,13 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
                   Categoria ativa
                 </div>
 
-                <button onClick={() => { setErroExclusao(""); setModalExcluir(true) }} className="ml-auto rounded-xl border border-red-100 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-600 transition hover:bg-red-100">
+                <button onClick={() => { setErroExclusao(""); setModalExcluir(true) }} className="ml-auto rounded-xl border border-red-100 bg-red-50 px-4 py-2.5 text-xs font-bold text-red-600 transition hover:bg-red-100">
                   Excluir
                 </button>
 
                 <button
                   onClick={() => setModalAberto(true)}
-                  className="rounded-xl bg-[#65BA69] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#51a856]"
+                  className="rounded-xl bg-[#65BA69] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#51a856]"
                 >
                   Adicionar item
                 </button>
@@ -156,13 +157,13 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
 
               <div className="mb-10 mt-5 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-[0_8px_30px_rgba(31,41,55,0.05)]">
                 <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 p-5">
-                  <div className="relative min-w-[180px] flex-1">
+                  <div className="relative min-w-[220px] flex-1">
                     <Search
                       size={12}
                       className="absolute left-4 top-1/2 -translate-y-1/2 shrink-0 text-[#334155]"
                     />
                     <input
-                      className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pl-[35px] text-base outline-none placeholder:text-slate-400 focus:border-[#65BA69] focus:ring-2 focus:ring-green-100"
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pl-[35px] text-sm outline-none placeholder:text-slate-400 focus:border-[#65BA69] focus:ring-2 focus:ring-green-100"
                       type="text"
                       placeholder="Buscar Item"
                       value={busca}
@@ -174,7 +175,7 @@ export default function CategoriaIndividual({ categoriaId, aoVoltar }) {
 
                   <button
                     onClick={redefinir}
-                    className="ml-auto flex h-10 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-500 transition hover:border-[#7350B9] hover:bg-violet-50"
+                    className="ml-auto flex h-10 items-center justify-center rounded-xl border border-slate-200 px-4 text-xs font-semibold text-slate-500 transition hover:border-[#7350B9] hover:bg-violet-50"
                   >
                     Redefinir filtros
                   </button>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { ChevronDown } from "lucide-react"
 import CardPadrao from "./cardPadrao"
 import { listarCategoriasParaRegra, listarCondicoes, listarRegrasPontuacao, calcularPontuacao } from "../../services/pontos.js"
 
@@ -17,7 +16,7 @@ function SelectBonito({ value, options, onChange, placeholder }) {
         aria-expanded={aberto}
       >
         <span className={selecionado ? "text-slate-700" : "text-slate-400"}>{selecionado?.nome || placeholder}</span>
-        <ChevronDown size={16} strokeWidth={1.8} className={`shrink-0 text-slate-400 transition-transform ${aberto ? "rotate-180" : ""}`} />
+        <span className={`text-slate-400 transition-transform ${aberto ? "rotate-180" : ""}`}>⌄</span>
       </button>
       {aberto && (
         <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl" role="listbox">
@@ -70,16 +69,17 @@ export default function CardValidador() {
 
   return <CardPadrao>
     <div className="mb-6">
-      <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#65BA69]">Simulador</p>
-      <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-800">Validador de fórmula</h2>
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#65BA69]">Simulador</p>
+      <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-800">Validador de fórmula</h2>
+      <p className="mt-1 text-xs text-slate-400">Consulte a pontuação conforme a regra ativa.</p>
     </div>
-    <p className="mb-2 text-sm font-bold uppercase tracking-[0.12em] text-slate-400">Categoria selecionada</p>
+    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Categoria selecionada</p>
     <div className="mb-5"><SelectBonito value={categoriaId} options={categorias} onChange={setCategoriaId} placeholder="Selecione uma categoria" /></div>
-    <p className="mb-2 text-sm font-bold uppercase tracking-[0.12em] text-slate-400">Condição analisada</p>
+    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Condição analisada</p>
     <div className="mb-4"><SelectBonito value={condicaoId} options={condicoes} onChange={setCondicaoId} placeholder="Selecione uma condição" /></div>
-    <label className="text-sm font-bold uppercase tracking-[0.12em] text-slate-400">Multiplicador</label>
+    <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Multiplicador</label>
     <input type="number" value={multiplicador} readOnly className="mt-2 mb-5 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-600" />
-    <p className="mb-1 text-sm font-bold uppercase tracking-[0.12em] text-slate-400">Pontos a receber</p>
+    <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Pontos a receber</p>
     <p className="text-4xl font-extrabold leading-none tracking-tight text-[#65BA69]">{pontos}<span className="ml-1 text-lg font-bold">pts</span></p>
   </CardPadrao>
 }

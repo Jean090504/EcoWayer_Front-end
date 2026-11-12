@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "EcoWayer_Front-end",
+			"path": "."
+		},
+		{
+			"name": "bkpEcowayer",
+			"path": "../../bkpEcowayer"
+		},
+		{
+			"name": "EcoWayer_Back-end",
+			"path": "../EcoWayer_Back-end"
+		}
+	],
+	"settings": {}
+}

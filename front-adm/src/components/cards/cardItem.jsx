@@ -18,12 +18,12 @@ export default function CardItem({ nome, pontos, status, imagem, onView, onEdit,
       {/* Coluna 1: ícone + nome */}
       <div className="flex w-[35%] flex-row items-center gap-3 px-4">
         {imagem ? <img src={imagem} alt="" onError={(e) => { e.currentTarget.style.display = "none" }} className="h-9 w-9 rounded-lg object-contain" /> : <div className="h-9 w-9 shrink-0 rounded-lg bg-gradient-to-br from-[#7350B9] to-[#65BA69]" />}
-        <span className="truncate text-base font-bold text-slate-800">{nome}</span>
+        <span className="truncate text-sm font-bold text-slate-800">{nome}</span>
       </div>
 
       {/* Coluna 2: pontuação */}
       <div className="w-[20%] flex justify-center">
-        <span className="rounded-full bg-green-50 px-3 py-1 text-sm font-bold text-[#65BA69]">
+        <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-[#65BA69]">
           {pontos} pts
         </span>
       </div>
@@ -31,7 +31,7 @@ export default function CardItem({ nome, pontos, status, imagem, onView, onEdit,
       {/* Coluna 3: status */}
       <div className="w-[25%] flex justify-center">
         <span
-          className={`text-sm font-bold px-3 py-1 rounded-full text-white ${CORES[chave] ?? "bg-slate-400"}`}
+          className={`text-xs font-bold px-3 py-1 rounded-full text-white ${CORES[chave] ?? "bg-slate-400"}`}
         >
           {ROTULOS[chave] ?? status}
         </span>

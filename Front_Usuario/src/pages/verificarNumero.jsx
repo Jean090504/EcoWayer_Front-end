@@ -16,8 +16,6 @@ const camposVazios = () => Array(TAMANHO_CODIGO).fill("");
 
 export default function VerificacaoNumero({
     telefone,
-    tipo = "telefone",
-    codigoDesenvolvimento,
     onVoltar,
     onVerificar,
     onReenviar
@@ -177,18 +175,12 @@ export default function VerificacaoNumero({
                 </h2>
 
                 <p className="mb-[22px] text-center text-[13px] leading-[19px] text-[#666]">
-                    Enviamos um código de {TAMANHO_CODIGO} dígitos por {tipo === "telefone" ? "SMS" : "e-mail"} para{" "}
+                    Enviamos um código de {TAMANHO_CODIGO} dígitos por SMS para{" "}
                     <strong className="font-semibold text-[#444]">
                         {mascararTelefone(telefone)}
                     </strong>
                     .
                 </p>
-
-                {codigoDesenvolvimento && (
-                    <p className="mb-[18px] rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-800">
-                        Código de demonstração: <strong className="text-sm tracking-[0.18em]">{codigoDesenvolvimento}</strong>
-                    </p>
-                )}
 
                 <form onSubmit={enviarFormulario}>
 
@@ -270,7 +262,7 @@ export default function VerificacaoNumero({
                         disabled={verificando}
                         className="text-[12px] font-medium text-[#7548C8] transition hover:underline disabled:opacity-60"
                     >
-                        Voltar
+                        Alterar número
                     </button>
                 </div>
 

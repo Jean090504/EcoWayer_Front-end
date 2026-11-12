@@ -14,97 +14,6 @@ function liberarCampo(evento) {
     evento.target.removeAttribute("readonly");
 }
 
-function somenteNumeros(valor, limite) {
-    return valor.replace(/\D/g, "").slice(0, limite);
-}
-
-function formatarCpf(valor) {
-    const numeros = somenteNumeros(valor, 11);
-    return numeros
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-}
-
-function formatarData(valor) {
-    const numeros = somenteNumeros(valor, 8);
-    return numeros.replace(/(\d{2})(\d)/, "$1/$2").replace(/(\d{2})(\d)/, "$1/$2");
-}
-
-function formatarTelefone(valor) {
-    const numeros = somenteNumeros(valor, 11);
-    return numeros.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d{1,4})$/, "$1-$2");
-}
-
-function cpfValido(valor) {
-    const cpf = somenteNumeros(valor, 11);
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-
-    const calcularDigito = (tamanho) => {
-        let soma = 0;
-        for (let indice = 0; indice < tamanho; indice += 1) {
-            soma += Number(cpf[indice]) * (tamanho + 1 - indice);
-        }
-        const resto = (soma * 10) % 11;
-        return resto === 10 ? 0 : resto;
-    };
-
-    return calcularDigito(9) === Number(cpf[9]) && calcularDigito(10) === Number(cpf[10]);
-}
-
-function CampoGenero({ value, onChange }) {
-    const [aberto, setAberto] = useState(false);
-    const opcoes = [
-        { value: "1", label: "Masculino" },
-        { value: "2", label: "Feminino" },
-        { value: "3", label: "Não-binário" },
-        { value: "4", label: "Outro" },
-        { value: "5", label: "Prefiro não informar" }
-    ];
-    const selecionado = opcoes.find((opcao) => opcao.value === value);
-
-    function selecionar(opcao) {
-        onChange({ target: { name: "id_genero", value: opcao.value } });
-        setAberto(false);
-    }
-
-    return (
-        <div className="relative">
-            <label htmlFor="id_genero" className={labelClass}>Gênero</label>
-            <button
-                id="id_genero"
-                type="button"
-                aria-haspopup="listbox"
-                aria-expanded={aberto}
-                onClick={() => setAberto((estado) => !estado)}
-                className={`${inputClass} flex items-center justify-between text-left ${selecionado ? "text-[#444]" : "text-[#929292]"}`}
-            >
-                <span>{selecionado?.label ?? "Selecione"}</span>
-                <svg className={`h-4 w-4 transition-transform ${aberto ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <path d="m6 9 6 6 6-6" />
-                </svg>
-            </button>
-
-            {aberto && (
-                <div role="listbox" aria-label="Gênero" className="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded-xl border border-[#E2E6EB] bg-white p-1 shadow-lg">
-                    {opcoes.map((opcao) => (
-                        <button
-                            key={opcao.value}
-                            type="button"
-                            role="option"
-                            aria-selected={value === opcao.value}
-                            onClick={() => selecionar(opcao)}
-                            className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-sm transition ${value === opcao.value ? "bg-[#61B86B] font-semibold text-white" : "text-[#454545] hover:bg-[#eef8ef]"}`}
-                        >
-                            {opcao.label}
-                        </button>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
-
 // CAMPO COMUM
 
 // Fica fora do CreateAccount de propósito: se ficasse dentro, seria
@@ -116,7 +25,6 @@ function Campo({
     type = "text",
     value,
     inputMode,
-    maxLength,
     onChange
 }) {
     return (
@@ -130,7 +38,6 @@ function Campo({
                 name={name}
                 type={type}
                 inputMode={inputMode}
-                maxLength={maxLength}
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
@@ -234,7 +141,6 @@ export default function CreateAccount({
             cpf: "",
             email: "",
             telefone: "",
-            id_genero: "",
             senha: "",
             confirmarSenha: ""
         }
@@ -245,12 +151,7 @@ export default function CreateAccount({
 
     // Atualiza o campo que estou digitando
     function atualizarCampo(event) {
-        const { name } = event.target;
-        let value = event.target.value;
-
-        if (name === "cpf") value = formatarCpf(value);
-        if (name === "nascimento") value = formatarData(value);
-        if (name === "telefone") value = formatarTelefone(value);
+        const { name, value } = event.target;
 
         setFormulario((anterior) => ({
             ...anterior,
@@ -265,31 +166,6 @@ export default function CreateAccount({
         event.preventDefault();
 
         setErro("");
-
-        const cpfNumeros = formulario.cpf.replace(/\D/g, "");
-        const dataNumeros = formulario.nascimento.replace(/\D/g, "");
-
-        if (!formulario.id_genero) {
-            setErro("Selecione uma opção de gênero.");
-            return;
-        }
-        if (cpfNumeros.length !== 11) {
-            setErro("Informe um CPF com 11 números.");
-            return;
-        }
-        if (!cpfValido(cpfNumeros)) {
-            setErro("Informe um CPF válido.");
-            return;
-        }
-        if (dataNumeros.length !== 8) {
-            setErro("Informe a data de nascimento completa.");
-            return;
-        }
-
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,128}$/.test(formulario.senha)) {
-            setErro("A senha precisa ter 10 caracteres, maiúscula, minúscula, número e símbolo.");
-            return;
-        }
 
         // 1. As duas senhas precisam ser iguais
         if (formulario.senha !== formulario.confirmarSenha) {
@@ -373,8 +249,6 @@ export default function CreateAccount({
                             name="nascimento"
                             placeholder="DD/MM/AAAA"
                             value={formulario.nascimento}
-                        inputMode="numeric"
-                        maxLength={10}
                             onChange={atualizarCampo}
                         />
 
@@ -384,7 +258,6 @@ export default function CreateAccount({
                             placeholder="000.000.000-00"
                             value={formulario.cpf}
                             inputMode="numeric"
-                        maxLength={14}
                             onChange={atualizarCampo}
                         />
 
@@ -408,11 +281,8 @@ export default function CreateAccount({
                         type="tel"
                         value={formulario.telefone}
                         inputMode="tel"
-                        maxLength={15}
                         onChange={atualizarCampo}
                     />
-
-                    <CampoGenero value={formulario.id_genero} onChange={atualizarCampo} />
 
                     {/* Senha */}
                     <CampoSenha

@@ -124,7 +124,7 @@ export default function Home({ setAtiva }) {
             <h2 className="mt-1 text-2xl font-bold text-slate-800">Visão operacional</h2>
             <div className="mt-5 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Usuários cadastrados</span><strong className="text-lg text-slate-800">{formatarNumero(dados.usuariosTotal)}</strong></div>
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Denúncias registradas</span><strong className="text-lg text-slate-800">{formatarNumero(dados.denunciasNoMes)}</strong></div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Denúncias no período</span><strong className="text-lg text-slate-800">{formatarNumero(dados.denunciasNoMes)}</strong></div>
               <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Regras de pontuação</span><strong className="text-lg text-slate-800">{formatarNumero(metricas.regrasAtivas)} ativas</strong></div>
               <button type="button" onClick={() => setAtiva("dashboard")} className="group flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-bold text-[#7350B9] transition hover:border-[#65BA69] hover:bg-green-50">
                 <span>Abrir dashboard completo</span>

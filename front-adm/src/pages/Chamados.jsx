@@ -1,46 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
-import { ChevronDown } from "lucide-react"
 import CardChamado from "../components/cards/cardChamados.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
+import ModalFiltro from "../components/modal/modalFiltro.jsx"
 import { listarAlertas } from "../services/alertasService.js"
-
-function FiltroChamados({ value, onChange }) {
-  const [aberto, setAberto] = useState(false)
-  const opcoes = [
-    { valor: "", label: "Todos os chamados" },
-    { valor: "denuncia", label: "Denúncias" },
-    { valor: "ia", label: "Alertas" },
-  ]
-  const atual = opcoes.find((opcao) => opcao.valor === value) || opcoes[0]
-
-  return (
-    <div className="relative w-full shrink-0 sm:w-[190px]">
-      <button
-        type="button"
-        onClick={() => setAberto((estado) => !estado)}
-        aria-expanded={aberto}
-        className={`flex h-11 w-full items-center justify-between rounded-xl border bg-white px-3 text-left text-sm text-slate-600 shadow-sm outline-none transition ${aberto ? "border-[#65BA69] ring-2 ring-green-100" : "border-slate-200 hover:border-slate-300"}`}
-      >
-        <span className="truncate">{atual.label}</span>
-        <ChevronDown size={16} className={`ml-2 shrink-0 text-slate-400 transition-transform ${aberto ? "rotate-180" : ""}`} />
-      </button>
-      {aberto && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl">
-          {opcoes.map((opcao) => (
-            <button
-              key={opcao.valor || "todos"}
-              type="button"
-              onClick={() => { onChange(opcao.valor); setAberto(false) }}
-              className={`block w-full rounded-lg px-3 py-2.5 text-left text-sm transition ${opcao.valor === value ? "bg-green-50 font-bold text-[#65BA69]" : "text-slate-600 hover:bg-slate-50"}`}
-            >
-              {opcao.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default function Chamados({ aoAbrir }) {
   const [alertas, setAlertas] = useState([])
@@ -48,6 +10,7 @@ export default function Chamados({ aoAbrir }) {
   const [erro, setErro] = useState("")
   const [busca, setBusca] = useState("")
   const [filtro, setFiltro] = useState("")
+  const [modalAberto, setModalAberto] = useState(false)
 
   useEffect(() => {
     let ativo = true
@@ -82,10 +45,7 @@ export default function Chamados({ aoAbrir }) {
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-[0_8px_30px_rgba(31,41,55,0.05)] sm:p-5">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div><h2 className="text-2xl font-bold text-slate-800 sm:text-3xl">Fila de moderação</h2></div>
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <InputBusca placeholder="Buscar denúncia ou alerta" value={busca} onChange={(e) => setBusca(e.target.value)} />
-            <FiltroChamados value={filtro} onChange={setFiltro} />
-          </div>
+          <InputBusca placeholder="Buscar denúncia ou alerta" value={busca} onChange={(e) => setBusca(e.target.value)} aoFiltrar={() => setModalAberto(true)} />
         </div>
         <div className="mt-5 flex flex-col gap-3">
           {carregando && <p className="rounded-xl bg-slate-50 p-6 text-sm text-slate-500">Carregando chamados...</p>}
@@ -95,5 +55,6 @@ export default function Chamados({ aoAbrir }) {
         </div>
       </section>
     </main>
+    <ModalFiltro modalAberto={modalAberto} onFechar={() => setModalAberto(false)} titulo="Filtrar Chamados" opcoes={[{ valor: "denuncia", label: "Denúncias" }, { valor: "ia", label: "Alertas" }]} selecionado={filtro} onSelecionar={setFiltro} />
   </div>
 }

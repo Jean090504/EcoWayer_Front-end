@@ -5,16 +5,6 @@
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
-html {
-    background: #f7f9fc;
-}
-
-body {
-    min-width: 320px;
-    background: #f7f9fc;
-    color: #172033;
-}
-
 /* esconde a barra de rolagem mas mantém a funcionalidade de rolar */
 .scrollbar-hide::-webkit-scrollbar {
     display: none;

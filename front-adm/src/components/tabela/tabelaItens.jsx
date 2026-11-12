@@ -50,7 +50,13 @@ export default function TabelaItens({ itens = [], total = 0, imagemCategoria, on
         ))}
       </div>
 
-      <div className="mt-auto flex flex-row items-center justify-end gap-2 border-t border-slate-100 px-5 py-4">
+      <div className="mt-auto flex flex-row items-center justify-between gap-2 border-t border-slate-100 px-5 py-4">
+        <p className="text-xs text-slate-400">
+          {itens.length === 0
+            ? "Nenhum item"
+            : `Mostrando ${inicio + 1} a ${inicio + itensPagina.length} de ${total} itens cadastrados`}
+        </p>
+
         <Paginacao
           paginaAtual={paginaAtual}
           totalPaginas={totalPaginas}

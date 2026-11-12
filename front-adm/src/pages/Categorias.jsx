@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react"
 
 import CardCategoria from "../components/cards/cardCategoria.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
+import ModalFiltro from "../components/modal/modalFiltro.jsx"
 import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria.jsx"
 import { listarCategorias, excluirCategoria } from "../services/categoriaService.js"
 import ModalExcluirCategoria from "../components/modal/ModalExcluirCategoria.jsx"
@@ -16,6 +17,7 @@ function urlImagem(img) {
 }
 
 export default function Categorias({ aoAbrirCategoria }) {
+  const [modalAberto, setModalAberto] = useState(false)
   const [modalAdd, setModalAdd] = useState(false)
   const [categoriaExcluir, setCategoriaExcluir] = useState(null)
   const [excluindo, setExcluindo] = useState(false)
@@ -26,6 +28,7 @@ export default function Categorias({ aoAbrirCategoria }) {
   const [erro, setErro] = useState("")
 
   const [busca, setBusca] = useState("")
+  const [tipoSelecionado, setTipoSelecionado] = useState("")
 
   async function carregarCategorias() {
     try {
@@ -57,7 +60,8 @@ export default function Categorias({ aoAbrirCategoria }) {
 
   const categoriasFiltradas = categorias.filter((c) => {
     const bateNome = (c.nome ?? "").toLowerCase().includes(busca.toLowerCase())
-    return bateNome
+    const bateTipo = !tipoSelecionado || String(c.id_tipo_categoria) === tipoSelecionado
+    return bateNome && bateTipo
   })
 
   async function confirmarExclusao(confirmado) {
@@ -74,6 +78,7 @@ export default function Categorias({ aoAbrirCategoria }) {
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#65BA69]">Catálogo</p>
               <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800 sm:text-4xl">Categorias</h1>
+              <p className="mt-2 text-sm text-slate-500">Organize materiais, pontuação e itens disponíveis na plataforma.</p>
             </div>
             <button className="w-fit rounded-xl bg-[#65BA69] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#51a856]" onClick={() => setModalAdd(true)}>Adicionar categoria</button>
           </header>
@@ -83,6 +88,7 @@ export default function Categorias({ aoAbrirCategoria }) {
               placeholder="Buscar categoria"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
+              aoFiltrar={() => setModalAberto(true)}
             />
           </div>
 
@@ -103,6 +109,15 @@ export default function Categorias({ aoAbrirCategoria }) {
               />
             ))}
           </div>
+        <ModalFiltro
+          modalAberto={modalAberto}
+          onFechar={() => setModalAberto(false)}
+          titulo="Filtrar Categorias"
+          opcoes={tipos}
+          selecionado={tipoSelecionado}
+          onSelecionar={setTipoSelecionado}
+        />
+
         <ModalAdicionarCategoria
           modalAberto={modalAdd}
           onFechar={() => setModalAdd(false)}
