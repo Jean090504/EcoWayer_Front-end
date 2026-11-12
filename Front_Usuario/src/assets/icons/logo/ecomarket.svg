@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="48" viewBox="0 0 220 48" role="img" aria-labelledby="title">
+  <title id="title">Ecomarket</title>
+  <defs>
+    <linearGradient id="ecoGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#42AE50" />
+      <stop offset="0.55" stop-color="#5DBB65" />
+      <stop offset="1" stop-color="#7548C8" />
+    </linearGradient>
+  </defs>
+  <text x="2" y="36" fill="url(#ecoGradient)" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="-1.4">Ecomarket</text>
+</svg>
