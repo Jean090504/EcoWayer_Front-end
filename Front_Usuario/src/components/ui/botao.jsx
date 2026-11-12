@@ -1,6 +1,8 @@
 export default function Botao({ children, onClick, className }) {
-    // Botões do header (meus anúncios, criar anúncio, login, criar conta) 
-    // são todos iguais, então criei esse componente pra não repetir código
+    /* 
+        Botões do header (meus anúncios, criar anúncio, login, criar conta) 
+        são todos iguais, então criei esse componente pra não repetir código
+    */
     return (
         <button
             type = "button"

@@ -1,139 +1,141 @@
-import { useEffect, useState } from "react";
-import { Search, MapPin, Mail, Wallet, MessageSquare } from "lucide-react";
+import { useEffect, useState } from "react"
+import { Search, MapPin, Mail, Wallet, MessageSquare } from "lucide-react"
 
 import ItemNavegacao from "../ui/itemNavegacao.jsx"
 import BotaoHeader from "../ui/botao.jsx"
 
-import perfil from "../../assets/icons/icones/foto.png";
+import perfil from "../../assets/icons/icones/foto.png"
 
 // ---------------------------------------------------------------------------
 // Constantes
 // ---------------------------------------------------------------------------
-const IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades";
+const IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades"
 
-// Tamanhos responsivos (base: 1366px). Precisam estar escritos por inteiro
-// para o Tailwind enxergar as classes.
-const TEXTO_XS = "text-[length:clamp(12px,0.88vw,15px)]";
-const TEXTO_SM = "text-[length:clamp(14px,1.025vw,18px)]";
-const ICONE_NAV = "h-[clamp(20px,1.46vw,28px)] w-[clamp(20px,1.46vw,28px)]";
+/* 
+    Tamanhos responsivos (base: 1366px). Precisam estar escritos por inteiro
+    para o Tailwind enxergar as classes.
+*/
+const TEXTO_XS = "text-[length:clamp(12px,0.88vw,15px)]"
+const TEXTO_SM = "text-[length:clamp(14px,1.025vw,18px)]"
+const ICONE_NAV = "h-[clamp(20px,1.46vw,28px)] w-[clamp(20px,1.46vw,28px)]"
 
 // Espaçamentos que crescem só acima de 1366px (20px em 1366, ~45px em 1920).
-const GAP_GRUPOS = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.045),52px)]";
-const GAP_NAV = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.05),60px)]";
-const GAP_ITEM = "gap-[clamp(12px,calc(12px_+_(100vw_-_1366px)*0.02),24px)]";
+const GAP_GRUPOS = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.045),52px)]"
+const GAP_NAV = "gap-[clamp(20px,calc(20px_+_(100vw_-_1366px)*0.05),60px)]"
+const GAP_ITEM = "gap-[clamp(12px,calc(12px_+_(100vw_-_1366px)*0.02),24px)]"
 
 export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
     // -----------------------------------------------------------------------
     // Estados: interface
     // -----------------------------------------------------------------------
-    const [mostrarFiltro, setMostrarFiltro] = useState(false);
+    const [mostrarFiltro, setMostrarFiltro] = useState(false)
 
     // -----------------------------------------------------------------------
     // Estados: estados (UF)
     // -----------------------------------------------------------------------
-    const [estados, setEstados] = useState([]);
-    const [ufSelecionada, setUfSelecionada] = useState("");
-    const [carregandoEstados, setCarregandoEstados] = useState(false);
-    const [erroEstados, setErroEstados] = useState(false);
+    const [estados, setEstados] = useState([])
+    const [ufSelecionada, setUfSelecionada] = useState("")
+    const [carregandoEstados, setCarregandoEstados] = useState(false)
+    const [erroEstados, setErroEstados] = useState(false)
 
     // -----------------------------------------------------------------------
     // Estados: cidades
     // -----------------------------------------------------------------------
-    const [cidades, setCidades] = useState([]);
-    const [cidadeSelecionada, setCidadeSelecionada] = useState("");
-    const [carregandoCidades, setCarregandoCidades] = useState(false);
-    const [erroCidades, setErroCidades] = useState(false);
+    const [cidades, setCidades] = useState([])
+    const [cidadeSelecionada, setCidadeSelecionada] = useState("")
+    const [carregandoCidades, setCarregandoCidades] = useState(false)
+    const [erroCidades, setErroCidades] = useState(false)
 
     // -----------------------------------------------------------------------
     // Efeitos
     // -----------------------------------------------------------------------
     useEffect(() => {
-        const controller = new AbortController();
+        const controller = new AbortController()
 
         async function buscarEstados() {
-            setCarregandoEstados(true);
-            setErroEstados(false);
+            setCarregandoEstados(true)
+            setErroEstados(false)
 
             try {
                 const resposta = await fetch(`${IBGE_API}/estados?orderBy=nome`, {
                     signal: controller.signal,
-                });
+                })
 
                 if (!resposta.ok) {
-                    throw new Error("Não foi possível carregar os estados.");
+                    throw new Error("Não foi possível carregar os estados.")
                 }
 
-                setEstados(await resposta.json());
+                setEstados(await resposta.json())
             } catch (erro) {
                 if (erro.name !== "AbortError") {
-                    console.error("Erro ao buscar estados:", erro);
-                    setErroEstados(true);
+                    console.error("Erro ao buscar estados:", erro)
+                    setErroEstados(true)
                 }
             } finally {
                 if (!controller.signal.aborted) {
-                    setCarregandoEstados(false);
+                    setCarregandoEstados(false)
                 }
             }
         }
 
-        buscarEstados();
-        return () => controller.abort();
-    }, []);
+        buscarEstados()
+        return () => controller.abort()
+    }, [])
 
     useEffect(() => {
         if (!ufSelecionada) {
-            setCidades([]);
-            setCidadeSelecionada("");
-            setErroCidades(false);
-            return;
+            setCidades([])
+            setCidadeSelecionada("")
+            setErroCidades(false)
+            return
         }
 
-        const controller = new AbortController();
+        const controller = new AbortController()
 
         async function buscarCidades() {
-            setCarregandoCidades(true);
-            setErroCidades(false);
-            setCidades([]);
+            setCarregandoCidades(true)
+            setErroCidades(false)
+            setCidades([])
 
             try {
                 const resposta = await fetch(
                     `${IBGE_API}/estados/${ufSelecionada}/municipios?orderBy=nome`,
                     { signal: controller.signal }
-                );
+                )
 
                 if (!resposta.ok) {
-                    throw new Error("Não foi possível carregar as cidades.");
+                    throw new Error("Não foi possível carregar as cidades.")
                 }
 
-                setCidades(await resposta.json());
+                setCidades(await resposta.json())
             } catch (erro) {
                 if (erro.name !== "AbortError") {
-                    console.error("Erro ao buscar cidades:", erro);
-                    setErroCidades(true);
+                    console.error("Erro ao buscar cidades:", erro)
+                    setErroCidades(true)
                 }
             } finally {
                 if (!controller.signal.aborted) {
-                    setCarregandoCidades(false);
+                    setCarregandoCidades(false)
                 }
             }
         }
 
-        buscarCidades();
-        return () => controller.abort();
-    }, [ufSelecionada]);
+        buscarCidades()
+        return () => controller.abort()
+    }, [ufSelecionada])
 
     // -----------------------------------------------------------------------
     // Funções
     // -----------------------------------------------------------------------
     function selecionarEstado(e) {
-        setUfSelecionada(e.target.value);
-        setCidadeSelecionada("");
+        setUfSelecionada(e.target.value)
+        setCidadeSelecionada("")
     }
 
     function limparLocalizacao() {
-        setUfSelecionada("");
-        setCidadeSelecionada("");
-        setCidades([]);
+        setUfSelecionada("")
+        setCidadeSelecionada("")
+        setCidades([])
     }
 
     // -----------------------------------------------------------------------
@@ -162,6 +164,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                     />
 
                     <div className="ml-3 flex h-[clamp(28px,2.05vw,38px)] shrink-0 items-center border-l border-gray-200 pl-2">
+
                         {/* Botão do filtro */}
                         <button
                             type="button"
@@ -264,6 +267,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                 {/* Renderização condicional: usuário logado ou deslogado */}
                 {usuario ? (
                     <div className={`flex shrink-0 items-center ${GAP_ITEM}`}>
+                        
                         {/* Perfil do usuário */}
                         <div className={`flex shrink-0 items-center ${GAP_ITEM}`}>
                             <img
@@ -305,5 +309,5 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario }) {
                 )}
             </div>
         </header>
-    );
+    )
 }

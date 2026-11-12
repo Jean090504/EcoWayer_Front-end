@@ -1,35 +1,36 @@
-import { useState } from "react";
+import { useState } from "react"
 
-import Header from "./components/layout/header.jsx";
-import Footer from "./components/layout/footer.jsx";
+import Header from "./components/layout/header.jsx"
+import Footer from "./components/layout/footer.jsx"
 
-import Login from "./components/cards/conta/cardLogin.jsx";
-import CriarConta from "./components/cards/conta/cardCriarConta.jsx";
+import Login from "./components/cards/conta/cardLogin.jsx"
+import CriarConta from "./components/cards/conta/cardCriarConta.jsx"
 
-import Home from "./pages/Home.jsx";
-import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
-import MinhaCarteira from "./pages/MinhaCarteira.jsx";
+import Home from "./pages/Home.jsx"
+import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx"
+import MinhaCarteira from "./pages/MinhaCarteira.jsx"
 import PontosBeneficios from "./pages/PontosBeneficios.jsx"
+import Insignia from "./pages/Insignias.jsx"
 
 export default function App() {
-    const [usuario, setUsuario] = useState(null);
+    const [usuario, setUsuario] = useState(null)
 
     // Controla a tela ativa.
-    const [telaAtiva, setTelaAtiva] = useState("home");
+    const [telaAtiva, setTelaAtiva] = useState("home")
 
     // Controla a abertura dos cards.
-    const [abrirLogin, setAbrirLogin] = useState(false);
-    const [abrirCadastro, setAbrirCadastro] = useState(false);
+    const [abrirLogin, setAbrirLogin] = useState(false)
+    const [abrirCadastro, setAbrirCadastro] = useState(false)
 
     // Executada quando o login for realizado com sucesso.
     function realizarLogin(dadosUsuario) {
-        setUsuario(dadosUsuario);
-        setAbrirLogin(false);
+        setUsuario(dadosUsuario)
+        setAbrirLogin(false)
     }
 
     // Controla a navegação entre as telas.
     function navegar(tela) {
-        setTelaAtiva(tela);
+        setTelaAtiva(tela)
     }
 
     return (
@@ -52,7 +53,9 @@ export default function App() {
 
                 {/* <AvaliacaoAnuncio/> */}
                 {/* <MinhaCarteira/> */}
-                <PontosBeneficios/>
+                {/* <PontosBeneficios/> */}
+                <Insignia/>
+                {/* <Home/> */}
             </main>
 
             <Footer />
@@ -62,8 +65,8 @@ export default function App() {
                     onClose = {() => setAbrirLogin(false)}
                     onLoginSuccess = {realizarLogin}
                     onAbrirCriarConta = {() => {
-                        setAbrirLogin(false);
-                        setAbrirCadastro(true);
+                        setAbrirLogin(false)
+                        setAbrirCadastro(true)
                     }}
                 />
             )}
