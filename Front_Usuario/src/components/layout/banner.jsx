@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import fundo1 from "../../assets/icons/img/banner1.png";
 import fundo2 from "../../assets/icons/img/banner2.png";
 import fundo3 from "../../assets/icons/img/banner3.png";
@@ -24,6 +24,14 @@ export default function Banner() {
         },
     ];
 
+    useEffect(() => {
+        const intervalo = window.setInterval(() => {
+            setBannerAtual((atual) => (atual + 1) % banners.length);
+        }, 5000);
+
+        return () => window.clearInterval(intervalo);
+    }, [banners.length]);
+
     function proximoBanner() {
         setBannerAtual((atual) => (atual + 1) % banners.length);
     }
@@ -39,23 +47,25 @@ export default function Banner() {
             <div className="relative w-full">
 
                 {/* Área do banner (imagem + botões) */}
-                <div className = "relative w-full h-[clamp(160px,20vw,210px)] overflow-hidden rounded-2xl bg-gray-100">
+                <div className = "relative h-[clamp(190px,22vw,300px)] w-full overflow-hidden rounded-[28px] bg-gray-100 shadow-lg shadow-slate-200/60">
 
                     {/* Imagem de fundo */}
                     <img
                         src={banners[bannerAtual].imagem}
                         alt="Objetos reutilizáveis para troca, venda e doação"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 h-full w-full object-cover transition duration-700"
                     />
 
                     {/* Texto do banner */}
-                    <div className="absolute inset-y-0 left-0 flex flex-col justify-center px-8 sm:px-12 md:px-16 max-w-[70%]">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#7546CF] leading-tight">
-                            {banners[bannerAtual].titulo}
-                        </h2>
-                        <p className="mt-1 text-xs sm:text-sm text-green-600 font-medium">
-                            {banners[bannerAtual].descricao}
-                        </p>
+                    <div className="absolute inset-0 flex items-center bg-gradient-to-r from-white/98 via-white/90 to-white/10 px-5 sm:px-10 md:px-16">
+                        <div className="max-w-[min(88%,560px)] rounded-2xl bg-white/80 px-5 py-4 shadow-sm ring-1 ring-white/70 backdrop-blur-[2px] sm:px-7 sm:py-5">
+                            <h2 className="max-w-[18ch] text-xl font-extrabold leading-[1.08] text-[#6840BD] sm:text-3xl md:text-4xl">
+                                {banners[bannerAtual].titulo}
+                            </h2>
+                            <p className="mt-2 max-w-[42ch] text-xs font-bold leading-5 text-[#23833d] sm:text-sm md:text-base">
+                                {banners[bannerAtual].descricao}
+                            </p>
+                        </div>
                     </div>
 
                     {/* Indicadores inferiores */}

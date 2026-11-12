@@ -20,6 +20,8 @@ export default function App() {
     const [abrirVerificacao, setAbrirVerificacao] = useState(false);
     const [dadosCadastro, setDadosCadastro] = useState(null);
     const [tipoVerificacao, setTipoVerificacao] = useState("telefone");
+    const [busca, setBusca] = useState("");
+    const [categoria, setCategoria] = useState("");
 
     useEffect(() => {
         if (!sessionStorage.getItem("ecowayer_token")) return;
@@ -50,9 +52,9 @@ export default function App() {
         await apiFetch("/auth/resend-code", { method: "POST", body: JSON.stringify({ contato, finalidade: tipoVerificacao }) });
     }
 
-    return <div className="flex min-h-screen flex-col gap-8">
-        <Header usuario={usuario} onAbrirLogin={() => setAbrirLogin(true)} onAbrirCriarConta={() => { setAbrirLogin(false); setAbrirCadastro(true); }} />
-        <main className="flex flex-1 flex-col items-center"><Home /></main>
+    return <div className="flex min-h-screen w-full flex-col gap-8 bg-[#f7f9fc]">
+        <Header usuario={usuario} busca={busca} onBusca={setBusca} onAbrirLogin={() => setAbrirLogin(true)} onAbrirCriarConta={() => { setAbrirLogin(false); setAbrirCadastro(true); }} />
+        <main className="flex w-full flex-1 flex-col items-center"><Home busca={busca} categoria={categoria} onCategoria={setCategoria} /></main>
         <Footer /><AssistenteChat />
         {abrirLogin && <Login onClose={() => setAbrirLogin(false)} onLoginSuccess={(dados) => { setUsuario(dados); setAbrirLogin(false); }} onAbrirCriarConta={() => { setAbrirLogin(false); setAbrirCadastro(true); }} />}
         {abrirCadastro && <CriarConta dadosIniciais={dadosCadastro} onClose={() => setAbrirCadastro(false)} onContinuarVerificacao={continuarVerificacao} />}

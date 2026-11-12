@@ -14,6 +14,28 @@ function liberarCampo(evento) {
     evento.target.removeAttribute("readonly");
 }
 
+function somenteNumeros(valor, limite) {
+    return valor.replace(/\D/g, "").slice(0, limite);
+}
+
+function formatarCpf(valor) {
+    const numeros = somenteNumeros(valor, 11);
+    return numeros
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
+function formatarData(valor) {
+    const numeros = somenteNumeros(valor, 8);
+    return numeros.replace(/(\d{2})(\d)/, "$1/$2").replace(/(\d{2})(\d)/, "$1/$2");
+}
+
+function formatarTelefone(valor) {
+    const numeros = somenteNumeros(valor, 11);
+    return numeros.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d{1,4})$/, "$1-$2");
+}
+
 // CAMPO COMUM
 
 // Fica fora do CreateAccount de propósito: se ficasse dentro, seria
@@ -25,6 +47,7 @@ function Campo({
     type = "text",
     value,
     inputMode,
+    maxLength,
     onChange
 }) {
     return (
@@ -38,6 +61,7 @@ function Campo({
                 name={name}
                 type={type}
                 inputMode={inputMode}
+                maxLength={maxLength}
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
@@ -152,7 +176,12 @@ export default function CreateAccount({
 
     // Atualiza o campo que estou digitando
     function atualizarCampo(event) {
-        const { name, value } = event.target;
+        const { name } = event.target;
+        let value = event.target.value;
+
+        if (name === "cpf") value = formatarCpf(value);
+        if (name === "nascimento") value = formatarData(value);
+        if (name === "telefone") value = formatarTelefone(value);
 
         setFormulario((anterior) => ({
             ...anterior,
@@ -167,6 +196,18 @@ export default function CreateAccount({
         event.preventDefault();
 
         setErro("");
+
+        const cpfNumeros = formulario.cpf.replace(/\D/g, "");
+        const dataNumeros = formulario.nascimento.replace(/\D/g, "");
+
+        if (cpfNumeros.length !== 11) {
+            setErro("Informe um CPF com 11 números.");
+            return;
+        }
+        if (dataNumeros.length !== 8) {
+            setErro("Informe a data de nascimento completa.");
+            return;
+        }
 
         // 1. As duas senhas precisam ser iguais
         if (formulario.senha !== formulario.confirmarSenha) {
@@ -250,6 +291,8 @@ export default function CreateAccount({
                             name="nascimento"
                             placeholder="DD/MM/AAAA"
                             value={formulario.nascimento}
+                        inputMode="numeric"
+                        maxLength={10}
                             onChange={atualizarCampo}
                         />
 
@@ -259,6 +302,7 @@ export default function CreateAccount({
                             placeholder="000.000.000-00"
                             value={formulario.cpf}
                             inputMode="numeric"
+                        maxLength={14}
                             onChange={atualizarCampo}
                         />
 
@@ -282,6 +326,7 @@ export default function CreateAccount({
                         type="tel"
                         value={formulario.telefone}
                         inputMode="tel"
+                        maxLength={15}
                         onChange={atualizarCampo}
                     />
 

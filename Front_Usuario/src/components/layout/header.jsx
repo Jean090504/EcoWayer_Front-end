@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import logo from "../../assets/icons/logo/Ecomarket.png";
 import lupa from "../../assets/icons/icones/lupa.png";
 import filtro from "../../assets/icons/icones/filtro.png";
@@ -8,439 +7,115 @@ import carteira from "../../assets/icons/icones/carteira.png";
 import chat from "../../assets/icons/icones/menssagem.png";
 import perfil from "../../assets/icons/icones/foto.png";
 
+function DropdownLocalidade({ label, value, placeholder, options, onChange, disabled = false, mensagemVazia }) {
+    const [aberto, setAberto] = useState(false);
+    const [busca, setBusca] = useState("");
+    const atual = options.find((option) => String(option.value) === String(value));
+    const filtradas = options.filter((option) => option.label.toLowerCase().includes(busca.toLowerCase()));
 
-// verifica se o usuario é = null -> mostra "Criar Conta" e "Logar"
-// - usuario != null -> mostra foto + nome + botão de "Anunciar"
+    function selecionar(option) {
+        onChange(option.value);
+        setBusca("");
+        setAberto(false);
+    }
 
-export default function Header({
-    onAbrirCriarConta,
-    onAbrirLogin,
-    usuario
-}) {
+    return (
+        <div className="relative mb-4">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-600">{label}</label>
+            <button type="button" disabled={disabled} onClick={() => setAberto((estado) => !estado)} className={`flex h-10 w-full items-center justify-between rounded-lg border px-3 text-left text-sm transition ${aberto ? "border-[#4CAF50] ring-2 ring-[#4CAF50]/15" : "border-slate-200"} ${disabled ? "cursor-not-allowed bg-slate-50 text-slate-400" : "bg-white text-slate-700 hover:border-[#61B86B]"}`}>
+                <span className={atual ? "truncate" : "truncate text-slate-400"}>{atual?.label || placeholder}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`h-4 w-4 shrink-0 text-slate-400 transition ${aberto ? "rotate-180 text-[#4CAF50]" : ""}`}><path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </button>
+            {aberto && !disabled && (
+                <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-[60] overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/10">
+                    <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-2.5 ring-1 ring-slate-100 focus-within:ring-[#61B86B]/40">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 text-slate-400"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
+                        <input autoFocus value={busca} onChange={(event) => setBusca(event.target.value)} placeholder="Buscar na lista..." className="h-9 min-w-0 flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400" />
+                    </div>
+                    <div className="mt-2 max-h-52 overflow-y-auto pr-1 [scrollbar-color:#94a3b8_transparent] [scrollbar-width:thin]">
+                        {filtradas.length ? filtradas.map((option) => (
+                            <button type="button" key={option.value} onClick={() => selecionar(option)} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition ${String(option.value) === String(value) ? "bg-green-50 font-bold text-[#278d3a]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}>
+                                <span>{option.label}</span>
+                                {String(option.value) === String(value) && <span className="text-[#4CAF50]">✓</span>}
+                            </button>
+                        )) : <p className="px-3 py-4 text-center text-xs text-slate-400">{mensagemVazia || "Nenhum resultado encontrado"}</p>}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
 
-    // Abre/fecha o menu de localização
+export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario, busca = "", onBusca }) {
     const [mostrarFiltro, setMostrarFiltro] = useState(false);
-
-    // Estados que vêm da API do IBGE
     const [estados, setEstados] = useState([]);
-
-    // Código IBGE do estado selecionado
     const [ufSelecionada, setUfSelecionada] = useState("");
-
-    // Municípios que vêm da API
     const [cidades, setCidades] = useState([]);
-
-    // Código IBGE do município selecionado
     const [cidadeSelecionada, setCidadeSelecionada] = useState("");
-
-    // Carregamento dos estados e das cidades
     const [carregandoEstados, setCarregandoEstados] = useState(false);
     const [carregandoCidades, setCarregandoCidades] = useState(false);
-
-    // Erros nas consultas
     const [erroEstados, setErroEstados] = useState(false);
     const [erroCidades, setErroCidades] = useState(false);
 
-
-    // Busca todos os estados na API do IBGE (só uma vez quando abre a página)
     useEffect(() => {
-
         const controller = new AbortController();
-
-        async function buscarEstados() {
-
-            setCarregandoEstados(true);
-            setErroEstados(false);
-
-            try {
-                const resposta = await fetch(
-                    "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome",
-                    { signal: controller.signal }
-                );
-
-                if (!resposta.ok) {
-                    throw new Error("Não foi possível carregar os estados.");
-                }
-
-                const dados = await resposta.json();
-
-                setEstados(dados);
-
-            } catch (erro) {
-
-                if (erro.name !== "AbortError") {
-                    console.error("Erro ao buscar estados:", erro);
-                    setErroEstados(true);
-                }
-
-            } finally {
-
-                if (!controller.signal.aborted) {
-                    setCarregandoEstados(false);
-                }
-            }
-        }
-
-        buscarEstados();
-
+        setCarregandoEstados(true);
+        fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome", { signal: controller.signal })
+            .then((resposta) => { if (!resposta.ok) throw new Error("Falha"); return resposta.json(); })
+            .then(setEstados)
+            .catch((error) => { if (error.name !== "AbortError") setErroEstados(true); })
+            .finally(() => { if (!controller.signal.aborted) setCarregandoEstados(false); });
         return () => controller.abort();
-
     }, []);
 
-
-    // Busca as cidades sempre que escolho um uf
     useEffect(() => {
-
-        if (!ufSelecionada) {
-            setCidades([]);
-            setCidadeSelecionada("");
-            setErroCidades(false);
-            return;
-        }
-
+        if (!ufSelecionada) { setCidades([]); setCidadeSelecionada(""); return undefined; }
         const controller = new AbortController();
-
-        async function buscarCidades() {
-
-            setCarregandoCidades(true);
-            setErroCidades(false);
-            setCidades([]);
-
-            try {
-
-                const resposta = await fetch(
-                    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufSelecionada}/municipios?orderBy=nome`,
-                    { signal: controller.signal }
-                );
-
-                if (!resposta.ok) {
-                    throw new Error("Não foi possível carregar as cidades.");
-                }
-
-                const dados = await resposta.json();
-
-                setCidades(dados);
-
-            } catch (erro) {
-
-                if (erro.name !== "AbortError") {
-                    console.error("Erro ao buscar cidades:", erro);
-                    setErroCidades(true);
-                }
-
-            } finally {
-
-                if (!controller.signal.aborted) {
-                    setCarregandoCidades(false);
-                }
-            }
-        }
-
-        buscarCidades();
-
+        setCarregandoCidades(true);
+        setErroCidades(false);
+        fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufSelecionada}/municipios?orderBy=nome`, { signal: controller.signal })
+            .then((resposta) => { if (!resposta.ok) throw new Error("Falha"); return resposta.json(); })
+            .then(setCidades)
+            .catch((error) => { if (error.name !== "AbortError") setErroCidades(true); })
+            .finally(() => { if (!controller.signal.aborted) setCarregandoCidades(false); });
         return () => controller.abort();
-
     }, [ufSelecionada]);
 
-
-    // Limpa a localização selecionada.
     function limparLocalizacao() {
         setUfSelecionada("");
         setCidadeSelecionada("");
         setCidades([]);
     }
 
-
     return (
-        <header className="mt-3 h-[72px] w-full border-b border-gray-100 bg-white">
+        <header style={{ height: "128px", minHeight: "128px" }} className="mt-0 w-full border-0 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)]">
+            <div className="mx-auto flex h-full w-full max-w-[1800px] items-center justify-between gap-4 px-5 sm:gap-6 sm:px-8 xl:px-12">
+                <div className="flex shrink-0 items-center"><img src={logo} alt="EcoMarket" className="h-8 w-auto object-contain" /></div>
 
-            {/* Contêiner dos elementos */}
-            <div className="mx-auto flex h-full w-full max-w-[1360px] items-center justify-between gap-5 px-6">
-
-                {/* Logo */}
-                <div className="flex shrink-0 items-center">
-                    <img
-                        src={logo}
-                        alt="EcoMarket"
-                        className="h-5 w-auto object-contain"
-                    />
-                </div>
-
-
-                {/* Campo de pesquisa */}
-                <div className="relative flex h-11 min-w-[220px] max-w-[560px] flex-1 items-center rounded-xl border border-gray-200 bg-white px-3 shadow-sm">
-
-                    <input
-                        type="text"
-                        placeholder="Buscar ponto de coleta, bairro..."
-                        className="min-w-0 flex-1 text-sm text-gray-700 outline-none placeholder:text-gray-400"
-                    />
-
-                    <img
-                        src={lupa}
-                        alt="Pesquisar"
-                        className="ml-3 h-4 w-4 shrink-0 object-contain"
-                    />
-
-
+                <div className="relative flex h-12 min-w-[260px] max-w-[800px] flex-[1.5] items-center rounded-xl border border-gray-200 bg-white px-4 shadow-sm transition focus-within:border-[#61B86B] focus-within:shadow-md">
+                    <input type="text" placeholder="Buscar anúncios, produtos ou materiais..." value={busca} onChange={(event) => onBusca?.(event.target.value)} className="min-w-0 flex-1 text-sm text-gray-700 outline-none placeholder:text-gray-400" />
+                    <img src={lupa} alt="Pesquisar" className="ml-3 h-4 w-4 shrink-0 object-contain" />
                     <div className="ml-3 flex h-7 shrink-0 items-center border-l border-gray-200 pl-2">
-
-                        {/* Botão do filtro */}
-                        <button
-                            type="button"
-                            aria-label="Filtros de localização"
-                            aria-expanded={mostrarFiltro}
-                            onClick={() => setMostrarFiltro(!mostrarFiltro)}
-                            className="flex items-center justify-center rounded-md p-1 transition hover:bg-gray-100"
-                        >
-                            <img
-                                src={filtro}
-                                alt=""
-                                className="h-4 w-4 object-contain"
-                            />
-                        </button>
-
+                        <button type="button" aria-label="Filtros de localização" aria-expanded={mostrarFiltro} onClick={() => setMostrarFiltro((aberto) => !aberto)} className={`flex items-center justify-center rounded-md p-1 transition ${mostrarFiltro ? "bg-green-50" : "hover:bg-gray-100"}`}><img src={filtro} alt="" className="h-4 w-4 object-contain" /></button>
                     </div>
-
-
-                    {/* Menu suspenso de localização */}
                     {mostrarFiltro && (
-
-                        <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
-
-                            <div className="mb-3 flex items-center justify-between">
-
-                                <h3 className="text-sm font-semibold text-gray-800">
-                                    Filtrar localização
-                                </h3>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setMostrarFiltro(false)}
-                                    className="text-lg text-gray-400 transition hover:text-gray-700"
-                                    aria-label="Fechar filtro"
-                                >
-                                    ×
-                                </button>
-
-                            </div>
-
-
-                            {/* Estado */}
-                            <label className="mb-1 block text-xs font-semibold text-gray-600">
-                                Estado (UF)
-                            </label>
-
-                            <select
-                                value={ufSelecionada}
-                                onChange={(e) => {
-                                    setUfSelecionada(e.target.value);
-                                    setCidadeSelecionada("");
-                                }}
-                                disabled={carregandoEstados || erroEstados}
-                                className="mb-4 h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-[#4CAF50] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
-                            >
-
-                                <option value="">
-                                    {carregandoEstados
-                                        ? "Carregando estados..."
-                                        : erroEstados
-                                            ? "Erro ao carregar estados"
-                                            : "Selecione um estado"}
-                                </option>
-
-                                {estados.map((estado) => (
-
-                                    <option
-                                        key={estado.id}
-                                        value={estado.id}
-                                    >
-                                        {estado.nome} ({estado.sigla})
-                                    </option>
-
-                                ))}
-
-                            </select>
-
-
-                            {/* Cidade */}
-                            <label className="mb-1 block text-xs font-semibold text-gray-600">
-                                Cidade
-                            </label>
-
-                            <select
-                                value={cidadeSelecionada}
-                                onChange={(e) => setCidadeSelecionada(e.target.value)}
-                                disabled={!ufSelecionada || carregandoCidades || erroCidades || cidades.length === 0}
-                                className="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-[#4CAF50] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
-                            >
-
-                                <option value="">
-                                    {!ufSelecionada
-                                        ? "Selecione primeiro o estado"
-                                        : carregandoCidades
-                                            ? "Carregando cidades..."
-                                            : erroCidades
-                                                ? "Erro ao carregar cidades"
-                                                : cidades.length === 0
-                                                    ? "Nenhuma cidade disponível"
-                                                    : "Selecione uma cidade"}
-                                </option>
-
-                                {cidades.map((cidade) => (
-
-                                    <option
-                                        key={cidade.id}
-                                        value={cidade.id}
-                                    >
-                                        {cidade.nome}
-                                    </option>
-
-                                ))}
-
-                            </select>
-
-
-                            {/* Limpar filtros */}
-                            <button
-                                type="button"
-                                onClick={limparLocalizacao}
-                                className="mt-4 w-full rounded-lg py-2 text-xs font-semibold text-[#4CAF50] transition hover:bg-green-50"
-                            >
-                                Limpar localização
-                            </button>
-
+                        <div className="absolute right-0 top-full z-50 mt-2 w-[min(330px,calc(100vw-32px))] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl shadow-slate-900/10">
+                            <div className="mb-4 flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#61B86B]">Localização</p><h3 className="mt-1 text-base font-bold text-slate-800">Filtrar por região</h3></div><button type="button" onClick={() => setMostrarFiltro(false)} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Fechar filtro">×</button></div>
+                            <DropdownLocalidade label="Estado (UF)" value={ufSelecionada} placeholder={carregandoEstados ? "Carregando estados..." : erroEstados ? "Erro ao carregar estados" : "Selecione um estado"} options={estados.map((estado) => ({ value: estado.id, label: `${estado.nome} (${estado.sigla})` }))} disabled={carregandoEstados || erroEstados} mensagemVazia="Estado não encontrado" onChange={(valor) => { setUfSelecionada(valor); setCidadeSelecionada(""); }} />
+                            <DropdownLocalidade label="Cidade" value={cidadeSelecionada} placeholder={!ufSelecionada ? "Selecione primeiro o estado" : carregandoCidades ? "Carregando cidades..." : erroCidades ? "Erro ao carregar cidades" : "Selecione uma cidade"} options={cidades.map((cidade) => ({ value: cidade.id, label: cidade.nome }))} disabled={!ufSelecionada || carregandoCidades || erroCidades || cidades.length === 0} mensagemVazia="Cidade não encontrada" onChange={setCidadeSelecionada} />
+                            <button type="button" onClick={limparLocalizacao} className="w-full rounded-xl border border-green-100 bg-green-50 py-2.5 text-xs font-bold text-[#278d3a] transition hover:bg-green-100">Limpar localização</button>
                         </div>
-
                     )}
-
                 </div>
 
-
-                {/* Navegação */}
-                <nav className="flex shrink-0 items-center gap-5">
-
-                    {/* Meus anúncios */}
-                    <button
-                        type="button"
-                        className="flex items-center gap-1.5 whitespace-nowrap"
-                    >
-                        <img
-                            src={carta}
-                            alt=""
-                            className="h-7 w-6 object-contain"
-                        />
-
-                        <span className="text-sm font-medium text-gray-600">
-                            Meus anúncios
-                        </span>
-                    </button>
-
-
-                    {/* Carteira */}
-                    <button
-                        type="button"
-                        className="flex items-center gap-1.5 whitespace-nowrap"
-                    >
-                        <img
-                            src={carteira}
-                            alt=""
-                            className="h-5 w-5 object-contain"
-                        />
-
-                        <span className="text-sm font-medium text-gray-600">
-                            Carteira
-                        </span>
-                    </button>
-
-
-                    {/* Chat */}
-                    <button
-                        type="button"
-                        className="flex items-center gap-1.5 whitespace-nowrap"
-                    >
-                        <img
-                            src={chat}
-                            alt=""
-                            className="h-6 w-6 object-contain"
-                        />
-
-                        <span className="text-sm font-medium text-gray-600">
-                            Chat
-                        </span>
-                    </button>
-
+                <nav style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "22px" }} className="hidden min-w-max shrink-0 lg:flex">
+                    <button type="button" style={{ display: "inline-flex", flexDirection: "row", alignItems: "center", gap: "8px", whiteSpace: "nowrap" }} className="shrink-0 text-[15px] font-medium text-gray-600"><img src={carta} alt="" className="h-7 w-6 shrink-0 object-contain" /><span>Meus anúncios</span></button>
+                    <button type="button" style={{ display: "inline-flex", flexDirection: "row", alignItems: "center", gap: "8px", whiteSpace: "nowrap" }} className="shrink-0 text-[15px] font-medium text-gray-600"><img src={carteira} alt="" className="h-6 w-6 shrink-0 object-contain" /><span>Carteira</span></button>
+                    <button type="button" style={{ display: "inline-flex", flexDirection: "row", alignItems: "center", gap: "8px", whiteSpace: "nowrap" }} className="shrink-0 text-[15px] font-medium text-gray-600"><img src={chat} alt="" className="h-6 w-6 shrink-0 object-contain" /><span>Chat</span></button>
                 </nav>
 
-
-                {/* Logado ou deslogado: quem decide é o "usuario" que vem do App */}
-                {usuario ? (
-
-                    <div className="flex shrink-0 items-center gap-3">
-
-                        {/* Foto e nome do usuário */}
-                        <div className="flex shrink-0 items-center gap-2">
-
-                            {/* Foto da conta (Google ou padrão)
-                                referrerPolicy: sem isso a foto do Google às vezes não carrega.
-                                onError: se a foto falhar, volta pra foto padrão */}
-                            <img
-                                src={usuario.foto || perfil}
-                                alt="Foto de perfil"
-                                referrerPolicy="no-referrer"
-                                onError={(e) => {
-                                    e.currentTarget.onerror = null;
-                                    e.currentTarget.src = perfil;
-                                }}
-                                className="h-10 w-10 rounded-full object-cover"
-                            />
-
-                            <span className="whitespace-nowrap text-sm font-semibold text-black">
-                                {usuario.nome}
-                            </span>
-
-                        </div>
-
-
-                        {/* Botão anunciar */}
-                        <button
-                            type="button"
-                            className="flex h-10 shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-10 text-sm font-semibold text-white transition hover:bg-purple-700"
-                        >
-                            Anunciar
-                        </button>
-
-                    </div>
-
-                ) : (
-
-                    <div className="flex shrink-0 items-center gap-3">
-
-                        {/* Botão criar conta */}
-                        <button
-                            type="button"
-                            onClick={onAbrirCriarConta}
-                            className="flex h-9 items-center justify-center rounded-full border border-gray-300 bg-white px-6 text-sm font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600"
-                        >
-                            Criar Conta
-                        </button>
-
-
-                        {/* Botão login */}
-                        <button
-                            type="button"
-                            onClick={onAbrirLogin}
-                            className="flex h-9 items-center justify-center rounded-full bg-[#724BC2] px-6 text-sm font-semibold text-white transition hover:bg-purple-700"
-                        >
-                            Logar
-                        </button>
-
-                    </div>
-
-                )}
-
+                {usuario ? <div className="flex shrink-0 items-center gap-3"><div className="hidden items-center gap-2 xl:flex"><img src={usuario.foto || perfil} alt="Foto de perfil" referrerPolicy="no-referrer" className="h-9 w-9 rounded-full object-cover" /><span className="max-w-28 truncate text-sm font-semibold text-black">{usuario.nome}</span></div><button type="button" className="flex h-10 shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-6 text-sm font-semibold text-white transition hover:bg-purple-700">Anunciar</button></div> : <div className="flex shrink-0 items-center gap-3"><button type="button" onClick={onAbrirCriarConta} className="hidden h-9 items-center justify-center rounded-full border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 transition hover:border-green-600 hover:text-green-600 sm:flex">Criar Conta</button><button type="button" onClick={onAbrirLogin} className="flex h-9 items-center justify-center rounded-full bg-[#724BC2] px-5 text-sm font-semibold text-white transition hover:bg-purple-700">Logar</button></div>}
             </div>
-
         </header>
     );
 }
