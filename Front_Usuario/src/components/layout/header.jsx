@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "../../assets/icons/logo/ecomarket.svg";
+import logo from "../../assets/icons/logo/Ecomarket.png";
 import lupa from "../../assets/icons/icones/lupa.png";
 import filtro from "../../assets/icons/icones/filtro.png";
 import carta from "../../assets/icons/icones/carta.png";
@@ -90,7 +90,7 @@ export default function Header({ onAbrirCriarConta, onAbrirLogin, usuario, busca
     return (
         <header style={{ height: "128px", minHeight: "128px" }} className="mt-0 w-full border-0 bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)]">
             <div className="mx-auto flex h-full w-full max-w-[1800px] items-center justify-between gap-4 px-5 sm:gap-6 sm:px-8 xl:px-12">
-                <div className="flex h-12 w-[220px] shrink-0 items-center"><img src={logo} alt="EcoMarket" className="h-10 w-[220px] object-contain" /></div>
+                <div className="flex h-12 w-[220px] shrink-0 items-center"><img src={logo} alt="EcoMarket" className="h-9 w-auto object-contain" /></div>
 
                 <div className="relative flex h-12 min-w-[260px] max-w-[800px] flex-[1.5] items-center rounded-xl border border-gray-200 bg-white px-4 shadow-sm transition focus-within:border-[#61B86B] focus-within:shadow-md">
                     <input type="text" placeholder="Buscar anúncios, produtos ou materiais..." value={busca} onChange={(event) => onBusca?.(event.target.value)} className="min-w-0 flex-1 text-sm text-gray-700 outline-none placeholder:text-gray-400" />
