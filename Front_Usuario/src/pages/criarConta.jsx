@@ -36,6 +36,75 @@ function formatarTelefone(valor) {
     return numeros.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d{1,4})$/, "$1-$2");
 }
 
+function cpfValido(valor) {
+    const cpf = somenteNumeros(valor, 11);
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+
+    const calcularDigito = (tamanho) => {
+        let soma = 0;
+        for (let indice = 0; indice < tamanho; indice += 1) {
+            soma += Number(cpf[indice]) * (tamanho + 1 - indice);
+        }
+        const resto = (soma * 10) % 11;
+        return resto === 10 ? 0 : resto;
+    };
+
+    return calcularDigito(9) === Number(cpf[9]) && calcularDigito(10) === Number(cpf[10]);
+}
+
+function CampoGenero({ value, onChange }) {
+    const [aberto, setAberto] = useState(false);
+    const opcoes = [
+        { value: "1", label: "Masculino" },
+        { value: "2", label: "Feminino" },
+        { value: "3", label: "Não-binário" },
+        { value: "4", label: "Outro" },
+        { value: "5", label: "Prefiro não informar" }
+    ];
+    const selecionado = opcoes.find((opcao) => opcao.value === value);
+
+    function selecionar(opcao) {
+        onChange({ target: { name: "id_genero", value: opcao.value } });
+        setAberto(false);
+    }
+
+    return (
+        <div className="relative">
+            <label htmlFor="id_genero" className={labelClass}>Gênero</label>
+            <button
+                id="id_genero"
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={aberto}
+                onClick={() => setAberto((estado) => !estado)}
+                className={`${inputClass} flex items-center justify-between text-left ${selecionado ? "text-[#444]" : "text-[#929292]"}`}
+            >
+                <span>{selecionado?.label ?? "Selecione"}</span>
+                <svg className={`h-4 w-4 transition-transform ${aberto ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="m6 9 6 6 6-6" />
+                </svg>
+            </button>
+
+            {aberto && (
+                <div role="listbox" aria-label="Gênero" className="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded-xl border border-[#E2E6EB] bg-white p-1 shadow-lg">
+                    {opcoes.map((opcao) => (
+                        <button
+                            key={opcao.value}
+                            type="button"
+                            role="option"
+                            aria-selected={value === opcao.value}
+                            onClick={() => selecionar(opcao)}
+                            className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-sm transition ${value === opcao.value ? "bg-[#61B86B] font-semibold text-white" : "text-[#454545] hover:bg-[#eef8ef]"}`}
+                        >
+                            {opcao.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 // CAMPO COMUM
 
 // Fica fora do CreateAccount de propósito: se ficasse dentro, seria
@@ -200,8 +269,16 @@ export default function CreateAccount({
         const cpfNumeros = formulario.cpf.replace(/\D/g, "");
         const dataNumeros = formulario.nascimento.replace(/\D/g, "");
 
+        if (!formulario.id_genero) {
+            setErro("Selecione uma opção de gênero.");
+            return;
+        }
         if (cpfNumeros.length !== 11) {
             setErro("Informe um CPF com 11 números.");
+            return;
+        }
+        if (!cpfValido(cpfNumeros)) {
+            setErro("Informe um CPF válido.");
             return;
         }
         if (dataNumeros.length !== 8) {
@@ -330,17 +407,7 @@ export default function CreateAccount({
                         onChange={atualizarCampo}
                     />
 
-                    <div>
-                        <label htmlFor="id_genero" className={labelClass}>Gênero</label>
-                        <select id="id_genero" name="id_genero" value={formulario.id_genero} onChange={atualizarCampo} className={inputClass} required>
-                            <option value="">Selecione</option>
-                            <option value="1">Masculino</option>
-                            <option value="2">Feminino</option>
-                            <option value="3">Não-binário</option>
-                            <option value="4">Outro</option>
-                            <option value="5">Prefiro não informar</option>
-                        </select>
-                    </div>
+                    <CampoGenero value={formulario.id_genero} onChange={atualizarCampo} />
 
                     {/* Senha */}
                     <CampoSenha
