@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import iconeEmail from "../assets/icons/icones/emailVerificado.png";
-import folha from "../assets/icons/icones/folha.png";
+import { MailCheck, Leaf } from "lucide-react";
 
 // Quantos dígitos tem o código
 const TAMANHO_CODIGO = 6;
@@ -11,16 +10,7 @@ const TEMPO_REENVIO = 60;
 // Lista de 6 campos vazios (usei em vários lugares)
 const camposVazios = () => Array(TAMANHO_CODIGO).fill("");
 
-// TELA DE VERIFICAÇÃO DE E-MAIL
-// Só aparece depois que o número de telefone já foi verificado (no criar conta)
 
-// O que recebe do App:
-// - email: pra mostrar em qual e-mail o código foi enviado
-// - erroInicial: se o envio do e-mail falhou, mostra um aviso logo de cara
-// - onVoltar: botão "Voltar" lá em cima
-// - onAlterarEmail: link "Alterar e-mail" lá embaixo
-// - onVerificar: confere o código (se estiver errado, joga um erro)
-// - onReenviar: manda um novo código pro email
 export default function VerificacaoEmail({
     email,
     erroInicial = "",
@@ -223,24 +213,16 @@ export default function VerificacaoEmail({
                 {/* Ícone: quadrado roxo com o e-mail e a bolinha verde da folha */}
                 <div className="relative mx-auto mt-[34px] h-[64px] w-[64px]">
 
-                    <div className="flex h-full w-full items-center justify-center rounded-[18px] bg-[#724BC2]">
-                        <img
-                            src={iconeEmail}
-                            alt=""
-                            className="h-[34px] w-[34px] object-contain"
-                        />
-                    </div>
+                    {/* icone do email pela biblioteca do react */}
+                    <div className="flex h-full w-full items-center justify-center rounded-[24px] bg-[#7548C8]">
+                            <MailCheck size={34} strokeWidth={1.8} className="text-white" />
+                        </div>
 
-                    {/* Bolinha verde no canto com a folha */}
-                    <div className="absolute -bottom-[4px] -right-[8px] flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-white bg-[#4CAF50]">
-                        <img
-                            src={folha}
-                            alt=""
-                            className="h-[12px] w-[12px] object-contain"
-                        />
+                        {/* Bolinha verde com a folha */}
+                        <div className="absolute -bottom-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full border-[3px] border-white bg-[#55B75D]">
+                            <Leaf size={16} className="text-white" />
+                        </div>
                     </div>
-
-                </div>
 
                 {/* Título */}
                 <h2 className="mt-[22px] text-center text-[24px] font-bold leading-[30px] tracking-[-0.4px] text-[#1B1B1F]">

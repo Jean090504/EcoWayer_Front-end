@@ -2,16 +2,11 @@ import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 
 // Estilo padrão dos campos de entrada
-const inputClass =
-    "h-[35px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[29px] pr-[10px] text-[12px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
-
-// Mesma chave do .env que uso no resto do projeto.
-// VITE_USAR_MOCK=true = login do Google "simulado" aqui no front.
+const inputClass ="h-[35px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[29px] pr-[10px] text-[12px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
 const USAR_MOCK = import.meta.env.VITE_USAR_MOCK === "true";
 
 // O Google devolve um "credential" (token JWT) com os dados da conta
 // Aqui eu abro o token só pra ler nome, e-mail e foto
-
 // ATENÇÃO: isso é só pra simular. No login de verdade, o backend
 // é quem precisa validar o token (o token atual foi fabricado no front)
 function lerCredencialGoogle(credential) {
