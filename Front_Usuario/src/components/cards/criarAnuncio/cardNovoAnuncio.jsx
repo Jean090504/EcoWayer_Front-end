@@ -6,7 +6,6 @@ import {
     Banknote,
     ArrowLeftRight,
     HandHeart,
-    CircleCheck,
     ChevronDown,
     ArrowRight,
     X
@@ -29,14 +28,24 @@ function mascararPreco(valor) {
     });
 }
 
-// Peso: só números
+// Peso: números e uma vírgula (até 2 casas decimais). Ex: 2,5
 function mascararPeso(valor) {
-    return valor.replace(/\D/g, "").slice(0, 7);
+    const limpo = valor.replace(/[^\d,]/g, "");
+    const [inteiro, ...resto] = limpo.split(",");
+
+    if (resto.length === 0) return inteiro.slice(0, 7);
+
+    return `${inteiro.slice(0, 7)},${resto.join("").slice(0, 2)}`;
 }
 
 // "1.234,56" -> 1234.56
 function precoParaNumero(texto) {
     return Number(texto.replace(/\./g, "").replace(",", ".")) || 0;
+}
+
+// "2,5" -> 2.5
+function pesoParaNumero(texto) {
+    return Number(texto.replace(",", ".")) || 0;
 }
 
 // Devolve a mensagem do primeiro problema, ou "" se estiver tudo certo
@@ -50,7 +59,13 @@ function validarFormulario(f, modalidade, qtdFotos) {
         return "Informe o preço estimado.";
     }
 
-    if (!Number(f.peso)) return "Informe o volume / peso estimado.";
+    const peso = pesoParaNumero(f.peso);
+
+    if (peso <= 0) return "Informe o volume / peso estimado.";
+
+    if (f.unidade === "un" && !Number.isInteger(peso)) {
+        return "Em unidades, informe um número inteiro.";
+    }
 
     if (f.descricao.trim().length < 20) {
         return "Descreva o material com mais detalhes (mínimo 20 caracteres).";
@@ -152,7 +167,8 @@ function Rotulo({ htmlFor, children }) {
 }
 
 // Campo de seleção (lista) com a setinha
-function CampoSelect({ id, name, value, onChange, opcoes, placeholder }) {
+// ariaLabel: usar quando o campo não tem <Rotulo> visível
+function CampoSelect({ id, name, value, onChange, opcoes, placeholder, ariaLabel }) {
     return (
         <div className="relative">
             <select
@@ -160,6 +176,7 @@ function CampoSelect({ id, name, value, onChange, opcoes, placeholder }) {
                 name={name}
                 value={value}
                 onChange={onChange}
+                aria-label={ariaLabel}
                 className={`${selectClass} ${value ? "text-[#191C1E]" : "text-[#9AA39A]"}`}
             >
                 {placeholder && <option value="">{placeholder}</option>}
@@ -187,7 +204,7 @@ function OpcaoModalidade({ titulo, descricao, Icone, selecionada, onClick }) {
             type="button"
             onClick={onClick}
             aria-pressed={selecionada}
-            className={`flex min-h-[88px] cursor-pointer items-center gap-4 rounded-[32px] px-5 py-4 text-left transition ${
+            className={`flex min-h-[80px] cursor-pointer items-center gap-3 rounded-[20px] px-3 py-4 text-left transition ${
                 selecionada
                     ? "bg-[#724BC2] text-white"
                     : "bg-[#F8F8F8] text-[#191C1E] hover:bg-[#F1EFFB]"
@@ -208,7 +225,6 @@ function OpcaoModalidade({ titulo, descricao, Icone, selecionada, onClick }) {
                 </span>
             </span>
 
-            {selecionada && <CircleCheck size={20} className="shrink-0" />}
         </button>
     );
 }
@@ -217,7 +233,7 @@ function OpcaoModalidade({ titulo, descricao, Icone, selecionada, onClick }) {
 function SlotFoto({ numero, foto, principal, onRemover }) {
     if (!foto) {
         return (
-            <div className="flex h-[144px] flex-col items-center justify-center gap-1 rounded-[32px] bg-[#F8F8F8] text-[#9AA39A]">
+            <div className="flex h-[144px] min-w-[96px] flex-1 flex-col items-center justify-center gap-1 rounded-[32px] bg-[#F8F8F8] text-[#9AA39A]">
                 <IconeImagem size={20} />
                 <span className="text-[11px]">Foto {numero}</span>
             </div>
@@ -225,7 +241,7 @@ function SlotFoto({ numero, foto, principal, onRemover }) {
     }
 
     return (
-        <div className="relative h-[144px] overflow-hidden rounded-[32px] bg-[#F8F8F8]">
+        <div className="relative h-[144px] min-w-[96px] flex-1 overflow-hidden rounded-[32px] bg-[#F8F8F8]">
             <img
                 src={foto.url}
                 alt={`Foto ${numero} do material`}
@@ -255,7 +271,7 @@ function SlotFoto({ numero, foto, principal, onRemover }) {
 //                       CARD DE CRIAR ANÚNCIO
 //====================================================================
 
-// Props recebidas da página:
+// Props recebidas do fluxo (fluxoCriarAnuncio):
 //   onPublicar         -> recebe os dados e publica o anúncio
 //   onSalvarRascunho   -> recebe os dados e salva sem validar
 //   onCancelar         -> descarta e sai da tela
@@ -306,16 +322,19 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         const leves = imagens.filter((a) => a.size <= MAX_FOTO_MB * 1024 * 1024);
         const vagas = Math.max(MAX_FOTOS - fotos.length, 0);
 
-        let aviso = "";
+        // Junta todos os avisos que se aplicam (nenhum apaga o outro)
+        const avisos = [];
 
         if (imagens.length < arquivos.length) {
-            aviso = "Só são aceitas imagens.";
-        } else if (leves.length < imagens.length) {
-            aviso = `Cada foto pode ter até ${MAX_FOTO_MB} MB.`;
+            avisos.push("Só são aceitas imagens.");
+        }
+
+        if (leves.length < imagens.length) {
+            avisos.push(`Cada foto pode ter até ${MAX_FOTO_MB} MB.`);
         }
 
         if (leves.length > vagas) {
-            aviso = `Você pode enviar até ${MAX_FOTOS} fotos.`;
+            avisos.push(`Você pode enviar até ${MAX_FOTOS} fotos.`);
         }
 
         const novas = leves.slice(0, vagas).map((arquivo) => ({
@@ -325,12 +344,27 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         }));
 
         setFotos((atuais) => [...atuais, ...novas]);
-        setErro(aviso);
+        setErro(avisos.join(" "));
     }
 
     function aoEscolherArquivos(event) {
         adicionarFotos(event.target.files);
         event.target.value = ""; // permite escolher o mesmo arquivo de novo
+    }
+
+    // Arrastar e soltar: a área toda das fotos aceita o arquivo, não só o botão.
+    // Assim, soltar fora do botão (ou com o limite cheio) não faz o navegador
+    // abrir a imagem em outra aba.
+    function aoArrastarSobre(event) {
+        event.preventDefault();
+        setArrastando(true);
+    }
+
+    function aoSairDoArraste(event) {
+        // Ignora quando o mouse só passou de um filho para outro
+        if (event.currentTarget.contains(event.relatedTarget)) return;
+
+        setArrastando(false);
     }
 
     function aoSoltarArquivos(event) {
@@ -361,7 +395,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         setErro("");
     }
 
-    // Monta o que a página recebe (preço e peso já como número)
+    // Monta o que o fluxo recebe (preço e peso já como número)
     function montarDados() {
         return {
             modalidade,
@@ -370,17 +404,17 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
             categoria: formulario.categoria,
             condicao: formulario.condicao,
             preco: modalidade === "venda" ? precoParaNumero(formulario.preco) : 0,
-            peso: Number(formulario.peso) || 0,
+            peso: pesoParaNumero(formulario.peso),
             unidade: formulario.unidade,
             descricao: formulario.descricao.trim()
         };
     }
 
-    // Chama a ação da página (publicar ou rascunho) mostrando erro aqui mesmo
+    // Chama a ação do fluxo (publicar ou rascunho) mostrando erro aqui mesmo
     async function executar(acao, mensagemPadrao) {
         if (typeof acao !== "function") {
             setErro("Ação indisponível no momento.");
-            console.error("A função recebida da página não foi fornecida.");
+            console.error("A função recebida do fluxo não foi fornecida.");
             return;
         }
 
@@ -415,8 +449,18 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         await executar(onSalvarRascunho, "Não foi possível salvar o rascunho.");
     }
 
+    // Clique em "Cancelar" (sem passar o evento do clique pra frente
+    // e sem quebrar se o fluxo não mandar a função)
+    function handleCancelar() {
+        if (typeof onCancelar === "function") {
+            onCancelar();
+        } else {
+            console.error("A função onCancelar não foi fornecida.");
+        }
+    }
+
     // ---------------------------------------------------------------
-    //                              Tela
+    //                              CARD
     // ---------------------------------------------------------------
     const qtdSlots = Math.max(SLOTS_MINIMOS, fotos.length);
     const limiteDeFotos = fotos.length >= MAX_FOTOS;
@@ -425,7 +469,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         <form
             onSubmit={handlePublicar}
             noValidate
-            className="mx-auto w-full max-w-[976px] rounded-[48px] bg-white p-6 shadow-sm sm:p-10"
+            className="mx-auto w-full max-w-[1320px] rounded-[48px] bg-white p-6 shadow-sm sm:p-10"
         >
 
             {/* Título */}
@@ -449,17 +493,20 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                     Fotos do Material
                 </TituloSecao>
 
-                <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-6">
+                {/* A área toda aceita arquivos arrastados */}
+                <div
+                    onDragOver={aoArrastarSobre}
+                    onDragLeave={aoSairDoArraste}
+                    onDrop={aoSoltarArquivos}
+                    className="mt-4 flex gap-4 overflow-x-auto"
+                >
 
                     {/* Adicionar fotos (clique ou arrastar) */}
                     <button
                         type="button"
                         onClick={() => inputArquivo.current?.click()}
-                        onDragOver={(e) => { e.preventDefault(); setArrastando(true); }}
-                        onDragLeave={() => setArrastando(false)}
-                        onDrop={aoSoltarArquivos}
                         disabled={limiteDeFotos}
-                        className={`col-span-3 flex h-[144px] cursor-pointer flex-col items-center justify-center gap-1 rounded-[32px] px-4 text-center transition disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2 ${
+                        className={`flex h-[144px] w-[180px] shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-[32px] px-4 text-center transition disabled:cursor-not-allowed disabled:opacity-60 ${
                             arrastando
                                 ? "border border-dashed border-[#724BC2] bg-[#F1EFFB]"
                                 : "border border-transparent bg-[#F8F8F8] hover:bg-[#F1EFFB]"
@@ -553,7 +600,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                     </div>
 
                     {/* Categoria e condição */}
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Rotulo htmlFor="categoria">Categoria do Material</Rotulo>
                             <CampoSelect
@@ -580,14 +627,14 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                     </div>
 
                     {/* Preço (só na venda) e volume / peso */}
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
                         {modalidade === "venda" && (
                             <div>
-                                <Rotulo htmlFor="preco">Preço Estimado (R$)</Rotulo>
+                                <Rotulo htmlFor="preco">Preço Estimado</Rotulo>
 
                                 <div className="relative">
-                                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[16px] font-bold text-[#2E7D32]">
+                                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[16px] font-bold text-[#724BC2]">
                                         R$
                                     </span>
 
@@ -606,18 +653,18 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                             </div>
                         )}
 
-                        <div className={modalidade === "venda" ? "" : "sm:col-span-2"}>
+                        <div className={modalidade === "venda" ? "" : "sm:col-span-1"}>
                             <Rotulo htmlFor="peso">Volume / Peso Estimado</Rotulo>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-1">
                                 <input
                                     id="peso"
                                     name="peso"
                                     type="text"
-                                    inputMode="numeric"
+                                    inputMode="decimal"
                                     value={formulario.peso}
                                     onChange={atualizarCampo}
-                                    placeholder="Ex: 120"
+                                    placeholder="Ex: 120 ou 2,5"
                                     autoComplete="off"
                                     className={campoClass}
                                 />
@@ -628,6 +675,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                                     value={formulario.unidade}
                                     onChange={atualizarCampo}
                                     opcoes={UNIDADES}
+                                    ariaLabel="Unidade de medida"
                                 />
                             </div>
                         </div>
@@ -668,7 +716,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                 <div className="flex items-center gap-2">
                     <button
                         type="button"
-                        onClick={onCancelar}
+                        onClick={handleCancelar}
                         disabled={enviando}
                         className="cursor-pointer rounded-full bg-[#E53935] px-6 py-2.5 text-[14px] font-semibold text-white transition hover:bg-[#C62828] disabled:cursor-not-allowed disabled:opacity-60"
                     >
@@ -688,7 +736,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                 <button
                     type="submit"
                     disabled={enviando}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#724BC2] px-8 py-3 text-[16px] font-semibold text-white shadow-[0_8px_20px_rgba(114,75,194,0.35)] transition hover:bg-[#6539B8] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#724BC2] px-6 py-2.5 text-[16px] font-semibold text-white transition hover:bg-[#6539B8] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     {enviando ? "Enviando..." : "Publicar Anúncio"}
                     {!enviando && <ArrowRight size={18} />}
