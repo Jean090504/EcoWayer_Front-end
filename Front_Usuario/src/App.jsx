@@ -9,6 +9,8 @@ import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx";
 import Home from "./pages/Home.jsx";
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
 import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx";
+import EditarAnuncio from "./components/cards/editarAnuncio/cardEditarAnuncio.jsx"
+import CardMenssagem from "./components/cards/editarAnuncio/cardMenssagemDeAnuncioAlterado.jsx"
 
 
 export default function App() {
@@ -79,5 +81,7 @@ export default function App() {
                 />
             )}
         </div>
+
+       
     );
 }

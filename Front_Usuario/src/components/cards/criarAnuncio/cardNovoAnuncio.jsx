@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import {
     ImagePlus,
@@ -80,7 +81,7 @@ function validarFormulario(f, modalidade, qtdFotos) {
 // ===================================================================
 
 const MAX_FOTOS = 6;
-const SLOTS_MINIMOS = 4;     // quadradinhos que aparecem mesmo vazios
+const SLOTS_MINIMOS = 4;
 const MAX_FOTO_MB = 5;
 const MAX_TITULO = 70;
 const MAX_DESCRICAO = 1000;
@@ -89,7 +90,7 @@ const MAX_DESCRICAO = 1000;
 const campoClass = "h-[44px] w-full rounded-full border border-transparent bg-[#F8F8F8] px-4 text-[14px] text-[#191C1E] placeholder:text-[#9AA39A] outline-none transition focus:border-[#724BC2] focus:bg-white";
 const selectClass = `${campoClass} appearance-none cursor-pointer pr-10`;
 
-// Máscara de cada campo (pelo "name" do input)
+// Máscara de cada campo
 const MASCARAS = {
     preco: mascararPreco,
     peso: mascararPeso
@@ -129,11 +130,9 @@ const UNIDADES = [
 
 // ===================================================================
 //                      COMPONENTES REUTILIZÁVEIS
-// Ficam fora do CriarAnuncio de propósito: se ficassem dentro, seriam
-// recriados a cada letra digitada e os campos perderiam o foco.
 // ===================================================================
 
-// Título de cada seção, com o número na bolinha (e um texto opcional à direita)
+// Título de cada seção
 function TituloSecao({ numero, children, direita }) {
     return (
         <div className="flex items-center justify-between gap-3">
@@ -154,20 +153,19 @@ function TituloSecao({ numero, children, direita }) {
     );
 }
 
-// Rótulo do campo (com o asterisco de obrigatório)
+// Rótulo do campo (sem asterisco)
 function Rotulo({ htmlFor, children }) {
     return (
         <label
             htmlFor={htmlFor}
             className="mb-2 block text-[14px] font-semibold text-[#191C1E]"
         >
-            {children} *
+            {children}
         </label>
     );
 }
 
-// Campo de seleção (lista) com a setinha
-// ariaLabel: usar quando o campo não tem <Rotulo> visível
+// Campo de seleção com seta
 function CampoSelect({ id, name, value, onChange, opcoes, placeholder, ariaLabel }) {
     return (
         <div className="relative">
@@ -197,7 +195,7 @@ function CampoSelect({ id, name, value, onChange, opcoes, placeholder, ariaLabel
     );
 }
 
-// Opção de modalidade (venda, troca ou doação)
+// Opção de modalidade
 function OpcaoModalidade({ titulo, descricao, Icone, selecionada, onClick }) {
     return (
         <button
@@ -224,12 +222,11 @@ function OpcaoModalidade({ titulo, descricao, Icone, selecionada, onClick }) {
                     {descricao}
                 </span>
             </span>
-
         </button>
     );
 }
 
-// Quadradinho de foto: com imagem (e botão de remover) ou vazio
+// Quadradinho de foto
 function SlotFoto({ numero, foto, principal, onRemover }) {
     if (!foto) {
         return (
@@ -269,23 +266,20 @@ function SlotFoto({ numero, foto, principal, onRemover }) {
 
 // ===================================================================
 //                       CARD DE CRIAR ANÚNCIO
-//====================================================================
-
-// Props recebidas do fluxo (fluxoCriarAnuncio):
-//   onPublicar         -> recebe os dados e publica o anúncio
-//   onSalvarRascunho   -> recebe os dados e salva sem validar
-//   onCancelar         -> descarta e sai da tela
 // ===================================================================
+
 export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar }) {
 
     // ---------------------------------------------------------------
     //                            Estados
     // ---------------------------------------------------------------
-    const [fotos, setFotos] = useState([]);                  // { id, arquivo, url }
-    const [arrastando, setArrastando] = useState(false);     // true enquanto arrasta arquivos sobre a área de fotos
+
+    const [fotos, setFotos] = useState([]);
+    const [arrastando, setArrastando] = useState(false);
     const [modalidade, setModalidade] = useState("venda");
-    const [erro, setErro] = useState("");                    // Mensagem acima dos botões
-    const [enviando, setEnviando] = useState(false);         // true enquanto publica ou salva (trava os botões)
+    const [erro, setErro] = useState("");
+    const [enviando, setEnviando] = useState(false);
+
     const [formulario, setFormulario] = useState({
         titulo: "",
         categoria: "",
@@ -296,10 +290,10 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         descricao: ""
     });
 
-    const inputArquivo = useRef(null);  // <input type="file"> escondido
-    const fotosRef = useRef([]);        // cópia das fotos pra limpar as URLs ao sair
+    const inputArquivo = useRef(null);
+    const fotosRef = useRef([]);
 
-    // Libera da memória as URLs das fotos quando o card fecha
+    // Libera as URLs das fotos quando o card fecha
     useEffect(() => {
         fotosRef.current = fotos;
     }, [fotos]);
@@ -312,7 +306,6 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
     //                            Funções
     // ---------------------------------------------------------------
 
-    // Adiciona fotos (clique ou arrastar) respeitando tipo, tamanho e limite
     function adicionarFotos(lista) {
         const arquivos = Array.from(lista ?? []);
 
@@ -322,7 +315,6 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         const leves = imagens.filter((a) => a.size <= MAX_FOTO_MB * 1024 * 1024);
         const vagas = Math.max(MAX_FOTOS - fotos.length, 0);
 
-        // Junta todos os avisos que se aplicam (nenhum apaga o outro)
         const avisos = [];
 
         if (imagens.length < arquivos.length) {
@@ -349,19 +341,15 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
 
     function aoEscolherArquivos(event) {
         adicionarFotos(event.target.files);
-        event.target.value = ""; // permite escolher o mesmo arquivo de novo
+        event.target.value = "";
     }
 
-    // Arrastar e soltar: a área toda das fotos aceita o arquivo, não só o botão.
-    // Assim, soltar fora do botão (ou com o limite cheio) não faz o navegador
-    // abrir a imagem em outra aba.
     function aoArrastarSobre(event) {
         event.preventDefault();
         setArrastando(true);
     }
 
     function aoSairDoArraste(event) {
-        // Ignora quando o mouse só passou de um filho para outro
         if (event.currentTarget.contains(event.relatedTarget)) return;
 
         setArrastando(false);
@@ -382,7 +370,6 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         setErro("");
     }
 
-    // Atualiza o campo digitado (aplicando a máscara, se ele tiver uma)
     function atualizarCampo(event) {
         const { name, value } = event.target;
         const formatar = MASCARAS[name];
@@ -395,7 +382,6 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         setErro("");
     }
 
-    // Monta o que o fluxo recebe (preço e peso já como número)
     function montarDados() {
         return {
             modalidade,
@@ -410,7 +396,6 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         };
     }
 
-    // Chama a ação do fluxo (publicar ou rascunho) mostrando erro aqui mesmo
     async function executar(acao, mensagemPadrao) {
         if (typeof acao !== "function") {
             setErro("Ação indisponível no momento.");
@@ -430,7 +415,6 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         }
     }
 
-    // Clique em "Publicar Anúncio"
     async function handlePublicar(event) {
         event.preventDefault();
 
@@ -444,13 +428,10 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         await executar(onPublicar, "Não foi possível publicar o anúncio.");
     }
 
-    // Clique em "Salvar Rascunho" (não exige tudo preenchido)
     async function handleRascunho() {
         await executar(onSalvarRascunho, "Não foi possível salvar o rascunho.");
     }
 
-    // Clique em "Cancelar" (sem passar o evento do clique pra frente
-    // e sem quebrar se o fluxo não mandar a função)
     function handleCancelar() {
         if (typeof onCancelar === "function") {
             onCancelar();
@@ -462,6 +443,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
     // ---------------------------------------------------------------
     //                              CARD
     // ---------------------------------------------------------------
+
     const qtdSlots = Math.max(SLOTS_MINIMOS, fotos.length);
     const limiteDeFotos = fotos.length >= MAX_FOTOS;
 
@@ -486,14 +468,10 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
 
             {/* ---------------- 1. Fotos do material ---------------- */}
             <section className="mt-10">
-                <TituloSecao
-                    numero={1}
-                    direita={`${fotos.length} de ${MAX_FOTOS} fotos carregadas`}
-                >
+                <TituloSecao numero={1}>
                     Fotos do Material
                 </TituloSecao>
 
-                {/* A área toda aceita arquivos arrastados */}
                 <div
                     onDragOver={aoArrastarSobre}
                     onDragLeave={aoSairDoArraste}
@@ -501,7 +479,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                     className="mt-4 flex gap-4 overflow-x-auto"
                 >
 
-                    {/* Adicionar fotos (clique ou arrastar) */}
+                    {/* Adicionar fotos */}
                     <button
                         type="button"
                         onClick={() => inputArquivo.current?.click()}
@@ -518,9 +496,6 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
 
                         <span className="text-[13px] font-semibold text-[#191C1E]">
                             Adicionar fotos
-                        </span>
-                        <span className="text-[11px] text-[#3E4A3D]">
-                            Clique ou arraste até {MAX_FOTOS} imagens
                         </span>
                     </button>
 
@@ -549,15 +524,14 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
 
 
             {/* ---------------- 2. Modalidade de negociação ---------------- */}
-            <section className="mt-10">
+            <section className="mt-10 w-full">
                 <TituloSecao numero={2}>Modalidade de Negociação</TituloSecao>
 
-                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="mt-4 grid w-full grid-cols-1 gap-4 md:grid-cols-3">
                     {MODALIDADES.map((item) => (
                         <OpcaoModalidade
                             key={item.id}
                             titulo={item.titulo}
-                            descricao={item.descricao}
                             Icone={item.Icone}
                             selecionada={modalidade === item.id}
                             onClick={() => {
@@ -603,6 +577,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Rotulo htmlFor="categoria">Categoria do Material</Rotulo>
+
                             <CampoSelect
                                 id="categoria"
                                 name="categoria"
@@ -615,6 +590,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
 
                         <div>
                             <Rotulo htmlFor="condicao">Estado / Condição</Rotulo>
+
                             <CampoSelect
                                 id="condicao"
                                 name="condicao"
@@ -626,7 +602,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                         </div>
                     </div>
 
-                    {/* Preço (só na venda) e volume / peso */}
+                    {/* Preço e volume / peso */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
                         {modalidade === "venda" && (
@@ -702,7 +678,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
             </section>
 
 
-            {/* Erro (fotos, campos vazios, falha ao publicar...) */}
+            {/* Erro */}
             {erro && (
                 <p role="alert" className="mt-6 text-center text-[13px] text-red-500">
                     {erro}
