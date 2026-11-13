@@ -6,6 +6,7 @@ import coletaIcon from '../../assets/icons/menu/coleta.png'
 import categoriasIcon from '../../assets/icons/menu/categorias.png'
 import pontosIcon from '../../assets/icons/menu/pontos.png'
 import dashboardIcon from '../../assets/icons/menu/dashboard.png'
+import giftCardIcon from '../../assets/icons/menu/gift-card.svg'
 
 export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
   return (
@@ -59,6 +60,24 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
         alturaImagem = "22px"
         texto = "Pontos"
         onClick = {() => setAtiva("pontos")}
+      />
+
+      <BotaoMenu
+        ativo = {ativa === "giftcards"}
+        imagem = {giftCardIcon}
+        larguraImagem = "22px"
+        alturaImagem = "22px"
+        texto = "Gift cards"
+        onClick = {() => setAtiva("giftcards")}
+      />
+
+      <BotaoMenu
+        ativo = {ativa === "resgates"}
+        imagem = {giftCardIcon}
+        larguraImagem = "22px"
+        alturaImagem = "22px"
+        texto = "Resgates"
+        onClick = {() => setAtiva("resgates")}
       />
 
       <BotaoMenu
