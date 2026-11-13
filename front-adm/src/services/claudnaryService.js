@@ -10,7 +10,6 @@ export async function uploadImagem(arquivo) {
     `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
     { method: "POST", body: formData }
   )
-console.log("CLOUD:", CLOUD_NAME, "| PRESET:", UPLOAD_PRESET)
   const dados = await resposta.json()
 
   if (!resposta.ok) throw new Error(dados.error?.message || "Erro ao enviar imagem")

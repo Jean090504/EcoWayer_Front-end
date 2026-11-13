@@ -11,6 +11,7 @@ import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
 import MinhaCarteira from "./pages/MinhaCarteira.jsx"
 import PontosBeneficios from "./pages/PontosBeneficios.jsx"
 import Insignias from "./pages/Insignias.jsx"
+import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
 
 export default function App() {
     const [usuario, setUsuario] = useState(null)

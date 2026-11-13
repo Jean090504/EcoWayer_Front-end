@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import { apiFetch } from "../../../services/api.js";
 
 // Estilo padrão dos campos de entrada
 const inputClass ="h-[35px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[29px] pr-[10px] text-[12px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
@@ -100,12 +101,28 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
     }
 
     // Botão "Entrar" (e-mail e senha)
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
         setErro("");
-
-        // login por e-mail e senha pelo backend (ainda não existe)
-        console.log("Tentativa de login:", { email, lembrar });
+        try {
+            if (USAR_MOCK) {
+                if (senha !== "123456") throw new Error("Senha mock inválida.");
+                onLoginSuccess?.({ id: 1, nome: "Usuário EcoWayer", email });
+                return;
+            }
+            const retorno = await apiFetch("/usuario/login", {
+                method: "POST",
+                body: JSON.stringify({ email, senha }),
+            });
+            const token = retorno.response?.token;
+            const usuario = retorno.response?.usuario;
+            if (!token || !usuario) throw new Error("A API não retornou os dados de autenticação.");
+            sessionStorage.setItem("ecowayer_token", token);
+            sessionStorage.setItem("ecowayer_usuario", JSON.stringify(usuario));
+            onLoginSuccess?.(usuario);
+        } catch (error) {
+            setErro(error.message || "Não foi possível realizar o login.");
+        }
     }
 
     return (

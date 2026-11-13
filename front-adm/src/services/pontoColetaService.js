@@ -1,4 +1,5 @@
-const BASE = "http://localhost:8080/meraki/ecowayer/admin";
+const RAW_API_URL = (import.meta.env.VITE_API_URL || "http://localhost:8080").replace(/\/$/, "");
+const BASE = `${RAW_API_URL.replace("/meraki/ecowayer/admin", "")}/meraki/ecowayer/admin`;
 const API_URL = `${BASE}/ponto-coleta`;
 const MATERIAL_URL = `${BASE}/material-aceito`;
 const CATEGORIA_URL = `${BASE}/categoria`;
