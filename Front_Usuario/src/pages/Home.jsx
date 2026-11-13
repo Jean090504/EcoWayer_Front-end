@@ -6,29 +6,30 @@ import DestaquesCategorias from "../components/layout/anunciosDestaquePorCategor
 
 export default function Home() {
     return (
-            <main className="flex flex-1 w-full flex-col items-center py-10">
-                <div className="flex w-[90%] flex-col items-center gap-10">
+        // espaçamento vertical cresce e diminui junto com a tela
+        <main className="flex flex-1 w-full flex-col items-center py-[clamp(1.5rem,3vw,2.5rem)]">
 
-                    {/* chama as categorias */}
-                    <Categorias />
+            {/* 90% da tela, mas nunca passa de 1600px (evita esticar demais em monitor ultrawide) */}
+            <div className="flex w-[90%] max-w-[1600px] flex-col items-center gap-[clamp(1.5rem,3vw,2.5rem)]">
 
-                    {/* Banner */}
-                    <div className="w-max[90%] w-full">
-                        <Banner />
-                    </div>
+                {/* chama as categorias */}
+                <Categorias />
 
-                    {/* Anúncios em destaque */}
-                    <div className="w-full">
-                        <DestaqueAnuncios />
-                    </div>
-
-                    {/* Carrosséis por categoria */}
-                    <div className="w-full">
-                        <DestaquesCategorias />
-                    </div>
+                {/* Banner */}
+                <div className="w-full min-w-0">
+                    <Banner />
                 </div>
-            </main>
-    
+
+                {/* Anúncios em destaque */}
+                <div className="w-full min-w-0">
+                    <DestaqueAnuncios />
+                </div>
+
+                {/* Carrosséis por categoria */}
+                <div className="w-full min-w-0">
+                    <DestaquesCategorias />
+                </div>
+            </div>
+        </main>
     );
 }
-

@@ -1,19 +1,17 @@
+
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 
 // Estilo padrão dos campos de entrada
-const inputClass ="h-[35px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[29px] pr-[10px] text-[12px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
+const inputClass = "h-[48px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[48px] pr-[10px] text-[14px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
+
 const USAR_MOCK = import.meta.env.VITE_USAR_MOCK === "true";
 
-// O Google devolve um "credential" (token JWT) com os dados da conta
-// Aqui eu abro o token só pra ler nome, e-mail e foto
-// ATENÇÃO: isso é só pra simular. No login de verdade, o backend
-// é quem precisa validar o token (o token atual foi fabricado no front)
+// Lê os dados da credencial do Google
 function lerCredencialGoogle(credential) {
     const parteDados = credential.split(".")[1];
     const base64 = parteDados.replace(/-/g, "+").replace(/_/g, "/");
 
-    // Esse passo extra é pra não quebrar acentos (ex -> João)
     const texto = decodeURIComponent(
         atob(base64)
             .split("")
@@ -24,9 +22,7 @@ function lerCredencialGoogle(credential) {
     return JSON.parse(texto);
 }
 
-// Para impedir que o navegador preencha o email e senha sozinho automaticamente
-// Deixo o campo "somente leitura" até eu clicar nele,
-// assim não preenche tudo ao abrir o card
+// Impede o preenchimento automático do navegador
 function liberarCampo(evento) {
     evento.target.removeAttribute("readonly");
 }
@@ -35,7 +31,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
     const larguraGoogle = "250";
 
-    // O que estou digitando
+    // Dados digitados
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
 
@@ -44,8 +40,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
     const [lembrar, setLembrar] = useState(true);
     const [erro, setErro] = useState("");
 
-    // Quando escolho uma conta Google cai direto nessa parte
-    // Monta o usuário (nome, e-mail, foto) e avisa o App
+    // Login com Google
     async function handleGoogleSuccess(credentialResponse) {
         setErro("");
 
@@ -53,7 +48,6 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
             let usuario;
 
             if (USAR_MOCK) {
-                // Simulação: pega o nome e foto direto do token do Google
                 const dados = lerCredencialGoogle(credentialResponse.credential);
 
                 usuario = {
@@ -62,7 +56,6 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                     foto: dados.picture ?? null
                 };
             } else {
-                // Login de verdade: o backend valida o token e devolve o usuário
                 const resposta = await fetch("http://localhost:3000/api/auth/google", {
                     method: "POST",
                     headers: {
@@ -89,22 +82,21 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
             console.log("Login realizado:", usuario);
 
-            // Avisa o App que o login deu certo (o header muda por causa disso)
             if (typeof onLoginSuccess === "function") {
                 onLoginSuccess(usuario);
             }
+
         } catch (error) {
             console.error("Erro na autenticação:", error);
             setErro("Não foi possível entrar com o Google.");
         }
     }
 
-    // Botão "Entrar" (e-mail e senha)
+    // Login por e-mail e senha
     function handleSubmit(event) {
         event.preventDefault();
         setErro("");
 
-        // login por e-mail e senha pelo backend (ainda não existe)
         console.log("Tentativa de login:", { email, lembrar });
     }
 
@@ -114,14 +106,14 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-[5px]">
 
             {/* Card do login */}
-            <div className="relative min-h-[506px] w-full max-w-[650px] rounded-[15px] bg-white px-3 pb-[35px] pt-[55px] shadow-xl sm:px-[98px]">
+            <div className="relative min-h-[520px] w-full max-w-[700px] rounded-[15px] bg-white px-3 pb-[35px] pt-[55px] shadow-xl sm:px-[98px]">
 
                 {/* Botão de fechar */}
                 <button
                     type="button"
                     onClick={onClose}
                     aria-label="Fechar login"
-                    className="absolute right-[17px] top-[13px] text-[17px] font-light leading-none text-[#FF4545] transition hover:text-red-700"
+                    className="absolute right-[20px] top-[13px] text-[27px] font-light leading-none text-[#FF4545] transition hover:text-red-700"
                 >
                     ×
                 </button>
@@ -129,7 +121,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                 <div className="w-full">
 
                     {/* Título */}
-                    <h2 className="mb-[10px] text-left text-[21px] font-bold leading-[25px] text-[#7548C8] underline decoration-[#7548C8] underline-offset-2">
+                    <h2 className="mb-[15px] text-left text-[25px] font-bold leading-[30px] text-[#7548C8] underline decoration-[#7548C8] underline-offset-2">
                         Login
                     </h2>
 
@@ -140,9 +132,9 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
                             {/* Ícone de envelope */}
                             <svg
-                                className="absolute left-[6px] top-1/2 -translate-y-1/2"
-                                width="18"
-                                height="18"
+                                className="absolute left-[12px] top-1/2 -translate-y-1/2 pointer-events-none"
+                                width="25"
+                                height="25"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -151,8 +143,8 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                                 strokeLinejoin="round"
                                 aria-hidden="true"
                             >
-                                <rect x="2" y="4" width="20" height="16" rx="2" />
-                                <path d="m22 7-10 7L2 7" />
+                                <rect x="3" y="5" width="18" height="14" rx="2" />
+                                <path d="m3 7 9 7 9-7" />
                             </svg>
 
                             <input
@@ -167,6 +159,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                                 className={inputClass}
                                 required
                             />
+
                         </div>
 
                         {/* Senha */}
@@ -174,9 +167,9 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
                             {/* Ícone de cadeado */}
                             <svg
-                                className="absolute left-[6px] top-1/2 -translate-y-1/2"
-                                width="18"
-                                height="18"
+                                className="absolute left-[12px] top-1/2 -translate-y-1/2 pointer-events-none"
+                                width="25"
+                                height="25"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -185,9 +178,9 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                                 strokeLinejoin="round"
                                 aria-hidden="true"
                             >
-                                <rect x="3" y="10" width="18" height="12" rx="2" />
-                                <path d="M7 10V7a5 5 0 0 1 10 0v3" />
-                                <path d="M12 14v4" />
+                                <rect x="4" y="10" width="16" height="11" rx="2" />
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                                <path d="M12 14v3" />
                             </svg>
 
                             <input
@@ -199,7 +192,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                                 autoComplete="new-password"
                                 readOnly
                                 onFocus={liberarCampo}
-                                className={`${inputClass} pr-[34px]`}
+                                className={`${inputClass} pr-[45px]`}
                                 required
                             />
 
@@ -208,11 +201,11 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                                 type="button"
                                 onClick={() => setMostrarSenha((atual) => !atual)}
                                 aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
-                                className="absolute right-[8px] top-1/2 -translate-y-1/2 text-[#888] hover:text-[#555]"
+                                className="absolute right-[10px] top-1/2 -translate-y-1/2 text-[#888] hover:text-[#555]"
                             >
                                 <svg
-                                    width="16"
-                                    height="16"
+                                    width="18"
+                                    height="18"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
@@ -230,9 +223,9 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                         </div>
 
                         {/* Lembrar-me e esqueci a senha */}
-                        <div className="mt-[15px] flex items-center justify-between">
+                        <div className="mt-[20px] flex items-center justify-between">
 
-                            <label className="flex cursor-pointer items-center gap-[3px] text-[11px] font-semibold text-[#7548C8]">
+                            <label className="flex cursor-pointer items-center gap-[3px] text-[15px] font-semibold text-[#7548C8]">
 
                                 <input
                                     type="checkbox"
@@ -246,7 +239,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
                             <button
                                 type="button"
-                                className="text-[11px] font-semibold text-[#7548C8] transition hover:underline"
+                                className="text-[15px] font-semibold text-[#7548C8] transition hover:underline"
                             >
                                 esqueci a senha
                             </button>
@@ -264,7 +257,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                         )}
 
                         {/* Botão entrar */}
-                        <div className="mt-[49px]">
+                        <div className="mt-[40px]">
 
                             <button
                                 type="submit"
@@ -275,8 +268,8 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
                         </div>
 
-                        {/* Divisor com a palavra "ou" */}
-                        <div className="my-[30px] flex items-center gap-1">
+                        {/* Divisor */}
+                        <div className="my-[10px] flex items-center gap-1">
 
                             <div className="h-px flex-1 bg-[#7548C8]" />
 
@@ -288,9 +281,10 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
                         </div>
 
+
                         {/* Entrar com Google */}
-                        <div className="flex w-full justify-center overflow-visible">
-                            <div className="w-[250px] shrink-0">
+                        <div className="flex w-full justify-center overflow-visible pt-10">
+                            <div className="flex w-full justify-center">
                                 <GoogleLogin
                                     onSuccess={handleGoogleSuccess}
                                     onError={() => {
@@ -307,8 +301,9 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                             </div>
                         </div>
 
-                        {/* Link pra criar conta */}
-                        <div className="mt-[36px] flex items-center justify-center gap-2 text-[12px]">
+
+                        {/* Link para criar conta */}
+                        <div className="mt-[30px] flex items-center justify-center gap-2 text-[12px]">
 
                             <span className="text-[#222]">
                                 Ainda não tem uma conta?

@@ -1,11 +1,4 @@
 import { useRef, useState } from "react";
-import Mesa from "../../assets/icons/img/mesa.png";
-import Garrafas from "../../assets/icons/img/garrafas.png";
-import Sofa from "../../assets/icons/img/sofa.png";
-import Papelao from "../../assets/icons/img/papelao.png";
-import Poltrona from "../../assets/icons/img/poltrona.png";
-import Telefone from "../../assets/icons/img/telefone.png";
-import Geladeira from "../../assets/icons/img/geladeira.png";
 
 
 // ===================================================================
@@ -27,29 +20,42 @@ const MODALIDADES = [
 // Anúncios de teste.
 // Obs.: "precoAntigo" é opcional (aparece riscado) e "destaque" mostra a etiqueta roxa.
 // Na troca e na doação, o "preco" mostra o próprio nome da modalidade.
+// As imagens são URLs aleatórias (loremflickr) só pra teste; o "lock" fixa a mesma foto em cada card.
 const anunciosIniciais = [
 
     // ---------- VENDA ----------
-    { id: 1, modalidade: "venda", nome: "Mesa semi nova", preco: "R$ 170,00", imagem: Mesa, destaque: true, data: "Hoje, 9:20", local: "São Paulo - SP" },
-    { id: 2, modalidade: "venda", nome: "Sofá semi novo - confortável", preco: "R$ 450,00", precoAntigo: "R$ 600,00", imagem: Sofa, destaque: true, data: "Hoje, 9:15", local: "Osasco - SP" },
-    { id: 3, modalidade: "venda", nome: "Fardo de PET limpo - garrafas", preco: "R$ 64,00", imagem: Garrafas, destaque: false, data: "Hoje, 8:30", local: "Guarulhos - SP" },
-    { id: 4, modalidade: "venda", nome: "Geladeira nova - branca", preco: "R$ 1.200,00", precoAntigo: "R$ 1.500,00", imagem: Geladeira, destaque: true, data: "11/11/2026, 13:05", local: "São Paulo - SP" },
-    { id: 5, modalidade: "venda", nome: "Papelão prensado - 50 kg", preco: "R$ 45,00", imagem: Papelao, destaque: false, data: "10/11/2026, 11:20", local: "Osasco - SP" },
-    { id: 6, modalidade: "venda", nome: "Celular usado - modelo antigo", preco: "R$ 150,00", imagem: Telefone, destaque: false, data: "09/11/2026, 9:10", local: "Mauá - SP" },
+    { id: 1, modalidade: "venda", nome: "Mesa semi nova", preco: "R$ 170,00", imagem: "https://loremflickr.com/400/400/table?lock=1", destaque: true, data: "Hoje, 9:20", local: "São Paulo - SP" },
+    { id: 2, modalidade: "venda", nome: "Sofá semi novo - confortável", preco: "R$ 450,00", precoAntigo: "R$ 600,00", imagem: "https://loremflickr.com/400/400/sofa?lock=2", destaque: true, data: "Hoje, 9:15", local: "Osasco - SP" },
+    { id: 3, modalidade: "venda", nome: "Fardo de PET limpo - garrafas", preco: "R$ 64,00", imagem: "https://loremflickr.com/400/400/plastic,bottles?lock=3", destaque: false, data: "Hoje, 8:30", local: "Guarulhos - SP" },
+    { id: 4, modalidade: "venda", nome: "Geladeira nova - branca", preco: "R$ 1.200,00", precoAntigo: "R$ 1.500,00", imagem: "https://loremflickr.com/400/400/refrigerator?lock=4", destaque: true, data: "11/11/2026, 13:05", local: "São Paulo - SP" },
+    { id: 5, modalidade: "venda", nome: "Papelão prensado - 50 kg", preco: "R$ 45,00", imagem: "https://loremflickr.com/400/400/cardboard?lock=5", destaque: false, data: "10/11/2026, 11:20", local: "Osasco - SP" },
+    { id: 6, modalidade: "venda", nome: "Celular usado - modelo antigo", preco: "R$ 150,00", imagem: "https://loremflickr.com/400/400/mobilephone?lock=6", destaque: false, data: "09/11/2026, 9:10", local: "Mauá - SP" },
 
     // ---------- TROCA ----------
-    { id: 7, modalidade: "troca", nome: "Poltrona cor creme nova", preco: "Troca", imagem: Poltrona, destaque: true, data: "Hoje, 9:05", local: "Guarulhos - SP" },
-    { id: 8, modalidade: "troca", nome: "Celular para peças", preco: "Troca", imagem: Telefone, destaque: false, data: "Hoje, 7:50", local: "Mauá - SP" },
-    { id: 9, modalidade: "troca", nome: "Mesa de jantar 4 lugares", preco: "Troca", imagem: Mesa, destaque: false, data: "11/11/2026, 14:30", local: "São Bernardo do Campo - SP" },
-    { id: 10, modalidade: "troca", nome: "Fardo de papelão limpo", preco: "Troca", imagem: Papelao, destaque: false, data: "10/11/2026, 16:10", local: "Diadema - SP" },
-    { id: 11, modalidade: "troca", nome: "Geladeira frost free usada", preco: "Troca", imagem: Geladeira, destaque: true, data: "09/11/2026, 12:00", local: "Santo André - SP" },
+    { id: 7, modalidade: "troca", nome: "Poltrona cor creme nova", preco: "Troca", imagem: "https://loremflickr.com/400/400/armchair?lock=7", destaque: true, data: "Hoje, 9:05", local: "Guarulhos - SP" },
+    { id: 8, modalidade: "troca", nome: "Celular para peças", preco: "Troca", imagem: "https://loremflickr.com/400/400/smartphone?lock=8", destaque: false, data: "Hoje, 7:50", local: "Mauá - SP" },
+    { id: 9, modalidade: "troca", nome: "Mesa de jantar 4 lugares", preco: "Troca", imagem: "https://loremflickr.com/400/400/diningtable?lock=9", destaque: false, data: "11/11/2026, 14:30", local: "São Bernardo do Campo - SP" },
+    { id: 10, modalidade: "troca", nome: "Fardo de papelão limpo", preco: "Troca", imagem: "https://loremflickr.com/400/400/cardboardbox?lock=10", destaque: false, data: "10/11/2026, 16:10", local: "Diadema - SP" },
+    { id: 11, modalidade: "troca", nome: "Geladeira frost free usada", preco: "Troca", imagem: "https://loremflickr.com/400/400/fridge?lock=11", destaque: true, data: "09/11/2026, 12:00", local: "Santo André - SP" },
 
     // ---------- DOAÇÃO ----------
-    { id: 12, modalidade: "doacao", nome: "Garrafas PET sem rótulo", preco: "Doação", imagem: Garrafas, destaque: true, data: "Hoje, 9:40", local: "Diadema - SP" },
-    { id: 13, modalidade: "doacao", nome: "Sofá 2 lugares retrátil", preco: "Doação", imagem: Sofa, destaque: false, data: "Hoje, 8:10", local: "Santo André - SP" },
-    { id: 14, modalidade: "doacao", nome: "Papelão ondulado limpo", preco: "Doação", imagem: Papelao, destaque: false, data: "11/11/2026, 16:45", local: "Osasco - SP" },
-    { id: 15, modalidade: "doacao", nome: "Poltrona reclinável", preco: "Doação", imagem: Poltrona, destaque: false, data: "10/11/2026, 17:45", local: "São Paulo - SP" }
+    { id: 12, modalidade: "doacao", nome: "Garrafas PET sem rótulo", preco: "Doação", imagem: "https://loremflickr.com/400/400/pet,bottle?lock=12", destaque: true, data: "Hoje, 9:40", local: "Diadema - SP" },
+    { id: 13, modalidade: "doacao", nome: "Sofá 2 lugares retrátil", preco: "Doação", imagem: "https://loremflickr.com/400/400/couch?lock=13", destaque: false, data: "Hoje, 8:10", local: "Santo André - SP" },
+    { id: 14, modalidade: "doacao", nome: "Papelão ondulado limpo", preco: "Doação", imagem: "https://loremflickr.com/400/400/corrugated,cardboard?lock=14", destaque: false, data: "11/11/2026, 16:45", local: "Osasco - SP" },
+    { id: 15, modalidade: "doacao", nome: "Poltrona reclinável", preco: "Doação", imagem: "https://loremflickr.com/400/400/recliner?lock=15", destaque: false, data: "10/11/2026, 17:45", local: "São Paulo - SP" }
 ];
+
+
+// ===================================================================
+//                            FUNÇÕES
+// ===================================================================
+
+// Se a foto não carregar, troca por uma imagem com o nome do anúncio
+function imagemComErro(e, nome) {
+    // evita loop infinito caso o placeholder também falhe
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = `https://placehold.co/400x400?text=${encodeURIComponent(nome)}`;
+}
 
 
 // ===================================================================
@@ -69,6 +75,7 @@ function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
                     src={anuncio.imagem}
                     alt={anuncio.nome}
                     loading="lazy"
+                    onError={(e) => imagemComErro(e, anuncio.nome)}
                     className="h-full w-full object-cover"
                 />
 

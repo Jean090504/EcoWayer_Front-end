@@ -1,38 +1,164 @@
 import { useRef, useState } from "react";
-import Mesa from "../../assets/icons/img/mesa.png";
-import Garrafas from "../../assets/icons/img/garrafas.png";
-import Sofa from "../../assets/icons/img/sofa.png";
-import Papelao from "../../assets/icons/img/papelao.png";
-import Poltrona from "../../assets/icons/img/poltrona.png";
-import Telefone from "../../assets/icons/img/telefone.png";
-import Geladeira from "../../assets/icons/img/geladeira.png";
 
-const produtos = [
-    { id: 1, nome: "Mesa semi nova...", preco: "R$ 170,00", imagem: Mesa, avaliacao: "4.9", distancia: "2.4 km" },
-    { id: 2, nome: "Fardo de PET limpo - garrafas", preco: "R$ 64,00", imagem: Garrafas, avaliacao: "4.7", distancia: "1.1 km" },
-    { id: 3, nome: "Sofá semi novo - confortável", preco: "R$ 45,00", imagem: Sofa, avaliacao: "4.8", distancia: "4.0 km" },
-    { id: 4, nome: "Papelão prensado - 50 kg", preco: "R$ 45,00", imagem: Papelao, avaliacao: "4.8", distancia: "4.0 km" },
-    { id: 5, nome: "Poltrona cor creme nova", preco: "R$ 45,00", imagem: Poltrona, avaliacao: "4.8", distancia: "4.0 km" },
-    { id: 6, nome: "Celular usado - modelo antigo", preco: "R$ 45,00", imagem: Telefone, avaliacao: "4.8", distancia: "4.0 km" },
-    { id: 7, nome: "Geladeira nova - branca", preco: "R$ 45,00", imagem: Geladeira, avaliacao: "4.8", distancia: "4.0 km" },
+
+// ===================================================================
+//                            CONSTANTES
+// ===================================================================
+
+const GAP_CARROSSEL = 16; // gap-4 = 16px (tem que bater com o gap do carrossel)
+
+// Classes repetidas nas setinhas do cabeçalho
+const setaClass = "flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition hover:border-[#724BC2] hover:text-[#724BC2]";
+
+// Um carrossel para cada modalidade (os "id" são os mesmos do card de novo anúncio)
+const MODALIDADES = [
+    { id: "venda", titulo: "Mais recentes em Venda" },
+    { id: "troca", titulo: "Mais recentes em Troca" },
+    { id: "doacao", titulo: "Mais recentes em Doação" }
 ];
 
-export default function DestaqueAnuncios() {
+// Anúncios de teste.
+// Obs.: "precoAntigo" é opcional (aparece riscado) e "destaque" mostra a etiqueta roxa.
+// Na troca e na doação, o "preco" mostra o próprio nome da modalidade.
+// As imagens são URLs aleatórias (loremflickr) só pra teste; o "lock" fixa a mesma foto em cada card.
+// IMPORTANTE: cada "id" e cada "lock" precisam ser únicos.
+const anunciosIniciais = [
+
+    // ---------- VENDA ----------
+    { id: 1, modalidade: "venda", nome: "Mesa semi nova", preco: "R$ 170,00", imagem: "https://loremflickr.com/400/400/table?lock=1", destaque: true, data: "Hoje, 9:20", local: "São Paulo - SP" },
+    { id: 2, modalidade: "venda", nome: "Sofá semi novo - confortável", preco: "R$ 450,00", precoAntigo: "R$ 600,00", imagem: "https://loremflickr.com/400/400/sofa?lock=2", destaque: true, data: "Hoje, 9:15", local: "Osasco - SP" },
+    { id: 3, modalidade: "venda", nome: "Fardo de PET limpo - garrafas", preco: "R$ 64,00", imagem: "https://loremflickr.com/400/400/plastic,bottles?lock=3", destaque: false, data: "Hoje, 8:30", local: "Guarulhos - SP" },
+    { id: 4, modalidade: "venda", nome: "Geladeira nova - branca", preco: "R$ 1.200,00", precoAntigo: "R$ 1.500,00", imagem: "https://loremflickr.com/400/400/refrigerator?lock=4", destaque: true, data: "11/11/2026, 13:05", local: "São Paulo - SP" },
+    { id: 5, modalidade: "venda", nome: "Papelão prensado - 50 kg", preco: "R$ 45,00", imagem: "https://loremflickr.com/400/400/cardboard?lock=5", destaque: false, data: "10/11/2026, 11:20", local: "Osasco - SP" },
+    { id: 6, modalidade: "venda", nome: "Celular usado - modelo antigo", preco: "R$ 150,00", imagem: "https://loremflickr.com/400/400/mobilephone?lock=6", destaque: false, data: "09/11/2026, 9:10", local: "Mauá - SP" },
+    { id: 16, modalidade: "venda", nome: "Bicicleta aro 26 usada", preco: "R$ 280,00", imagem: "https://loremflickr.com/400/400/bicycle?lock=16", destaque: false, data: "08/11/2026, 15:40", local: "Barueri - SP" },
+    { id: 17, modalidade: "venda", nome: "Armário de cozinha 3 portas", preco: "R$ 220,00", precoAntigo: "R$ 300,00", imagem: "https://loremflickr.com/400/400/kitchen,cabinet?lock=17", destaque: true, data: "08/11/2026, 10:25", local: "Taboão da Serra - SP" },
+    { id: 18, modalidade: "venda", nome: "Fardo de latinhas de alumínio", preco: "R$ 90,00", imagem: "https://loremflickr.com/400/400/aluminum,cans?lock=18", destaque: false, data: "07/11/2026, 14:00", local: "Santo André - SP" },
+    { id: 19, modalidade: "venda", nome: "Máquina de lavar 10 kg", preco: "R$ 900,00", precoAntigo: "R$ 1.100,00", imagem: "https://loremflickr.com/400/400/washingmachine?lock=19", destaque: true, data: "07/11/2026, 9:45", local: "São Paulo - SP" },
+    { id: 20, modalidade: "venda", nome: "Cadeira de escritório", preco: "R$ 130,00", imagem: "https://loremflickr.com/400/400/officechair?lock=20", destaque: false, data: "06/11/2026, 17:30", local: "Guarulhos - SP" },
+    { id: 21, modalidade: "venda", nome: "Garrafas de vidro - 40 unidades", preco: "R$ 35,00", imagem: "https://loremflickr.com/400/400/glass,bottles?lock=21", destaque: false, data: "06/11/2026, 11:15", local: "Mauá - SP" },
+
+    // ---------- TROCA ----------
+    { id: 7, modalidade: "troca", nome: "Poltrona cor creme nova", preco: "Troca", imagem: "https://loremflickr.com/400/400/armchair?lock=7", destaque: true, data: "Hoje, 9:05", local: "Guarulhos - SP" },
+    { id: 8, modalidade: "troca", nome: "Celular para peças", preco: "Troca", imagem: "https://loremflickr.com/400/400/smartphone?lock=8", destaque: false, data: "Hoje, 7:50", local: "Mauá - SP" },
+    { id: 9, modalidade: "troca", nome: "Mesa de jantar 4 lugares", preco: "Troca", imagem: "https://loremflickr.com/400/400/diningtable?lock=9", destaque: false, data: "11/11/2026, 14:30", local: "São Bernardo do Campo - SP" },
+    { id: 10, modalidade: "troca", nome: "Fardo de papelão limpo", preco: "Troca", imagem: "https://loremflickr.com/400/400/cardboardbox?lock=10", destaque: false, data: "10/11/2026, 16:10", local: "Diadema - SP" },
+    { id: 11, modalidade: "troca", nome: "Geladeira frost free usada", preco: "Troca", imagem: "https://loremflickr.com/400/400/fridge?lock=11", destaque: true, data: "09/11/2026, 12:00", local: "Santo André - SP" },
+    { id: 22, modalidade: "troca", nome: "Estante de livros de madeira", preco: "Troca", imagem: "https://loremflickr.com/400/400/bookshelf?lock=22", destaque: true, data: "08/11/2026, 13:20", local: "Osasco - SP" },
+    { id: 23, modalidade: "troca", nome: "Bicicleta infantil aro 16", preco: "Troca", imagem: "https://loremflickr.com/400/400/bicycle,kids?lock=23", destaque: false, data: "07/11/2026, 16:40", local: "Diadema - SP" },
+    { id: 24, modalidade: "troca", nome: "Ventilador de coluna", preco: "Troca", imagem: "https://loremflickr.com/400/400/fan?lock=24", destaque: false, data: "06/11/2026, 10:05", local: "São Paulo - SP" },
+    { id: 25, modalidade: "troca", nome: "Caixas de papelão p/ mudança", preco: "Troca", imagem: "https://loremflickr.com/400/400/moving,boxes?lock=25", destaque: false, data: "05/11/2026, 18:00", local: "Santo André - SP" },
+    { id: 26, modalidade: "troca", nome: "Televisor antigo para peças", preco: "Troca", imagem: "https://loremflickr.com/400/400/television?lock=26", destaque: true, data: "05/11/2026, 9:30", local: "Mauá - SP" },
+    { id: 27, modalidade: "troca", nome: "Cama de solteiro com colchão", preco: "Troca", imagem: "https://loremflickr.com/400/400/bed?lock=27", destaque: false, data: "04/11/2026, 15:15", local: "São Bernardo do Campo - SP" },
+
+    // ---------- DOAÇÃO ----------
+    { id: 12, modalidade: "doacao", nome: "Garrafas PET sem rótulo", preco: "Doação", imagem: "https://loremflickr.com/400/400/pet,bottle?lock=12", destaque: true, data: "Hoje, 9:40", local: "Diadema - SP" },
+    { id: 13, modalidade: "doacao", nome: "Sofá 2 lugares retrátil", preco: "Doação", imagem: "https://loremflickr.com/400/400/couch?lock=13", destaque: false, data: "Hoje, 8:10", local: "Santo André - SP" },
+    { id: 14, modalidade: "doacao", nome: "Papelão ondulado limpo", preco: "Doação", imagem: "https://loremflickr.com/400/400/corrugated,cardboard?lock=14", destaque: false, data: "11/11/2026, 16:45", local: "Osasco - SP" },
+    { id: 15, modalidade: "doacao", nome: "Poltrona reclinável", preco: "Doação", imagem: "https://loremflickr.com/400/400/recliner?lock=15", destaque: false, data: "10/11/2026, 17:45", local: "São Paulo - SP" },
+    { id: 28, modalidade: "doacao", nome: "Latinhas de alumínio amassadas", preco: "Doação", imagem: "https://loremflickr.com/400/400/aluminum,can?lock=28", destaque: true, data: "08/11/2026, 12:30", local: "Guarulhos - SP" },
+    { id: 29, modalidade: "doacao", nome: "Guarda-roupa 2 portas", preco: "Doação", imagem: "https://loremflickr.com/400/400/wardrobe?lock=29", destaque: false, data: "07/11/2026, 18:20", local: "São Paulo - SP" },
+    { id: 30, modalidade: "doacao", nome: "Jornais e revistas velhos", preco: "Doação", imagem: "https://loremflickr.com/400/400/newspaper,magazines?lock=30", destaque: false, data: "06/11/2026, 14:50", local: "Osasco - SP" },
+    { id: 31, modalidade: "doacao", nome: "Berço desmontável", preco: "Doação", imagem: "https://loremflickr.com/400/400/crib?lock=31", destaque: true, data: "05/11/2026, 11:40", local: "Santo André - SP" },
+    { id: 32, modalidade: "doacao", nome: "Vidros e frascos limpos", preco: "Doação", imagem: "https://loremflickr.com/400/400/glass,jar?lock=32", destaque: false, data: "04/11/2026, 10:10", local: "Diadema - SP" },
+    { id: 33, modalidade: "doacao", nome: "Mesa de centro", preco: "Doação", imagem: "https://loremflickr.com/400/400/coffeetable?lock=33", destaque: false, data: "04/11/2026, 8:55", local: "Barueri - SP" }
+];
+
+
+// ===================================================================
+//                            FUNÇÕES
+// ===================================================================
+
+// Se a foto não carregar, troca por uma imagem com o nome do anúncio
+function imagemComErro(e, nome) {
+    // evita loop infinito caso o placeholder também falhe
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = `https://placehold.co/400x400?text=${encodeURIComponent(nome)}`;
+}
+
+
+// ===================================================================
+//                      COMPONENTES REUTILIZÁVEIS
+// Ficam fora do componente principal de propósito: se ficassem dentro,
+// seriam recriados a cada render e o carrossel perderia a posição.
+// ===================================================================
+
+// Card de um anúncio (imagem, etiqueta, coração, preço, data e local)
+function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
+    return (
+        <article className="w-[clamp(160px,17vw,230px)] min-w-[clamp(160px,17vw,230px)] shrink-0 snap-start cursor-pointer">
+
+            {/* Imagem */}
+            <div className="relative h-[clamp(160px,17vw,230px)] w-full overflow-hidden rounded-xl bg-gray-100">
+                <img
+                    src={anuncio.imagem}
+                    alt={anuncio.nome}
+                    loading="lazy"
+                    onError={(e) => imagemComErro(e, anuncio.nome)}
+                    className="h-full w-full object-cover"
+                />
+
+                {/* Etiqueta de destaque */}
+                {anuncio.destaque && (
+                    <span className="absolute left-2 top-2 rounded-md bg-[#724BC2] px-2 py-1 text-[11px] font-semibold text-white">
+                        Destaque
+                    </span>
+                )}
+
+                {/* Favoritar */}
+                <button
+                    type="button"
+                    onClick={onFavoritar}
+                    aria-label={favoritado ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                    aria-pressed={favoritado}
+                    className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow-sm transition hover:scale-110"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={favoritado ? "#724BC2" : "none"} stroke={favoritado ? "#724BC2" : "#374151"} strokeWidth="1.8" className="h-4 w-4">
+                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </button>
+            </div>
+
+            {/* Info */}
+            <div className="px-0.5 pt-3">
+                <h3 title={anuncio.nome} className="truncate text-sm font-semibold leading-5 text-gray-800">
+                    {anuncio.nome}
+                </h3>
+
+                {/* Preço antigo riscado (só se tiver desconto) */}
+                {anuncio.precoAntigo && (
+                    <p className="mt-1 text-xs leading-4 text-gray-400 line-through">
+                        {anuncio.precoAntigo}
+                    </p>
+                )}
+
+                <p className="truncate text-base font-bold leading-6 text-[#4CAF50]">
+                    {anuncio.preco}
+                </p>
+
+                <p className="mt-1 truncate text-[11px] leading-4 text-gray-500">
+                    {anuncio.data} · {anuncio.local}
+                </p>
+            </div>
+        </article>
+    );
+}
+
+// Um carrossel completo de uma modalidade (título, setas e lista de cards)
+function CarrosselModalidade({ titulo, anuncios }) {
     const carrosselRef = useRef(null);
     const [favoritos, setFavoritos] = useState([]);
- 
+
+    // Rola o carrossel um card pra esquerda (-1) ou pra direita (1)
     function moverCarrossel(direcao) {
         if (!carrosselRef.current) return;
 
         const card = carrosselRef.current.querySelector("article");
         if (!card) return;
 
-        const gap = 12; // gap-3 = 12px
-        const scrollAmount = card.offsetWidth + gap;
-
         carrosselRef.current.scrollBy({
-            left: direcao * scrollAmount,
-            behavior: "smooth",
+            left: direcao * (card.offsetWidth + GAP_CARROSSEL),
+            behavior: "smooth"
         });
     }
 
@@ -46,18 +172,19 @@ export default function DestaqueAnuncios() {
 
     return (
         <section className="w-full min-w-0 py-4">
+
             {/* Cabeçalho */}
             <div className="mb-3 flex items-center justify-between gap-2">
-                <h2 className="text-[clamp(14px,1.2vw,18px)] font-semibold text-gray-800">
-                    Anúncios em destaques
+                <h2 className="text-[clamp(16px,1.4vw,22px)] font-semibold text-gray-800">
+                    {titulo}
                 </h2>
 
                 <div className="flex shrink-0 gap-2">
                     <button
                         type="button"
                         onClick={() => moverCarrossel(-1)}
-                        aria-label="Ver anúncios anteriores"
-                        className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-100"
+                        aria-label={`Ver anúncios anteriores: ${titulo}`}
+                        className={setaClass}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
                             <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
@@ -67,8 +194,8 @@ export default function DestaqueAnuncios() {
                     <button
                         type="button"
                         onClick={() => moverCarrossel(1)}
-                        aria-label="Ver próximos anúncios"
-                        className="flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-100"
+                        aria-label={`Ver próximos anúncios: ${titulo}`}
+                        className={setaClass}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
                             <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
@@ -77,67 +204,55 @@ export default function DestaqueAnuncios() {
                 </div>
             </div>
 
-            {/* Carrossel de anúncios — todos os cards que cabem na tela */}
+            {/* Lista de anúncios */}
             <div
                 ref={carrosselRef}
-                className="flex w-full min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto p-2 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex w-full min-w-0 snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-                {produtos.map((produto) => {
-                    const favoritado = favoritos.includes(produto.id);
-
-                    return (
-                        <article
-                            key={produto.id}
-                            className="w-[clamp(145px,15vw,200px)] min-w-[clamp(145px,15vw,200px)] shrink-0 snap-start overflow-hidden rounded-xl border border-gray-100 bg-white p-2.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                        >
-                            {/* Imagem */}
-                            <div className="relative h-[clamp(120px,12vw,180px)] w-full overflow-hidden rounded-lg bg-gray-100">
-                                <img
-                                    src={produto.imagem}
-                                    alt={produto.nome}
-                                    loading="lazy"
-                                    className="h-full w-full object-cover"
-                                />
-
-                                <button
-                                    type="button"
-                                    onClick={() => alternarFavorito(produto.id)}
-                                    aria-label={favoritado ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                                    aria-pressed={favoritado}
-                                    className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-sm transition hover:scale-110"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={favoritado ? "#724BC2" : "none"} stroke={favoritado ? "#724BC2" : "#374151"} strokeWidth="1.8" className="h-4 w-4">
-                                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            {/* Info */}
-                            <div className="px-0.5 pt-2">
-                                <h3 title={produto.nome} className="truncate text-xs font-semibold leading-5 text-gray-800">
-                                    {produto.nome}
-                                </h3>
-
-                                <p className="truncate text-sm font-bold leading-5 text-[#4CAF50]">
-                                    {produto.preco}
-                                </p>
-
-                                <div className="mt-1 flex items-center gap-1 text-[10px] leading-4 text-gray-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#F5B82E" className="h-3.5 w-3.5 shrink-0">
-                                        <path d="m12 2.5 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3.1-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9L12 2.5Z" />
-                                    </svg>
-                                    <span>{produto.avaliacao}</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="ml-1 h-3.5 w-3.5 shrink-0">
-                                        <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" strokeLinecap="round" strokeLinejoin="round" />
-                                        <circle cx="12" cy="10" r="2.5" />
-                                    </svg>
-                                    <span className="truncate">{produto.distancia}</span>
-                                </div>
-                            </div>
-                        </article>
-                    );
-                })}
+                {anuncios.map((anuncio) => (
+                    <CardAnuncio
+                        key={anuncio.id}
+                        anuncio={anuncio}
+                        favoritado={favoritos.includes(anuncio.id)}
+                        onFavoritar={() => alternarFavorito(anuncio.id)}
+                    />
+                ))}
             </div>
         </section>
+    );
+}
+
+
+// ===================================================================
+//              ANÚNCIOS EM DESTAQUE POR MODALIDADE
+//
+// Mostra um carrossel para cada modalidade (venda, troca e doação),
+// parecido com o "Mais recentes em..." da OLX.
+//
+// Props recebidas da Home:
+//   anunciosNovos -> anúncios publicados nesta sessão (aparecem primeiro)
+// ===================================================================
+export default function AnunciosDestaquePorCategoria({ anunciosNovos = [] }) {
+
+    // Anúncios novos na frente, depois os de teste
+    const todos = [...anunciosNovos, ...anunciosIniciais];
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            {MODALIDADES.map((modalidade) => {
+                const anuncios = todos.filter((a) => a.modalidade === modalidade.id);
+
+                // Modalidade sem nenhum anúncio não aparece
+                if (anuncios.length === 0) return null;
+
+                return (
+                    <CarrosselModalidade
+                        key={modalidade.id}
+                        titulo={modalidade.titulo}
+                        anuncios={anuncios}
+                    />
+                );
+            })}
+        </div>
     );
 }
