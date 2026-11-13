@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState } from "react"
 
-import Botao from "../ui/botao.jsx";
+import Botao from "../ui/botao.jsx"
 
 export default function Categorias() {
 
     // Controla qual categoria está selecionada
-    const [categoriaSelecionada, setCategoriaSelecionada] = useState("Tudo");
+    const [categoriaSelecionada, setCategoriaSelecionada] = useState("Tudo")
 
     // Controla se as categorias estão visíveis (aberto ou fechado)
-    const [mostrarCategorias, setMostrarCategorias] = useState(false);
+    const [mostrarCategorias, setMostrarCategorias] = useState(false)
 
     const listaCategorias = [
         "Tudo",
@@ -58,5 +58,5 @@ export default function Categorias() {
             )}
 
         </div>
-    );
+    )
 }

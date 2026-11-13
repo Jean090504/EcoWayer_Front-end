@@ -1,10 +1,10 @@
-import { useState } from "react";
-import fundo1 from "../../assets/icons/img/banner1.png";
-import fundo2 from "../../assets/icons/img/banner2.png";
-import fundo3 from "../../assets/icons/img/banner3.png";
+import { useState } from "react"
+import fundo1 from "../../assets/icons/img/banner1.png"
+import fundo2 from "../../assets/icons/img/banner2.png"
+import fundo3 from "../../assets/icons/img/banner3.png"
 
 export default function Banner() {
-    const [bannerAtual, setBannerAtual] = useState(0);
+    const [bannerAtual, setBannerAtual] = useState(0)
 
     const banners = [
         {
@@ -22,16 +22,16 @@ export default function Banner() {
             titulo: "Consuma de forma consciente",
             descricao: "Pequenas atitudes transformam o nosso futuro!",
         },
-    ];
+    ]
 
     function proximoBanner() {
-        setBannerAtual((atual) => (atual + 1) % banners.length);
+        setBannerAtual((atual) => (atual + 1) % banners.length)
     }
 
     function bannerAnterior() {
         setBannerAtual(
             (atual) => (atual - 1 + banners.length) % banners.length
-        );
+        )
     }
 
     return (
@@ -97,5 +97,5 @@ export default function Banner() {
                 </div>
             </div>
         </section>
-    );
+    )
 }

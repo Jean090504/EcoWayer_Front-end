@@ -1,35 +1,35 @@
-import { useState } from "react";
+import { useState } from "react"
 
-const AI_URL = import.meta.env.VITE_AI_URL || "http://localhost:3333/api/v1/ai";
-const AI_TOKEN = import.meta.env.VITE_AI_TOKEN || "";
+const AI_URL = import.meta.env.VITE_AI_URL || "http://localhost:3333/api/v1/ai"
+const AI_TOKEN = import.meta.env.VITE_AI_TOKEN || ""
 
 export default function AssistenteChat() {
-  const [aberto, setAberto] = useState(false);
-  const [mensagem, setMensagem] = useState("");
-  const [historico, setHistorico] = useState([]);
-  const [carregando, setCarregando] = useState(false);
+  const [aberto, setAberto] = useState(false)
+  const [mensagem, setMensagem] = useState("")
+  const [historico, setHistorico] = useState([])
+  const [carregando, setCarregando] = useState(false)
 
   async function enviar(e) {
-    e.preventDefault();
-    const texto = mensagem.trim();
-    if (!texto || carregando) return;
-    setMensagem("");
-    const proximo = [...historico, { role: "user", text: texto }];
-    setHistorico(proximo);
-    setCarregando(true);
+    e.preventDefault()
+    const texto = mensagem.trim()
+    if (!texto || carregando) return
+    setMensagem("")
+    const proximo = [...historico, { role: "user", text: texto }]
+    setHistorico(proximo)
+    setCarregando(true)
     try {
       const res = await fetch(`${AI_URL}/assistant/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(AI_TOKEN && { "x-ai-token": AI_TOKEN }) },
         body: JSON.stringify({ message: texto, history: proximo.slice(-10) }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Não foi possível falar com o assistente.");
-      setHistorico((atual) => [...atual, { role: "model", text: data.resposta }]);
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Não foi possível falar com o assistente.")
+      setHistorico((atual) => [...atual, { role: "model", text: data.resposta }])
     } catch (error) {
-      setHistorico((atual) => [...atual, { role: "model", text: error.message }]);
+      setHistorico((atual) => [...atual, { role: "model", text: error.message }])
     } finally {
-      setCarregando(false);
+      setCarregando(false)
     }
   }
 
@@ -42,5 +42,5 @@ export default function AssistenteChat() {
       </div>}
       <button onClick={() => setAberto((v) => !v)} className="rounded-full bg-green-600 px-5 py-3 font-semibold text-white shadow-lg">{aberto ? "Fechar" : "Assistente"}</button>
     </div>
-  );
+  )
 }

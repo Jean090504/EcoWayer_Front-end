@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
-import Mesa from "../../assets/icons/img/mesa.png";
-import Garrafas from "../../assets/icons/img/garrafas.png";
-import Sofa from "../../assets/icons/img/sofa.png";
-import Papelao from "../../assets/icons/img/papelao.png";
-import Poltrona from "../../assets/icons/img/poltrona.png";
-import Telefone from "../../assets/icons/img/telefone.png";
-import Geladeira from "../../assets/icons/img/geladeira.png";
+import { useRef, useState } from "react"
+import Mesa from "../../assets/icons/img/mesa.png"
+import Garrafas from "../../assets/icons/img/garrafas.png"
+import Sofa from "../../assets/icons/img/sofa.png"
+import Papelao from "../../assets/icons/img/papelao.png"
+import Poltrona from "../../assets/icons/img/poltrona.png"
+import Telefone from "../../assets/icons/img/telefone.png"
+import Geladeira from "../../assets/icons/img/geladeira.png"
 
 const produtos = [
     { id: 1, nome: "Mesa semi nova...", preco: "R$ 170,00", imagem: Mesa, avaliacao: "4.9", distancia: "2.4 km" },
@@ -15,25 +15,25 @@ const produtos = [
     { id: 5, nome: "Poltrona cor creme nova", preco: "R$ 45,00", imagem: Poltrona, avaliacao: "4.8", distancia: "4.0 km" },
     { id: 6, nome: "Celular usado - modelo antigo", preco: "R$ 45,00", imagem: Telefone, avaliacao: "4.8", distancia: "4.0 km" },
     { id: 7, nome: "Geladeira nova - branca", preco: "R$ 45,00", imagem: Geladeira, avaliacao: "4.8", distancia: "4.0 km" },
-];
+]
 
 export default function DestaqueAnuncios() {
-    const carrosselRef = useRef(null);
-    const [favoritos, setFavoritos] = useState([]);
+    const carrosselRef = useRef(null)
+    const [favoritos, setFavoritos] = useState([])
 
     function moverCarrossel(direcao) {
-        if (!carrosselRef.current) return;
+        if (!carrosselRef.current) return
 
-        const card = carrosselRef.current.querySelector("article");
-        if (!card) return;
+        const card = carrosselRef.current.querySelector("article")
+        if (!card) return
 
-        const gap = 12; // gap-3 = 12px
-        const scrollAmount = card.offsetWidth + gap;
+        const gap = 12 // gap-3 = 12px
+        const scrollAmount = card.offsetWidth + gap
 
         carrosselRef.current.scrollBy({
             left: direcao * scrollAmount,
             behavior: "smooth",
-        });
+        })
     }
 
     function alternarFavorito(id) {
@@ -41,7 +41,7 @@ export default function DestaqueAnuncios() {
             atuais.includes(id)
                 ? atuais.filter((item) => item !== id)
                 : [...atuais, id]
-        );
+        )
     }
 
     return (
@@ -83,7 +83,7 @@ export default function DestaqueAnuncios() {
                 className="flex w-full min-w-0 snap-x snap-mandatory gap-3 overflow-x-auto p-2 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
                 {produtos.map((produto) => {
-                    const favoritado = favoritos.includes(produto.id);
+                    const favoritado = favoritos.includes(produto.id)
 
                     return (
                         <article
@@ -135,9 +135,9 @@ export default function DestaqueAnuncios() {
                                 </div>
                             </div>
                         </article>
-                    );
+                    )
                 })}
             </div>
         </section>
-    );
+    )
 }

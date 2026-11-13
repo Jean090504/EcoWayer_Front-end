@@ -275,7 +275,7 @@ export default function Header({
                 {/* Navegação */}
                 <nav className={`flex shrink-0 items-center ${GAP_NAV}`}>
                     <ItemNavegacao Icone={Mail} texto="Meus anúncios" />
-                    <ItemNavegacao Icone={Wallet} texto="Carteira" />
+                    <ItemNavegacao Icone={Wallet} texto="Carteira" onClick={() => onNavegar?.("minhaCarteira")} />
                     <ItemNavegacao Icone={MessageSquare} texto="Chat" />
                 </nav>
 
