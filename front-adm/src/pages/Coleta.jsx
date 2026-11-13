@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import SearchBar from "../components/dashboard/SearchBar.jsx";
 import ListaPontos from "../components/coleta/ListaPontos.jsx";
-import MapaPontos from "../components/coleta/MapaPontos.jsx";
+import MapaPontos from "../components/coleta/MapaPontosGoogle.jsx";
 import ModalPonto from "../components/coleta/ModalPonto.jsx";
 import ModalNovoPonto from "../components/coleta/ModalNovoPonto.jsx";
 import { listarPontos, buscarPontosOpenStreetMap } from "../services/pontoColetaService.js";

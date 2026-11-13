@@ -4,8 +4,6 @@ const API_URL = `${BASE}/ponto-coleta`;
 const MATERIAL_URL = `${BASE}/material-aceito`;
 const CATEGORIA_URL = `${BASE}/categoria`;
 const ENDERECO_URL = `${BASE}/endereco`;
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
-const GEO_URL = "https://api.mapbox.com/search/geocode/v6";
 const OSM_GEOCODE_URL = "https://nominatim.openstreetmap.org/search";
 const OSM_OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 const OSM_OVERPASS_SERVERS = [
@@ -80,40 +78,30 @@ function adaptarPonto(p) {
   };
 }
 
-/* ---------- Geocodificação ---------- */
+/* ---------- Geocodificação Google Maps (via backend) ---------- */
 
-// Endereço -> coordenadas. Devolve { lat, lng } ou null se não achar
+const MAPA_URL = `${BASE}/mapa`;
+
 export async function geocodificar({ rua, numero, bairro, cep, cidade }) {
-  if (!MAPBOX_TOKEN) throw new Error("Token do Mapbox ausente (VITE_MAPBOX_TOKEN)");
-  const q = [[rua, numero].filter(Boolean).join(" "), bairro, cidade, cep].filter(Boolean).join(", ");
-  const url = `${GEO_URL}/forward?q=${encodeURIComponent(q)}&country=br&language=pt&limit=1&access_token=${MAPBOX_TOKEN}`;
-
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Erro ${res.status} ao buscar coordenadas`);
-  const json = await res.json();
-  const coords = json.features?.[0]?.geometry?.coordinates; // [lng, lat]
-  return coords ? { lat: coords[1], lng: coords[0] } : null;
+  const res = await fetch(`${MAPA_URL}/geocodificar`, {
+    method: "POST",
+    headers: cabecalhos(),
+    body: JSON.stringify({ rua, numero, bairro, cep, cidade }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message ?? `Erro ${res.status} ao buscar coordenadas`);
+  return { lat: Number(json.latitude), lng: Number(json.longitude) };
 }
 
-// Coordenadas -> endereço. Devolve só o que encontrou, ou null
 export async function geocodificarReverso(lat, lng) {
-  if (!MAPBOX_TOKEN) throw new Error("Token do Mapbox ausente (VITE_MAPBOX_TOKEN)");
-  const url = `${GEO_URL}/reverse?longitude=${lng}&latitude=${lat}&language=pt&limit=1&access_token=${MAPBOX_TOKEN}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Erro ${res.status} ao buscar endereço`);
-  const json = await res.json();
-  const f = json.features?.[0];
-  if (!f) return null;
-  const c = f.properties?.context ?? {};
-  return {
-    rua: c.street?.name ?? c.address?.street_name ?? "",
-    numero: c.address?.address_number ?? "",
-    bairro: c.neighborhood?.name ?? c.locality?.name ?? c.district?.name ?? "",
-    cep: c.postcode?.name ?? "",
-    cidade: c.place?.name ?? "",
-    estado: c.region?.name ?? "",
-    sigla: c.region?.region_code ?? "",
-  };
+  const res = await fetch(`${MAPA_URL}/geocodificar-reverso`, {
+    method: "POST",
+    headers: cabecalhos(),
+    body: JSON.stringify({ latitude: lat, longitude: lng }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message ?? `Erro ${res.status} ao buscar endereço`);
+  return json;
 }
 
 // CEP -> rua, bairro, cidade, estado e sigla (ViaCEP). Devolve null se o CEP não existe
