@@ -11,6 +11,7 @@ import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx"
 import MinhaCarteira from "./pages/MinhaCarteira.jsx"
 import PontosBeneficios from "./pages/PontosBeneficios.jsx"
 import Insignia from "./pages/Insignias.jsx"
+import DenunciarAnuncio from "./pages/DenunciarAnuncio.jsx"
 
 export default function App() {
     const [usuario, setUsuario] = useState(null)
@@ -54,8 +55,9 @@ export default function App() {
                 {/* <AvaliacaoAnuncio/> */}
                 {/* <MinhaCarteira/> */}
                 {/* <PontosBeneficios/> */}
-                <Insignia/>
+                {/* <Insignia/> */}
                 {/* <Home/> */}
+                <DenunciarAnuncio/>
             </main>
 
             <Footer />
