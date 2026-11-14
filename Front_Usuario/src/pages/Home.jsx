@@ -4,7 +4,7 @@ import DestaqueAnuncios from "../components/layout/destaqueAnuncios.jsx";
 import DestaquesCategorias from "../components/layout/anunciosDestaquePorCategoria.jsx";
 
 
-export default function Home() {
+export default function Home({ onAbrirAnuncio }) {
     return (
             <main className="flex flex-1 w-full flex-col items-center py-10">
                 <div className="flex w-[90%] flex-col items-center gap-10">
@@ -19,12 +19,12 @@ export default function Home() {
 
                     {/* Anúncios em destaque */}
                     <div className="w-full">
-                        <DestaqueAnuncios />
+                        <DestaqueAnuncios onAbrirAnuncio={onAbrirAnuncio} />
                     </div>
 
                     {/* Carrosséis por categoria */}
                     <div className="w-full">
-                        <DestaquesCategorias />
+                        <DestaquesCategorias onAbrirAnuncio={onAbrirAnuncio} />
                     </div>
                 </div>
             </main>

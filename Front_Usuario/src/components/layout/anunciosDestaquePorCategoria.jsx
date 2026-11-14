@@ -59,18 +59,20 @@ const anunciosIniciais = [
 // ===================================================================
 
 // Card de um anúncio (imagem, etiqueta, coração, preço, data e local)
-function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
+function CardAnuncio({ anuncio, favoritado, onFavoritar, onAbrir }) {
     return (
         <article className="w-[clamp(160px,17vw,230px)] min-w-[clamp(160px,17vw,230px)] shrink-0 snap-start cursor-pointer">
 
             {/* Imagem */}
             <div className="relative h-[clamp(160px,17vw,230px)] w-full overflow-hidden rounded-xl bg-gray-100">
-                <img
+                <button type="button" onClick={onAbrir} aria-label={`Ver detalhes: ${anuncio.nome}`} className="block h-full w-full">
+                    <img
                     src={anuncio.imagem}
                     alt={anuncio.nome}
                     loading="lazy"
                     className="h-full w-full object-cover"
                 />
+                </button>
 
                 {/* Etiqueta de destaque */}
                 {anuncio.destaque && (
@@ -93,6 +95,7 @@ function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
                 </button>
             </div>
 
+            <button type="button" onClick={onAbrir} className="mt-2 w-full rounded-lg bg-[#FAF8FF] p-2 text-xs font-semibold text-[#724BC2]" aria-label={`Ver detalhes: ${anuncio.nome}`}>Ver detalhes</button>
             {/* Info */}
             <div className="px-0.5 pt-3">
                 <h3 title={anuncio.nome} className="truncate text-sm font-semibold leading-5 text-gray-800">
@@ -119,7 +122,7 @@ function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
 }
 
 // Um carrossel completo de uma modalidade (título, setas e lista de cards)
-function CarrosselModalidade({ titulo, anuncios }) {
+function CarrosselModalidade({ titulo, anuncios, onAbrirAnuncio }) {
     const carrosselRef = useRef(null);
     const [favoritos, setFavoritos] = useState([]);
 
@@ -187,6 +190,7 @@ function CarrosselModalidade({ titulo, anuncios }) {
                     <CardAnuncio
                         key={anuncio.id}
                         anuncio={anuncio}
+                        onAbrir={() => onAbrirAnuncio?.(anuncio)}
                         favoritado={favoritos.includes(anuncio.id)}
                         onFavoritar={() => alternarFavorito(anuncio.id)}
                     />
@@ -206,7 +210,7 @@ function CarrosselModalidade({ titulo, anuncios }) {
 // Props recebidas da Home:
 //   anunciosNovos -> anúncios publicados nesta sessão (aparecem primeiro)
 // ===================================================================
-export default function AnunciosDestaquePorCategoria({ anunciosNovos = [] }) {
+export default function AnunciosDestaquePorCategoria({ anunciosNovos = [], onAbrirAnuncio }) {
 
     // Anúncios novos na frente, depois os de teste
     const todos = [...anunciosNovos, ...anunciosIniciais];
@@ -224,6 +228,7 @@ export default function AnunciosDestaquePorCategoria({ anunciosNovos = [] }) {
                         key={modalidade.id}
                         titulo={modalidade.titulo}
                         anuncios={anuncios}
+                        onAbrirAnuncio={onAbrirAnuncio}
                     />
                 );
             })}

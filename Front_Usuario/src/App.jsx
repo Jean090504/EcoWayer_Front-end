@@ -6,6 +6,7 @@ import Footer from "./components/layout/footer.jsx"
 import Login from "./components/cards/conta/cardLogin.jsx";
 import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx";
 
+import DetalhesAnuncio from "./pages/detalhesAnuncio.jsx";
 import Home from "./pages/Home.jsx";
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
 import MinhaCarteira from "./pages/MinhaCarteira.jsx"
@@ -16,6 +17,7 @@ import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
 export default function App() {
     const [usuario, setUsuario] = useState(null)
 
+    const [anuncioSelecionado, setAnuncioSelecionado] = useState(null)
     const [telaAtiva, setTelaAtiva] = useState("home")
 
     // Controla a abertura dos cards.
@@ -33,6 +35,12 @@ export default function App() {
         setTelaAtiva(tela)
     }
 
+    function abrirAnuncio(anuncio) {
+        setAnuncioSelecionado(anuncio)
+        setTelaAtiva("detalhesAnuncio")
+        window.scrollTo(0, 0)
+    }
+
     return (
         <div className="flex min-h-screen flex-col">
             <Header
@@ -45,8 +53,10 @@ export default function App() {
 
             <main className="flex flex-1 flex-col">
                 {telaAtiva === "home" && (
-                    <Home onNavegar={navegar} />
+                    <Home onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />
                 )}
+
+                {telaAtiva === "detalhesAnuncio" && <DetalhesAnuncio key={`${anuncioSelecionado?.id}-${anuncioSelecionado?.nome}`} anuncioSelecionado={anuncioSelecionado} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
 
                 {telaAtiva === "avaliacao" && (
                     <AvaliacaoAnuncio onNavegar={navegar} />

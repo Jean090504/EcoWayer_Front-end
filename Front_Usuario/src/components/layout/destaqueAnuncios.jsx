@@ -17,7 +17,7 @@ const produtos = [
     { id: 7, nome: "Geladeira nova - branca", preco: "R$ 45,00", imagem: Geladeira, avaliacao: "4.8", distancia: "4.0 km" },
 ]
 
-export default function DestaqueAnuncios() {
+export default function DestaqueAnuncios({ onAbrirAnuncio }) {
     const carrosselRef = useRef(null)
     const [favoritos, setFavoritos] = useState([])
 
@@ -92,12 +92,14 @@ export default function DestaqueAnuncios() {
                         >
                             {/* Imagem */}
                             <div className="relative h-[clamp(120px,12vw,180px)] w-full overflow-hidden rounded-lg bg-gray-100">
-                                <img
+                                <button type="button" onClick={() => onAbrirAnuncio?.(produto)} aria-label={`Ver detalhes: ${produto.nome}`} className="block h-full w-full">
+                                    <img
                                     src={produto.imagem}
                                     alt={produto.nome}
                                     loading="lazy"
                                     className="h-full w-full object-cover"
                                 />
+                                </button>
 
                                 <button
                                     type="button"
@@ -112,6 +114,7 @@ export default function DestaqueAnuncios() {
                                 </button>
                             </div>
 
+                            <button type="button" onClick={() => onAbrirAnuncio?.(produto)} className="mt-2 w-full rounded-lg bg-[#FAF8FF] p-2 text-xs font-semibold text-[#724BC2]" aria-label={`Ver detalhes: ${produto.nome}`}>Ver detalhes</button>
                             {/* Info */}
                             <div className="px-0.5 pt-2">
                                 <h3 title={produto.nome} className="truncate text-xs font-semibold leading-5 text-gray-800">
