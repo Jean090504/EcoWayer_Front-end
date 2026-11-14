@@ -3,36 +3,39 @@ import { useState } from "react";
 import Header from "./components/layout/header.jsx";
 import Footer from "./components/layout/footer.jsx";
 
-import Login from "./components/cards/conta/cardLogin.jsx";
-import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx";
+import TelaMeuPerfil from "./pages/MeuPerfil.jsx";
 
-import Home from "./pages/Home.jsx";
-import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
-import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx";
-import EditarAnuncio from "./components/cards/editarAnuncio/cardEditarAnuncio.jsx"
-import CardMenssagem from "./components/cards/editarAnuncio/cardMenssagemDeAnuncioAlterado.jsx"
+import mockPerfil from "./mocks/mockMeuPerfil.js";
+
+// Imports das outras telas (voltam quando você reativar as áreas comentadas)
+// import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx";
+// import TelaHome from "./pages/Home.jsx";
+// import TelaAvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
+// import TelaCriarNovoAnuncio from "./pages/CriarNovoAnuncio.jsx";
+// import CardLogin from "./components/cards/conta/cardLogin.jsx";
+// import CardEditarAnuncio from "./components/cards/editarAnuncio/cardEditarAnuncio.jsx";
+// import CardMenssagem from "./components/cards/editarAnuncio/cardMenssagemDeAnuncioAlterado.jsx";
 
 
 export default function App() {
-    const [usuario, setUsuario] = useState(null);
 
-    // Controla a tela ativa: "home", "avaliacao" ou "novoAnuncio".
-    const [telaAtiva, setTelaAtiva] = useState("home");
-
-    // Controla a abertura dos cards.
+    // O Header usa estas 3 coisas, então elas precisam existir
+    // (por enquanto o usuário vem do mock, pra o header aparecer logado)
+    const [usuario, setUsuario] = useState(mockPerfil.usuario);
     const [abrirLogin, setAbrirLogin] = useState(false);
     const [abrirCadastro, setAbrirCadastro] = useState(false);
 
-    // Executada quando o login for realizado com sucesso.
-    function realizarLogin(dadosUsuario) {
-        setUsuario(dadosUsuario);
-        setAbrirLogin(false);
+    // Controla a navegação entre as telas (por enquanto só mostra no console)
+    function navegar(tela) {
+        console.log("Navegar para:", tela);
     }
 
-    // Controla a navegação entre as telas.
-    function navegar(tela) {
-        setTelaAtiva(tela);
-    }
+    // const [telaAtiva, setTelaAtiva] = useState("home");
+
+    // function realizarLogin(dadosUsuario) {
+    //     setUsuario(dadosUsuario);
+    //     setAbrirLogin(false);
+    // }
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -45,23 +48,25 @@ export default function App() {
             />
 
             <main className="flex flex-1 flex-col">
-                {telaAtiva === "home" && (
-                    <Home onNavegar={navegar} />
+                {/* {telaAtiva === "home" && (
+                    <TelaHome onNavegar={navegar} />
                 )}
 
                 {telaAtiva === "avaliacao" && (
-                    <AvaliacaoAnuncio onNavegar={navegar} />
+                    <TelaAvaliacaoAnuncio onNavegar={navegar} />
                 )}
 
                 {telaAtiva === "novoAnuncio" && (
-                    <CriarNovoAnuncio onNavegar={navegar} />
-                )}
+                    <TelaCriarNovoAnuncio onNavegar={navegar} />
+                )} */}
+
+                <TelaMeuPerfil />
             </main>
 
             <Footer />
 
-            {abrirLogin && (
-                <Login
+            {/* {abrirLogin && (
+                <FluxoLogin
                     onClose={() => setAbrirLogin(false)}
                     onLoginSuccess={realizarLogin}
                     onAbrirCriarConta={() => {
@@ -69,9 +74,9 @@ export default function App() {
                         setAbrirCadastro(true);
                     }}
                 />
-            )}
+            )} */}
 
-            {abrirCadastro && (
+            {/* {abrirCadastro && (
                 <FluxoCriarConta
                     onClose={() => setAbrirCadastro(false)}
                     onContaCriada={(novoUsuario) => {
@@ -79,9 +84,7 @@ export default function App() {
                         setAbrirCadastro(false);
                     }}
                 />
-            )}
+            )} */}
         </div>
-
-       
     );
 }
