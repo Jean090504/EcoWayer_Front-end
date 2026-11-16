@@ -1,7 +1,7 @@
 import { beforeEach, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
-import { EVENTO_SESSAO_EXPIRADA, registrarNovaSessao, sessaoFoiEncerrada } from '../src/services/sessionService.js'
+import { EVENTO_SESSAO_EXPIRADA, registrarNovaSessao, sessaoFoiEncerrada, limparSessaoLocal } from '../src/services/sessionService.js'
 
 // Carrega o cliente HTTP sem depender da substituição de import.meta.env do Vite.
 const apiUrl = new URL('../src/services/api.js', import.meta.url)
@@ -99,4 +99,17 @@ test('falha de rede no logout libera o novo login e mantém a sessão local ence
     assert.equal(sessaoFoiEncerrada(), true)
     registrarNovaSessao()
     assert.equal(sessaoFoiEncerrada(), false)
+})
+
+test('sair limpa os dados e impede que um 401 anterior ao logout reabra a tela de sessão expirada', async () => {
+    let resolver
+    globalThis.fetch = () => new Promise(resolve => { resolver = resolve })
+    const requisicaoAntiga = apiFetch('/usuario/1')
+    limparSessaoLocal()
+    assert.equal(sessionStorage.getItem('ecowayer_usuario'), null)
+    assert.equal(sessionStorage.getItem('ecowayer_token'), null)
+    assert.equal(sessaoFoiEncerrada(), false)
+    resolver(Response.json({}, { status: 401 }))
+    await assert.rejects(requisicaoAntiga, { status: 401 })
+    assert.equal(expiracoes.length, 0)
 })

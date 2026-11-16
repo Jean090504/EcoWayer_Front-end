@@ -12,6 +12,13 @@ export function registrarNovaSessao() {
     sessionStorage.removeItem('ecowayer_token')
 }
 
+export function limparSessaoLocal() {
+    geracao += 1
+    sessionStorage.removeItem(CHAVE_EXPIRADA)
+    sessionStorage.removeItem('ecowayer_usuario')
+    sessionStorage.removeItem('ecowayer_token')
+}
+
 export function encerrarSessaoInvalida(baseUrl) {
     if (encerramento) return encerramento
     if (sessaoFoiEncerrada()) return Promise.resolve()

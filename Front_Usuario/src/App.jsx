@@ -18,6 +18,7 @@ import Chat from "./pages/Chat.jsx"
 import EditarAnuncio from "./pages/editarAnuncio.jsx"
 import ConfirmacaoAnuncioAlterado from "./components/cards/editarAnuncio/cardMenssagemDeAnuncioAlterado.jsx"
 import SessaoEncerrada from "./pages/SessaoEncerrada.jsx"
+import { logoutUsuario } from "./services/userService.js"
 import { EVENTO_SESSAO_EXPIRADA, sessaoFoiEncerrada } from "./services/sessionService.js"
 
 export default function App() {
@@ -66,7 +67,25 @@ export default function App() {
 
     function navegar(tela) {
         if (sessaoExpirada) { pedirLogin(); return }
+        if (tela === "chat") setAnuncioConversa(null)
         setTelaAtiva(tela)
+        window.scrollTo(0, 0)
+    }
+
+    async function sair() {
+        const encerramento = logoutUsuario()
+        setUsuario(null)
+        setAnuncioSelecionado(null)
+        setAnuncioConversa(null)
+        setAnuncioAlterado(false)
+        setAbrirLogin(false)
+        setAbrirCadastro(false)
+        setSessaoExpirada(false)
+        setEncerrandoSessao(true)
+        setTelaAtiva("home")
+        window.scrollTo(0, 0)
+        await encerramento
+        setEncerrandoSessao(false)
     }
 
     function abrirAnuncio(anuncio) {
@@ -100,6 +119,7 @@ export default function App() {
                 onAbrirCriarConta={() => sessaoExpirada ? pedirLogin() : setAbrirCadastro(true)}
                 onAbrirNovoAnuncio={() => navegar("novoAnuncio")}
                 onNavegar={navegar}
+                onSair={sair}
             />
 
             <main className="flex flex-1 flex-col">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { requisitosSenha, validarSenha } from "../../../services/passwordValidation.js";
 
 
 // ===================================================================
@@ -226,6 +227,8 @@ export default function CreateAccount({
         setErro("");
 
         // 1. As senhas precisam ser iguais
+        const erroSenha = validarSenha(formulario.senha);
+        if (erroSenha) { setErro(erroSenha); return; }
         if (formulario.senha !== formulario.confirmarSenha) {
             setErro("As senhas informadas não coincidem.");
             return;
@@ -352,6 +355,10 @@ export default function CreateAccount({
                         value={formulario.senha}
                         onChange={atualizarCampo}
                     />
+
+                    <ul aria-label="Requisitos da senha" className="space-y-1 text-xs">
+                        {requisitosSenha(formulario.senha).map(item => <li key={item.id} className={item.valido ? 'text-green-700' : 'text-gray-500'}><span aria-hidden="true">{item.valido ? '✓' : '•'} </span>{item.texto}{item.valido && <span className="sr-only">: atendido</span>}</li>)}
+                    </ul>
 
                     {/* Confirmar senha */}
                     <CampoSenha

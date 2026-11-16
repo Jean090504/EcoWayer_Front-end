@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Archive, Check, CheckCheck, MessageSquare, RefreshCw, Search, Send, Smile, X } from 'lucide-react'
 import { criarConversa, enviarMensagem, listarConversas, listarMensagens, marcarLida } from '../services/chatService.js'
+import { conversaDaPessoa, conversaDoAnuncio, conversaInicial } from '../services/chatSelection.js'
 
 const nomeContato = (conversa, id) => Number(conversa.id_anunciante) === Number(id) ? conversa.interessado : conversa.anunciante
 const iniciais = nome => (nome || 'Anunciante').split(' ').filter(Boolean).slice(0, 2).map(parte => parte[0]).join('')
@@ -17,6 +18,7 @@ const dia = valor => {
 export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbrirAnuncio }) {
     const [conversas, setConversas] = useState([])
     const [selecionada, setSelecionada] = useState(null)
+    const [contextoPendente, setContextoPendente] = useState(anuncio || null)
     const [mensagens, setMensagens] = useState([])
     const [busca, setBusca] = useState('')
     const [filtro, setFiltro] = useState('todas')
@@ -35,6 +37,8 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
     const idConversa = selecionada?.id
     const contato = selecionada ? nomeContato(selecionada, idUsuario) : ''
 
+    useEffect(() => { setContextoPendente(anuncio || null) }, [anuncio])
+
     useEffect(() => {
         let ativo = true
         async function carregar() {
@@ -45,18 +49,48 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
                 const lista = await listarConversas(idUsuario)
                 if (!ativo) return
                 setConversas(lista)
-                const existente = anuncio && lista.find(item => Number(item.id_anuncio) === Number(anuncio.id))
+                const existente = conversaDoAnuncio(lista, anuncio, idUsuario)
                 if (existente) setSelecionada(existente)
                 else if (anuncio && Number(anuncio.id_usuario) !== Number(idUsuario)) {
                     setSelecionada({ id: null, id_anuncio: anuncio.id, anuncio: anuncio.nome, id_anunciante: anuncio.id_usuario, anunciante: anuncio.vendedor?.nome || 'Anunciante', id_interessado: idUsuario, interessado: usuario.nome })
-                } else if (anuncio) setErro('Este anúncio é seu. Selecione uma conversa de um interessado.')
-                else setSelecionada(atual => lista.find(item => item.id === atual?.id) || lista[0] || null)
+                } else if (anuncio) {
+                    setSelecionada(null)
+                    setErro('Este anúncio é seu. Selecione a conversa do interessado na lista.')
+                } else setSelecionada(atual => conversaInicial(lista, atual?.id || sessionStorage.getItem(`ecowayer_conversa_${idUsuario}`)))
             } catch (error) { if (ativo) setErro(error.message) }
             finally { if (ativo) setCarregando(false) }
         }
         carregar()
         return () => { ativo = false }
     }, [idUsuario, anuncio, tentativa, usuario?.nome])
+
+    useEffect(() => {
+        if (idUsuario && idConversa) sessionStorage.setItem(`ecowayer_conversa_${idUsuario}`, String(idConversa))
+    }, [idUsuario, idConversa])
+
+    // A caixa de entrada deve atualizar mesmo quando ainda não há conversa selecionada.
+    useEffect(() => {
+        if (!idUsuario) return
+        let ativo = true
+        let carregandoLista = false
+        async function atualizarLista() {
+            if (carregandoLista) return
+            carregandoLista = true
+            try {
+                const lista = await listarConversas(idUsuario)
+                if (!ativo) return
+                setConversas(lista)
+                setSelecionada(atual => {
+                    if (!atual) return null
+                    if (atual.id) return conversaDaPessoa(lista, atual.id_interessado, atual.id_anunciante) || atual
+                    return conversaDoAnuncio(lista, { id: atual.id_anuncio, id_usuario: atual.id_anunciante }, idUsuario) || atual
+                })
+            } catch (error) { if (ativo) setErro(error.message) }
+            finally { carregandoLista = false }
+        }
+        const timer = setInterval(atualizarLista, 5000)
+        return () => { ativo = false; clearInterval(timer) }
+    }, [idUsuario])
 
     useEffect(() => {
         let ativo = true
@@ -74,7 +108,7 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
             } catch (error) { if (ativo) setErro(error.message) }
         }
         atualizar()
-        const timer = setInterval(atualizar, 10000)
+        const timer = setInterval(atualizar, 5000)
         return () => { ativo = false; clearInterval(timer) }
     }, [idConversa, idUsuario])
 
@@ -89,30 +123,29 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
         const atual = selecionada
         const conteudo = texto.trim()
         try {
-            let conversa = atual
-            if (!conversa.id) {
-                try { conversa = await criarConversa(conversa.id_anuncio, idUsuario) }
-                catch (error) {
-                    if (error.status !== 409 && error.status !== 400) throw error
-                    const lista = await listarConversas(idUsuario)
-                    const existente = lista.find(item => Number(item.id_anuncio) === Number(atual.id_anuncio) && Number(item.id_interessado) === Number(idUsuario))
-                    if (!existente) throw error
-                    conversa = existente
-                }
-                setSelecionada(conversa)
+            let idEnvio = atual.id_conversa_envio || atual.id
+            // O histórico é único por pessoa; a mensagem preserva o anúncio por onde o contato chegou.
+            if (contextoPendente || !idEnvio) {
+                const origem = contextoPendente?.id || atual.id_anuncio
+                const conversa = await criarConversa(origem, idUsuario)
+                idEnvio = conversa.id
             }
-            await enviarMensagem(conversa.id, idUsuario, conteudo)
-            const itens = await listarMensagens(conversa.id)
-            setMensagens(itens)
+            await enviarMensagem(idEnvio, idUsuario, conteudo)
+            setContextoPendente(null)
             setTexto('')
-            setConversas(await listarConversas(idUsuario))
+            const itens = await listarMensagens(idEnvio)
+            const lista = await listarConversas(idUsuario)
+            const unificada = conversaDaPessoa(lista, atual.id_interessado, atual.id_anunciante)
+            setConversas(lista)
+            setSelecionada(unificada || atual)
+            setMensagens(itens)
         } catch (error) { setTexto(conteudo); setErro(error.message) }
         finally { travaEnvio.current = false; setEnviando(false); campo.current?.focus() }
     }
 
     const visiveis = conversas.filter(item => (filtro === 'todas' || Number(item.nao_lidas) > 0) && `${nomeContato(item, idUsuario)} ${item.anuncio}`.toLocaleLowerCase('pt-BR').includes(busca.toLocaleLowerCase('pt-BR')))
     const totalNaoLidas = conversas.filter(item => Number(item.nao_lidas) > 0).length
-    const mensagensVisiveis = mensagens.filter(item => Number(item.id_conversa) === Number(idConversa)).filter(item => item.texto.toLocaleLowerCase('pt-BR').includes(buscaMensagem.toLocaleLowerCase('pt-BR')))
+    const mensagensVisiveis = mensagens.filter(item => (selecionada?.ids_conversas || [idConversa]).map(Number).includes(Number(item.id_conversa))).filter(item => item.texto.toLocaleLowerCase('pt-BR').includes(buscaMensagem.toLocaleLowerCase('pt-BR')))
     const avatar = nome => <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#EEE8FA] text-base font-bold text-[#724BC2]">{iniciais(nome)}</span>
 
     return <section className="flex-1 bg-[#FAF8FF] px-[4%] py-7 text-[#191C30] sm:py-10">
@@ -127,7 +160,7 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
                 <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
                     {carregando && <p role="status" className="p-4 text-sm text-gray-500">Carregando conversas...</p>}
                     {!carregando && !visiveis.length && <p className="p-4 text-sm leading-relaxed text-gray-500">{busca || filtro !== 'todas' ? 'Nenhuma conversa encontrada.' : 'Suas conversas aparecerão aqui. Abra um anúncio para começar.'}</p>}
-                    {visiveis.map(item => <button disabled={enviando} key={item.id} onClick={() => { setSelecionada(item); setMensagens([]); setTexto(''); setBuscaMensagem(''); setErro('') }} aria-pressed={item.id === idConversa} className={`flex w-full items-start gap-3 rounded-2xl p-3 text-left transition hover:bg-[#F3F4F6] ${item.id === idConversa ? 'bg-[#F3F4F6]' : ''}`}>
+                    {visiveis.map(item => <button disabled={enviando} key={item.id} onClick={() => { setSelecionada(item); setContextoPendente(null); setMensagens([]); setTexto(''); setBuscaMensagem(''); setErro('') }} aria-pressed={item.id === idConversa} className={`flex w-full items-start gap-3 rounded-2xl p-3 text-left transition hover:bg-[#F3F4F6] ${item.id === idConversa ? 'bg-[#F3F4F6]' : ''}`}>
                         {avatar(nomeContato(item, idUsuario))}<span className="min-w-0 flex-1"><span className="flex items-center justify-between gap-2"><span className="truncate font-semibold">{nomeContato(item, idUsuario)}</span><span className="shrink-0 text-[10px] text-[#4CAF50]">{horario(item.ultimo_envio)}</span></span><span className="mt-1 flex items-center gap-1 text-xs text-[#724BC2]"><Archive size={13} className="shrink-0"/><span className="truncate">{item.anuncio}</span></span><span className="mt-1 flex items-center justify-between gap-2 text-xs text-[#536252]"><span className="truncate">{item.ultima_mensagem || 'Inicie a conversa'}</span>{Number(item.nao_lidas) > 0 && <span className="rounded-full bg-[#4CAF50] px-2 py-0.5 text-white">{item.nao_lidas}</span>}</span></span>
                     </button>)}
                 </div>
@@ -137,12 +170,14 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
                     <header className="flex items-center gap-3 border-b border-gray-100 px-4 py-3 lg:px-5"><button disabled={enviando} aria-label="Voltar às conversas" onClick={() => setSelecionada(null)} className="p-1 md:hidden"><ArrowLeft size={20}/></button>{avatar(contato)}<div className="min-w-0 flex-1"><h2 className="truncate text-lg font-bold">{contato}</h2><button onClick={() => onAbrirAnuncio({ id: selecionada.id_anuncio })} className="block max-w-full truncate text-xs text-[#724BC2] hover:underline">{selecionada.anuncio}</button></div><button onClick={() => { setMostrarBusca(valor => !valor); setBuscaMensagem('') }} aria-label="Buscar nas mensagens" aria-expanded={mostrarBusca} className="rounded-full bg-[#F3F4F6] p-2.5 text-[#536252]"><Search size={19}/></button></header>
                     {mostrarBusca && <label className="flex items-center gap-2 border-b border-gray-100 px-5 py-3"><Search size={16}/><input autoFocus value={buscaMensagem} onChange={event => setBuscaMensagem(event.target.value)} aria-label="Buscar texto nas mensagens" placeholder="Buscar nas mensagens..." className="w-full text-sm outline-none"/></label>}
                     <div className="min-h-[300px] flex-1 space-y-4 overflow-y-auto bg-[#F0F0F0] px-4 py-6 lg:px-6" role="log" aria-label="Histórico de mensagens" aria-live="polite">
+                        {contextoPendente && <div className="mx-auto max-w-md rounded-2xl border border-purple-100 bg-white p-4 text-xs text-[#724BC2]"><span className="block text-gray-500">Você chegou pelo anúncio</span><button type="button" onClick={() => onAbrirAnuncio({ id: contextoPendente.id })} className="mt-2 flex items-center gap-2 text-left font-semibold hover:underline"><Archive size={18} className="shrink-0" />{contextoPendente.nome}</button><p className="mt-2 text-gray-500">O anúncio será enviado junto com sua próxima mensagem.</p></div>}
                         {!mensagensVisiveis.length && <div className="flex h-full min-h-[250px] flex-col items-center justify-center gap-3 text-center text-[#73806F]"><MessageSquare size={36} className="text-[#724BC2]"/><p className="text-sm">{buscaMensagem ? 'Nenhuma mensagem encontrada.' : 'Comece a conversa sobre este anúncio.'}</p></div>}
                         {mensagensVisiveis.map((item, indice) => {
                             const minha = Number(item.id_remetente) === Number(idUsuario)
                             const data = dia(item.envio)
                             return <div key={item.id}>
                                 {(indice === 0 || dia(mensagensVisiveis[indice - 1].envio) !== data) && data && <div className="mb-5 text-center"><span className="rounded-full bg-[#EDE9FE] px-4 py-1.5 text-xs text-[#536252]">{data}</span></div>}
+                                {(indice === 0 || Number(mensagensVisiveis[indice - 1].id_anuncio) !== Number(item.id_anuncio)) && item.id_anuncio && <button type="button" onClick={() => onAbrirAnuncio({ id: item.id_anuncio })} className="mx-auto mb-5 flex max-w-md items-center gap-3 rounded-2xl border border-purple-100 bg-white px-4 py-3 text-left text-xs text-[#724BC2]"><Archive size={20} className="shrink-0" /><span><span className="block text-gray-500">{indice === 0 ? `${item.remetente} iniciou o contato pelo anúncio` : `${item.remetente} enviou uma mensagem sobre o anúncio`}</span><span className="mt-1 block font-semibold">{item.anuncio}</span><span className="mt-1 block underline">Ver anúncio</span></span></button>}
                                 <div className={`flex ${minha ? 'justify-end' : 'justify-start'}`}><div className="max-w-[88%] sm:max-w-[78%]"><p className={`whitespace-pre-wrap break-words rounded-[20px] px-4 py-3 text-sm leading-relaxed shadow-sm lg:px-5 lg:py-4 ${minha ? 'rounded-br-sm bg-[#724BC2] text-white' : 'rounded-bl-sm bg-white text-[#191C30]'}`}>{item.texto}</p><div className={`mt-1 flex items-center gap-1 px-1 text-[11px] text-[#536252] ${minha ? 'justify-end' : ''}`}><time>{horario(item.envio)}</time>{minha && (Number(item.lida) ? <CheckCheck size={14} className="text-[#4CAF50]" aria-label="Lida"/> : <Check size={14} aria-label="Enviada"/>)}</div></div></div>
                             </div>
                         })}<div ref={fim}/>

@@ -1,6 +1,6 @@
 
-import { useEffect, useState } from "react";
-import { Search, MapPin, Mail, Wallet, MessageSquare } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, UserPen, LogOut } from "lucide-react";
 import ItemNavegacao from "../ui/itemNavegacao.jsx";
 import BotaoHeader from "../ui/botao.jsx";
 import perfil from "../../assets/icons/icones/foto.png";
@@ -34,12 +34,30 @@ export default function Header({
     onAbrirLogin,
     onAbrirCriarConta,
     onAbrirNovoAnuncio,
-    onNavegar
+    onNavegar,
+    onSair
 }) {
     // -----------------------------------------------------------------------
     //                         Estados: interface
     // -----------------------------------------------------------------------
     const [mostrarFiltro, setMostrarFiltro] = useState(false);
+    const [menuPerfil, setMenuPerfil] = useState(false);
+    const [fotoComErro, setFotoComErro] = useState(null);
+    const perfilRef = useRef(null);
+    const botaoPerfilRef = useRef(null);
+
+    useEffect(() => { setMenuPerfil(false); }, [usuario?.id]);
+
+    useEffect(() => {
+        if (!menuPerfil) return;
+        const fora = evento => { if (!perfilRef.current?.contains(evento.target)) setMenuPerfil(false); };
+        const teclado = evento => {
+            if (evento.key === "Escape") { setMenuPerfil(false); botaoPerfilRef.current?.focus(); }
+        };
+        document.addEventListener("pointerdown", fora);
+        document.addEventListener("keydown", teclado);
+        return () => { document.removeEventListener("pointerdown", fora); document.removeEventListener("keydown", teclado); };
+    }, [menuPerfil]);
 
     // -----------------------------------------------------------------------
     //                         Estados: estados (UF)
@@ -164,11 +182,11 @@ export default function Header({
             >
 
                 {/* Logo */}
-                <div className="flex shrink-0 items-center">
+                <button type="button" aria-label="Ecomarket — voltar ao início" onClick={() => { setMenuPerfil(false); setMostrarFiltro(false); onNavegar?.("home"); }} className="flex shrink-0 items-center rounded-md focus-visible:outline-2 focus-visible:outline-[#724BC2]">
                     <p className="whitespace-nowrap font-bold leading-none text-[clamp(25px,2vw,32px)] text-[#4CAF50]">
                         Eco<span className="text-[#724BC2]">market</span>
                     </p>
-                </div>
+                </button>
 
                 {/* Campo de pesquisa */}
                 <div className="relative flex h-[clamp(30px,3.2vw,48px)] min-w-[180px] flex-1 items-center rounded-xl border border-gray-200 bg-white px-[clamp(10px,0.88vw,16px)] shadow-sm">
@@ -298,16 +316,17 @@ export default function Header({
                     <div className={`flex shrink-0 items-center ${GAP_ITEM}`}>
 
                         {/* Perfil do usuário */}
-                        <div className={`flex shrink-0 items-center ${GAP_ITEM}`}>
-                            <img
-                                src={usuario.foto || perfil}
-                                alt="Foto de perfil"
-                                className="h-[clamp(34px,2.5vw,40px)] w-[clamp(34px,2.5vw,40px)] rounded-full object-cover"
-                            />
-
-                            <span className={`whitespace-nowrap ${TEXTO_SM} font-semibold text-black`}>
-                                {usuario.nome}
-                            </span>
+                        <div ref={perfilRef} className="relative" onBlur={evento => { if (!evento.currentTarget.contains(evento.relatedTarget)) setMenuPerfil(false); }}>
+                            <button ref={botaoPerfilRef} type="button" aria-expanded={menuPerfil} aria-controls="menu-perfil" onClick={() => setMenuPerfil(valor => !valor)} className={`flex items-center rounded-full py-1 ${GAP_ITEM} focus-visible:outline-2 focus-visible:outline-[#724BC2]`}>
+                                {fotoComErro !== (usuario.foto || perfil) ? <img src={usuario.foto || perfil} onError={() => setFotoComErro(usuario.foto || perfil)} alt="" className="h-[clamp(34px,2.5vw,40px)] w-[clamp(34px,2.5vw,40px)] rounded-full object-cover" /> : <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEE8FA] font-bold text-[#724BC2]">{usuario.nome?.trim().charAt(0).toUpperCase()}</span>}
+                                <span className={`whitespace-nowrap ${TEXTO_SM} font-semibold text-black`}>{usuario.nome}</span>
+                                <ChevronDown size={16} aria-hidden="true" className={`text-gray-500 transition-transform ${menuPerfil ? 'rotate-180' : ''}`} />
+                            </button>
+                            {menuPerfil && <nav id="menu-perfil" aria-label="Opções do perfil" className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-lg">
+                                <button type="button" disabled title="Em breve" className="flex w-full cursor-not-allowed items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-gray-400"><UserPen size={18} aria-hidden="true" />Editar perfil</button>
+                                <div className="my-1 border-t border-gray-100" />
+                                <button type="button" onClick={() => { setMenuPerfil(false); onSair?.(); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 focus-visible:bg-red-50"><LogOut size={18} aria-hidden="true" />Sair</button>
+                            </nav>}
                         </div>
 
                         {/* Botão anunciar */}

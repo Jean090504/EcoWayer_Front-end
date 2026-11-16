@@ -1,5 +1,5 @@
 import { apiFetch, urlImagem } from './api.js'
-import { registrarNovaSessao } from './sessionService.js'
+import { registrarNovaSessao, limparSessaoLocal } from './sessionService.js'
 
 const resposta = (dados, chave) => dados?.response?.[chave] ?? dados?.[chave] ?? dados
 
@@ -101,7 +101,7 @@ export async function buscarOpcoesAnuncio() {
 }
 
 export function logoutUsuario() {
-    apiFetch('/usuario/logout', { method: 'POST' }).catch(() => {})
-    sessionStorage.removeItem('ecowayer_usuario')
-    sessionStorage.removeItem('ecowayer_token')
+    const pedido = apiFetch('/usuario/logout', { method: 'POST', signal: AbortSignal.timeout(5000) }).catch(() => {})
+    limparSessaoLocal()
+    return pedido
 }
