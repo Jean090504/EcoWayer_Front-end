@@ -95,21 +95,34 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
     useEffect(() => {
         let ativo = true
         if (!idConversa) return () => { ativo = false }
+        let atualizando = false
         async function atualizar() {
+            if (atualizando) return
+            atualizando = true
             try {
                 const itens = await listarMensagens(idConversa)
                 if (!ativo) return
                 setMensagens(itens)
                 const naoLidas = itens.filter(item => Number(item.id_remetente) !== Number(idUsuario) && !Number(item.lida))
-                await Promise.all(naoLidas.map(item => marcarLida(item.id)))
+                if (document.visibilityState === 'visible' && document.hasFocus()) {
+                    await Promise.all(naoLidas.map(item => marcarLida(item.id)))
+                }
                 if (!ativo) return
                 const lista = await listarConversas(idUsuario)
                 if (ativo) setConversas(lista)
             } catch (error) { if (ativo) setErro(error.message) }
+            finally { atualizando = false }
         }
         atualizar()
         const timer = setInterval(atualizar, 5000)
-        return () => { ativo = false; clearInterval(timer) }
+        window.addEventListener('focus', atualizar)
+        document.addEventListener('visibilitychange', atualizar)
+        return () => {
+            ativo = false
+            clearInterval(timer)
+            window.removeEventListener('focus', atualizar)
+            document.removeEventListener('visibilitychange', atualizar)
+        }
     }, [idConversa, idUsuario])
 
     useEffect(() => { fim.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }) }, [mensagens.length])
@@ -160,9 +173,19 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
                 <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
                     {carregando && <p role="status" className="p-4 text-sm text-gray-500">Carregando conversas...</p>}
                     {!carregando && !visiveis.length && <p className="p-4 text-sm leading-relaxed text-gray-500">{busca || filtro !== 'todas' ? 'Nenhuma conversa encontrada.' : 'Suas conversas aparecerão aqui. Abra um anúncio para começar.'}</p>}
-                    {visiveis.map(item => <button disabled={enviando} key={item.id} onClick={() => { setSelecionada(item); setContextoPendente(null); setMensagens([]); setTexto(''); setBuscaMensagem(''); setErro('') }} aria-pressed={item.id === idConversa} className={`flex w-full items-start gap-3 rounded-2xl p-3 text-left transition hover:bg-[#F3F4F6] ${item.id === idConversa ? 'bg-[#F3F4F6]' : ''}`}>
-                        {avatar(nomeContato(item, idUsuario))}<span className="min-w-0 flex-1"><span className="flex items-center justify-between gap-2"><span className="truncate font-semibold">{nomeContato(item, idUsuario)}</span><span className="shrink-0 text-[10px] text-[#4CAF50]">{horario(item.ultimo_envio)}</span></span><span className="mt-1 flex items-center gap-1 text-xs text-[#724BC2]"><Archive size={13} className="shrink-0"/><span className="truncate">{item.anuncio}</span></span><span className="mt-1 flex items-center justify-between gap-2 text-xs text-[#536252]"><span className="truncate">{item.ultima_mensagem || 'Inicie a conversa'}</span>{Number(item.nao_lidas) > 0 && <span className="rounded-full bg-[#4CAF50] px-2 py-0.5 text-white">{item.nao_lidas}</span>}</span></span>
-                    </button>)}
+                    {visiveis.map(item => {
+                        const quantidade = Number(item.nao_lidas || 0)
+                        const naoLida = quantidade > 0
+                        const nome = nomeContato(item, idUsuario)
+                        return <button disabled={enviando} key={item.id} onClick={() => { setSelecionada(item); setContextoPendente(null); setMensagens([]); setTexto(''); setBuscaMensagem(''); setErro('') }} aria-label={`${nome}${naoLida ? `, ${quantidade} ${quantidade === 1 ? 'mensagem não lida' : 'mensagens não lidas'}` : ''}`} aria-pressed={item.id === idConversa} className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition ${naoLida ? 'border-green-100 bg-green-50/70 hover:bg-green-50' : `border-transparent hover:bg-[#F3F4F6] ${item.id === idConversa ? 'bg-[#F3F4F6]' : ''}`}`}>
+                            <span className="relative shrink-0">{avatar(nome)}{naoLida && <span aria-hidden="true" className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#258D43]" />}</span>
+                            <span className="min-w-0 flex-1">
+                                <span className="flex items-center justify-between gap-2"><span className={`truncate text-[#191C30] ${naoLida ? 'font-bold' : 'font-medium'}`}>{nome}</span><span className={`shrink-0 text-[10px] ${naoLida ? 'font-bold text-[#258D43]' : 'text-gray-500'}`}>{horario(item.ultimo_envio)}</span></span>
+                                <span className="mt-1 flex items-center gap-1 text-xs text-[#724BC2]"><Archive size={13} className="shrink-0" /><span className="truncate">{item.anuncio}</span></span>
+                                <span className="mt-1 flex items-center justify-between gap-2 text-xs"><span className={`truncate ${naoLida ? 'font-semibold text-[#191C30]' : 'text-[#536252]'}`}>{item.ultima_mensagem || 'Inicie a conversa'}</span>{naoLida && <span aria-hidden="true" className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[#258D43] px-1.5 text-[10px] font-bold text-white">{quantidade > 99 ? '99+' : quantidade}</span>}</span>
+                            </span>
+                        </button>
+                    })}
                 </div>
             </aside>
             <div className={`${selecionada ? 'flex' : 'hidden md:flex'} min-h-0 min-w-0 flex-col`}>
