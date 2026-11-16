@@ -97,24 +97,40 @@ export default function MapaPontosGoogle({ pontos, selecionadoId, onSelect, cons
   }, [mapReady, pontos, selecionadoId, onSelect]);
 
   useEffect(() => {
-    if (!mapReady || !mapRef.current || !onResultadosExternos) return;
+    const map = mapRef.current;
+    if (!mapReady || !map || !onResultadosExternos) return;
     const busca = consulta.trim();
-    if (busca.length < 3) {
+    const consultas = busca.length >= 3
+      ? [`ecoponto ${busca}, Brasil`]
+      : [
+          "ecoponto, Brasil",
+          "ponto de reciclagem, Brasil",
+          "coleta seletiva, Brasil",
+        ];
+
+    if (!consultas.length) {
       onResultadosExternos([]);
       return undefined;
     }
 
     let ativo = true;
     window.google.maps.importLibrary("places")
-      .then(({ Place }) => Place.searchByText({
-        textQuery: `ecoponto ${busca}, Brasil`,
-        fields: ["displayName", "formattedAddress", "location", "id"],
-        maxResultCount: 20,
-        language: "pt-BR",
-        region: "BR",
-      }))
-      .then(({ places }) => {
-        if (ativo) onResultadosExternos(lugaresToPontos(places || []));
+      .then(async ({ Place }) => {
+        const locationBias = map.getBounds() || map.getCenter();
+        const respostas = await Promise.all(
+          consultas.map((textQuery) => Place.searchByText({
+            textQuery,
+            fields: ["displayName", "formattedAddress", "location", "id"],
+            maxResultCount: 20,
+            language: "pt-BR",
+            region: "BR",
+            locationBias,
+          }))
+        );
+        return respostas.flatMap(({ places }) => places || []);
+      })
+      .then((lugares) => {
+        if (ativo) onResultadosExternos(lugaresToPontos(lugares));
       })
       .catch(() => {
         if (ativo) onResultadosExternos([]);
@@ -152,8 +168,13 @@ export default function MapaPontosGoogle({ pontos, selecionadoId, onSelect, cons
 }
 
 function lugaresToPontos(lugares) {
+  const ids = new Set();
   return lugares
-    .filter((lugar) => lugar.location && lugar.id)
+    .filter((lugar) => {
+      if (!lugar.location || !lugar.id || ids.has(lugar.id)) return false;
+      ids.add(lugar.id);
+      return true;
+    })
     .map((lugar) => ({
       id: `google-${lugar.id}`,
       nome: lugar.displayName || "Ecoponto encontrado no Google Maps",
