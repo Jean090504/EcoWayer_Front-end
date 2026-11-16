@@ -4,6 +4,20 @@ import { buscarAnuncio } from '../services/userService.js';
 import CardAnunciante from '../components/cards/detalhesAnuncio/cardAnunciante.jsx';
 import CardAnuncioRelacionado from '../components/cards/detalhesAnuncio/cardAnuncioRelacionado.jsx';
 
+function formatarDataPublicacao(valor) {
+    const partes = String(valor || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return partes ? `${partes[3]}/${partes[2]}/${partes[1]}` : 'Data não informada';
+}
+
+function textoPreco(anuncio) {
+    const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (modalidade === 'doacao') return 'Grátis (Doação)';
+    if (modalidade === 'troca') return 'Troca';
+    const preco = Number(anuncio.preco);
+    if (anuncio.preco == null || String(anuncio.preco).trim() === '' || !Number.isFinite(preco) || preco <= 0) return 'Preço não informado';
+    return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
 export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onConversar }) {
     const [anuncio, setAnuncio] = useState(null);
     const [fotoAtiva, setFotoAtiva] = useState(0);
@@ -23,7 +37,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
     async function compartilhar() {
         try {
             // Sem rotas por anúncio, compartilha os dados sem inventar uma URL.
-            const texto = anuncio.nome + ' — ' + anuncio.preco + ' | EcoWayer';
+            const texto = anuncio.nome + ' — ' + textoPreco(anuncio) + ' | EcoWayer';
             if (navigator.share) await navigator.share({ title: anuncio.nome, text: texto });
             else if (navigator.clipboard) { await navigator.clipboard.writeText(texto); setAviso('Informações do anúncio copiadas.'); }
             else setAviso(texto);
@@ -43,12 +57,21 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                     <section className="rounded-[26px] bg-white p-6 shadow-sm sm:p-8"><h2 className="mb-7 flex items-center gap-2 text-base font-semibold text-[#724BC2]"><Archive size={18} />Especificações do material</h2><dl className="grid grid-cols-2 gap-5"><div><dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Volume / peso</dt><dd className="mt-1 text-lg font-bold">{anuncio.peso}</dd><dd className="mt-1 text-xs text-gray-500">{anuncio.quantidade}</dd></div><div><dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Estado</dt><dd className="mt-1 text-lg font-bold text-[#4CAF50]">{anuncio.estado}</dd><dd className="mt-1 text-xs text-gray-500">{anuncio.conservacao}</dd></div></dl></section>
                 </div>
                 <div className="min-w-0 space-y-3">
-                    <section className="rounded-[26px] bg-white p-6 shadow-sm"><div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-[10px]"><span className="font-semibold uppercase tracking-wider text-[#724BC2]">{anuncio.categoria} · {anuncio.subcategoria}</span><span className="text-gray-500">{anuncio.publicado}</span></div><h1 className="text-2xl font-bold leading-tight sm:text-[30px]">{anuncio.nome}</h1><p className="my-4 flex flex-wrap items-baseline gap-2"><span className="text-[34px] font-bold tracking-tight text-[#4CAF50]">{anuncio.preco}</span><span className="text-xs text-gray-600">{anuncio.unidade}</span></p><p className="mb-5 flex items-start gap-2 text-xs leading-relaxed"><RefreshCw size={23} className="shrink-0 rounded-full bg-[#724BC2] p-1 text-white" />{anuncio.troca}</p><div className="space-y-2"><button type="button" onClick={() => onConversar(anuncio)} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#724BC2] px-4 py-3 text-sm font-semibold text-white hover:bg-[#603ca8]"><MessageSquare size={16} />Conversar com anunciante</button></div></section>
-                    <CardAnunciante vendedor={anuncio.vendedor} onVerPerfil={() => demonstrar('Perfil do anunciante')} onDenunciar={() => demonstrar('Denúncia de anúncio')} />
+                    <section className="rounded-[26px] bg-white p-6 shadow-sm">
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-[10px]">
+                            <span className="font-semibold uppercase tracking-wider text-[#724BC2]">{[anuncio.categoria, anuncio.subcategoria].filter(Boolean).join(' · ')}</span>
+                            <span className="text-gray-500">{formatarDataPublicacao(anuncio.publicado)}</span>
+                        </div>
+                        <h1 className="text-2xl font-bold leading-tight sm:text-[30px]">{anuncio.nome}</h1>
+                        <p className="my-5 text-[30px] font-bold leading-tight tracking-tight text-[#4CAF50] sm:text-[34px]">{textoPreco(anuncio)}</p>
+                        {anuncio.troca?.trim() && <p className="mb-5 flex items-start gap-2 text-xs leading-relaxed"><RefreshCw size={23} aria-hidden="true" className="shrink-0 rounded-full bg-[#724BC2] p-1 text-white" />{anuncio.troca}</p>}
+                        <button type="button" onClick={() => onConversar(anuncio)} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#724BC2] px-4 py-3 text-sm font-semibold text-white hover:bg-[#603ca8]"><MessageSquare size={16} />Conversar com anunciante</button>
+                    </section>
+                    <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={() => demonstrar('Denúncia de anúncio')} />
                 </div>
             </div>
             <section className="my-7 rounded-[26px] bg-white p-6 shadow-sm sm:p-8"><h2 className="mb-6 text-base font-semibold">Descrição detalhada</h2><p className="whitespace-pre-line text-sm leading-relaxed text-[#3E4A3D]">{anuncio.descricao}</p></section>
-            <section className="pb-2 pt-3"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold">Outros anúncios em destaque deste vendedor</h2><button type="button" onClick={() => demonstrar('Todos os anúncios do vendedor')} className="flex items-center gap-1 text-xs font-medium text-[#724BC2] hover:underline">Ver todos os itens de {anuncio.vendedor.nome.split(' ')[0]}<ArrowRight size={14} /></button></div><div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">{anuncio.outrosAnuncios.map(item => <CardAnuncioRelacionado key={item.id} anuncio={item} favoritado={favoritos.includes(item.id)} onFavoritar={() => favoritar(item.id)} onAbrir={() => onAbrirAnuncio(item)} />)}</div></section>
+            <section className="pb-2 pt-3"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold">Outros anúncios em destaque deste vendedor</h2><button type="button" onClick={() => demonstrar('Todos os anúncios do vendedor')} className="flex items-center gap-1 text-xs font-medium text-[#724BC2] hover:underline">Ver todos os itens de {anuncio.vendedor?.nome?.split(' ')[0] || 'anunciante'}<ArrowRight size={14} /></button></div><div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">{anuncio.outrosAnuncios.map(item => <CardAnuncioRelacionado key={item.id} anuncio={item} favoritado={favoritos.includes(item.id)} onFavoritar={() => favoritar(item.id)} onAbrir={() => onAbrirAnuncio(item)} />)}</div></section>
         </div>
     </div>;
 }

@@ -56,7 +56,7 @@ export async function buscarAnuncio(id) {
         estado: anuncio?.estado || anuncio?.status || 'Ativo',
         conservacao: anuncio?.conservacao || '',
         troca: anuncio?.troca || '',
-        vendedor: anuncio?.vendedor || { nome: 'Usuário EcoWayer' },
+        vendedor: anuncio?.vendedor ? { ...anuncio.vendedor, foto: urlImagem(anuncio.vendedor.foto) } : null,
         outrosAnuncios: anuncio?.outrosAnuncios || []
     }
 }
