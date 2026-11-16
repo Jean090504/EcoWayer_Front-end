@@ -1,4 +1,5 @@
 // src/services/api.js
+import { lerToken, geracaoSessao, encerrarSeAtual } from './sessionService.js'
 
 // Garante que o prefixo '/meraki/ecowayer/admin' sempre esteja presente
 const RAW_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
@@ -6,11 +7,12 @@ const BASE_ORIGIN = RAW_URL.replace(/\/+$/, '').replace('/meraki/ecowayer/admin'
 const API_BASE_URL = `${BASE_ORIGIN}/meraki/ecowayer/admin`
 
 export async function apiFetch(endpoint, options = {}) {
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+  const token = lerToken()
+  const geracaoRequisicao = geracaoSessao()
 
   const headers = {
     'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(token && !endpoint.includes('/acesso/login') && { Authorization: `Bearer ${token}` }),
     ...options.headers
   }
 
@@ -30,9 +32,7 @@ export async function apiFetch(endpoint, options = {}) {
   // No login, o 401 precisa voltar para a tela para que ela mostre a mensagem.
   // Nas demais rotas, a sessão expirada deve levar o usuário ao login.
   if (response.status === 401 && !endpoint.includes('/acesso/login')) {
-    localStorage.removeItem('token')
-    sessionStorage.removeItem('token')
-    window.dispatchEvent(new Event('auth:expired'))
+    encerrarSeAtual(geracaoRequisicao, token)
     throw new Error('Sessão expirada. Faça login novamente.')
   }
 
