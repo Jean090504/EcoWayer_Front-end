@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Search, Calendar, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight } from "lucide-react"
 import CardTransacao from "./cardTransacao"
 
 const POR_PAGINA = 7
@@ -9,20 +9,11 @@ const FILTROS = [
   { id: "entrega", label: "Entregas em EcoPontos" },
   { id: "resgate", label: "Resgates" },
   { id: "venda", label: "Vendas no Marketplace" },
+  { id: "credito", label: "Créditos" },
   { id: "bonus", label: "Bônus Gamificação" },
 ]
 
-const transacoes = [
-  { id: 1, tipo: "entrega", icone: "reciclagem", cor: "verde", titulo: "Entrega de Plástico PET (12kg)", status: "Confirmado", local: "EcoPonto Pinheiros", quando: "Há 2 dias", pontos: 120 },
-  { id: 2, tipo: "resgate", icone: "resgate", cor: "verde", titulo: "Resgate de Cupom Feira Orgânica R$30", status: "Concluído", local: "Vale Compra Digital", quando: "Há 4 dias", pontos: -300 },
-  { id: 3, tipo: "entrega", icone: "metais", cor: "roxo", titulo: "Entrega de Alumínio & Metais (8kg)", status: "Confirmado", local: "EcoPonto Vila Madalena", quando: "Há 1 semana", pontos: 240 },
-  { id: 4, tipo: "venda", icone: "bicicleta", cor: "verde", titulo: "Venda de Bicicleta Reformada", status: "Confirmado", local: "Marketplace Ecowayer", quando: "Há 2 semanas", pontos: 450 },
-  { id: 5, tipo: "bonus", icone: "bonus", cor: "roxo", titulo: "Bônus Nível Guardião Circular", status: "Creditado", local: "Conquista da Comunidade", quando: "Há 3 semanas", pontos: 150},
-  { id: 6, tipo: "entrega", icone: "reciclagem", cor: "verde", titulo: "Entrega de Plástico PET (12kg)", status: "Confirmado", local: "EcoPonto Pinheiros", quando: "Há 2 dias", pontos: 120 },
-  { id: 7, tipo: "entrega", icone: "metais", cor: "roxo", titulo: "Entrega de Alumínio & Metais (8kg)", status: "Confirmado", local: "EcoPonto Vila Madalena", quando: "Há 1 semana", pontos: 240 },
-]
-
-export default function CardHistorico() {
+export default function CardHistorico({ transacoes = [] }) {
   const [filtro, setFiltro] = useState("todas")
   const [busca, setBusca] = useState("")
   const [pagina, setPagina] = useState(1)
@@ -52,11 +43,7 @@ export default function CardHistorico() {
       <div className="flex items-start justify-between">
         <h2 className="text-[24px] font-semibold text-[#191C1E]">Histórico de Transações</h2>
 
-        <button className="flex items-center gap-2 rounded-full bg-[#F3F3F3] px-4 py-2 text-[12px] font-semibold text-[#3E4A3D] cursor-pointer">
-          <Calendar size={14} />
-          Últimos 30 dias
-          <ChevronDown size={14} />
-        </button>
+
       </div>
 
       {/* Filtros */}

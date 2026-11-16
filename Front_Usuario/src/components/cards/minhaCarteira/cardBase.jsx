@@ -7,7 +7,7 @@ export default function CardBase({ titulo, valor, destaque, children, rodape }) 
       </div>
 
       <p className="mt-4 text-[40px] leading-none font-extrabold text-[#191C1E]">
-        {valor.toLocaleString("pt-BR")}{" "}
+        {valor == null ? "—" : valor.toLocaleString("pt-BR")}{" "}
         <span className="text-[18px] font-semibold text-[#3E4A3D]">pts</span>
       </p>
 

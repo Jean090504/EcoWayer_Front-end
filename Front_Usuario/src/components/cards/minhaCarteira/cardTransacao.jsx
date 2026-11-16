@@ -10,6 +10,7 @@ const ICONES = {
 
 const ICONES_LOCAL = {
   entrega: MapPin,
+  credito: Award,
   resgate: Store,
   venda: ArrowLeftRight,
   bonus: Users,

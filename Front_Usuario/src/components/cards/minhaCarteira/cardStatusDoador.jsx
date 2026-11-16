@@ -7,6 +7,12 @@ export default function CardStatusDoador({
   pontosAtuais,
   pontosMeta,
 }) {
+  if (nivel == null) return (
+    <div className="flex flex-col bg-white rounded-2xl p-6">
+      <h2 className="text-[16px] font-semibold text-[#191C1E]">Status de Doador</h2>
+      <p className="mt-5 text-sm text-[#3E4A3D]">Seu nível de doador ainda não está disponível.</p>
+    </div>
+  )
   const porcentagem = Math.min(100, Math.round((pontosAtuais / pontosMeta) * 100))
   const faltam = Math.max(0, pontosMeta - pontosAtuais)
 
