@@ -1,7 +1,5 @@
 import { useState } from "react"
-
-const AI_URL = import.meta.env.VITE_AI_URL || "http://localhost:3333/api/v1/ai"
-const AI_TOKEN = import.meta.env.VITE_AI_TOKEN || ""
+import { apiFetch } from "../services/api.js"
 
 export default function AssistenteChat() {
   const [aberto, setAberto] = useState(false)
@@ -18,13 +16,11 @@ export default function AssistenteChat() {
     setHistorico(proximo)
     setCarregando(true)
     try {
-      const res = await fetch(`${AI_URL}/assistant/chat`, {
+      const data = await apiFetch('/ia/assistant-chat', {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(AI_TOKEN && { "x-ai-token": AI_TOKEN }) },
         body: JSON.stringify({ message: texto, history: proximo.slice(-10) }),
       })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.error || "Não foi possível falar com o assistente.")
+      if (!data?.resposta) throw new Error(data?.error || data?.message || "Não foi possível falar com o assistente.")
       setHistorico((atual) => [...atual, { role: "model", text: data.resposta }])
     } catch (error) {
       setHistorico((atual) => [...atual, { role: "model", text: error.message }])

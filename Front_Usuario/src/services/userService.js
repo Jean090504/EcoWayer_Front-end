@@ -11,8 +11,7 @@ function dataParaApi(data) {
 export async function loginUsuario(email, senha) {
     const dados = await apiFetch('/usuario/login', { method: 'POST', body: JSON.stringify({ email, senha }) })
     const autenticacao = dados.response || dados
-    if (!autenticacao.token || !autenticacao.usuario) throw new Error('A API não retornou os dados de autenticação.')
-    sessionStorage.setItem('ecowayer_token', autenticacao.token)
+    if (!autenticacao.usuario) throw new Error('A API não retornou os dados de autenticação.')
     sessionStorage.setItem('ecowayer_usuario', JSON.stringify(autenticacao.usuario))
     return autenticacao.usuario
 }
@@ -80,6 +79,6 @@ export async function publicarAnuncio(dados, idUsuario) {
 }
 
 export function logoutUsuario() {
-    sessionStorage.removeItem('ecowayer_token')
+    apiFetch('/usuario/logout', { method: 'POST' }).catch(() => {})
     sessionStorage.removeItem('ecowayer_usuario')
 }

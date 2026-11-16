@@ -377,14 +377,18 @@ export default function CreateAccount({
                         <span>
                             Aceito os{" "}
                             <a
-                                href="#termos"
+                                href="/termos.html"
+                                target="_blank"
+                                rel="noreferrer"
                                 className="font-medium text-[#399B43] underline underline-offset-2"
                             >
                                 Termos de Serviço
                             </a>{" "}
                             e{" "}
                             <a
-                                href="#privacidade"
+                                href="/privacidade.html"
+                                target="_blank"
+                                rel="noreferrer"
                                 className="font-medium text-[#399B43] underline underline-offset-2"
                             >
                                 Privacidade
