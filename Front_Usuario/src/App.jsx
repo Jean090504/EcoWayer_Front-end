@@ -2,33 +2,29 @@ import { useState } from "react"
 
 import Header from "./components/layout/header.jsx"
 import Footer from "./components/layout/footer.jsx"
+import Login from "./components/cards/conta/cardLogin.jsx"
+import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx"
+import mockPerfil from "./mocks/mockMeuPerfil.js"
 
-import Login from "./components/cards/conta/cardLogin.jsx";
-import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx";
-
-import Home from "./pages/Home.jsx";
-import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx";
+import Home from "./pages/Home.jsx"
+import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx"
 import MinhaCarteira from "./pages/MinhaCarteira.jsx"
 import PontosBeneficios from "./pages/PontosBeneficios.jsx"
 import Insignias from "./pages/Insignias.jsx"
 import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
+import TelaMeuPerfil from "./pages/meuPerfil.jsx"
 
 export default function App() {
-    const [usuario, setUsuario] = useState(null)
-
+    const [usuario, setUsuario] = useState(mockPerfil.usuario)
     const [telaAtiva, setTelaAtiva] = useState("home")
-
-    // Controla a abertura dos cards.
     const [abrirLogin, setAbrirLogin] = useState(false)
     const [abrirCadastro, setAbrirCadastro] = useState(false)
 
-    // Executada quando o login for realizado com sucesso.
     function realizarLogin(dadosUsuario) {
         setUsuario(dadosUsuario)
         setAbrirLogin(false)
     }
 
-    // Controla a navegação entre as telas.
     function navegar(tela) {
         setTelaAtiva(tela)
     }
@@ -44,20 +40,13 @@ export default function App() {
             />
 
             <main className="flex flex-1 flex-col">
-                {telaAtiva === "home" && (
-                    <Home onNavegar={navegar} />
-                )}
-
-                {telaAtiva === "avaliacao" && (
-                    <AvaliacaoAnuncio onNavegar={navegar} />
-                )}
-
-                {telaAtiva === "novoAnuncio" && (
-                    <CriarNovoAnuncio onNavegar={navegar} />
-                )}
+                {telaAtiva === "home" && <Home onNavegar={navegar} />}
+                {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
+                {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
+                {telaAtiva === "perfil" && <TelaMeuPerfil />}
             </main>
 
             <Footer />
@@ -77,8 +66,8 @@ export default function App() {
                 <FluxoCriarConta
                     onClose={() => setAbrirCadastro(false)}
                     onContaCriada={(novoUsuario) => {
-                        setUsuario(novoUsuario);
-                        setAbrirCadastro(false);
+                        setUsuario(novoUsuario)
+                        setAbrirCadastro(false)
                     }}
                 />
             )}
