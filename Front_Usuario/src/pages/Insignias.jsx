@@ -1,85 +1,56 @@
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import CardProgresso from "../components/cards/insignia/cardProgresso"
 import CardInsignia from "../components/cards/insignia/cardInsignia"
 import Botao from "../components/ui/botao"
-
-const FILTROS = [
-  { key: "todas", label: "Todas as Insígnias (24)" },
-  { key: "conquistado", label: "Conquistadas (12)" },
-  { key: "em_progresso", label: "Em Progresso (6)" },
-  { key: "bloqueado", label: "Bloqueadas (6)" },
-]
-
-const INSIGNIAS = [
-  {
-    id: 1,
-    status: "conquistado",
-    badge: "Conquistado",
-    title: "Primeiro Passo Verde",
-    footerLeft: "Desbloqueado em 14/04/2024",
-    footerRight: "+150 XP",
-  },
-  {
-    id: 2,
-    status: "conquistado",
-    badge: "Conquistado",
-    title: "Guardião da Celulose",
-    footerLeft: "58 / 50 kg reciclados",
-    footerRight: "+300 XP",
-  },
-  {
-    id: 3,
-    status: "conquistado",
-    badge: "Conquistado",
-    title: "Mestre do Reuso",
-    footerLeft: "5 / 5 transações",
-  },
-  {
-    id: 4,
-    status: "em_progresso",
-    badge: "Faltam 3 descartes",
-    title: "Muralha do E-Lixo",
-    description:
-      "Descarte consciente de 10 itens eletrônicos, cabos ou periféricos em pontos com destinação segura.",
-    progress: { label: "7 de 10 descartes", value: 7, total: 10 },
-    footerLeft: "Recompensa: +450 XP",
-    footerRight: "EcoPonto sugerido ›",
-  },
-  {
-    id: 5,
-    status: "em_progresso",
-    badge: "Em andamento",
-    title: "Sequência Ecológica 30 Dias",
-    description:
-      "Registre pelo menos uma ação regenerativa por semana durante um mês consecutivo.",
-    progress: { label: "3 de 4 semanas ativas", value: 3, total: 4 },
-    footerLeft: "Expira em: 6 dias",
-    footerRight: "+350 XP",
-  },
-  {
-    id: 6,
-    status: "bloqueado",
-    badge: "Bloqueado (Requer Nível 5)",
-    title: "Voz da Comunidade",
-    description:
-      "Ajude a cadastrar, validar e auditar voluntariamente um novo EcoPonto comunitário em seu bairro.",
-    footerLeft: "Expira em: 6 dias",
-    footerRight: "+350 XP",
-  },
-]
+import { listarInsignias, listarInsigniasUsuario } from "../services/userService"
 
 export default function Insignias() {
   const [filtroAtivo, setFiltroAtivo] = useState("todas")
+  const [insignias, setInsignias] = useState([])
+  const [erro, setErro] = useState("")
+
+  useEffect(() => {
+    Promise.all([listarInsignias(), listarInsigniasUsuario()])
+      .then(([catalogo, vinculos]) => {
+        const porInsignia = new Map(vinculos.map((item) => [Number(item.id_insignia), item]))
+        setInsignias(catalogo.map((item) => {
+          const vinculo = porInsignia.get(Number(item.id))
+          const progresso = Number(vinculo?.progresso || 0)
+          const meta = Number(item.meta || 0)
+          const conquistada = String(vinculo?.status || "").toLowerCase().includes("concl") || (meta > 0 && progresso >= meta)
+          const status = conquistada ? "conquistado" : vinculo ? "em_progresso" : "bloqueado"
+          return {
+            id: item.id,
+            status,
+            badge: conquistada ? "Conquistado" : vinculo ? "Em progresso" : "Bloqueado",
+            title: item.nome,
+            description: item.descricao,
+            progress: meta > 0 ? { label: `${progresso} de ${meta} ${item.unidade || "unidades"}`, value: progresso, total: meta } : null,
+            footerLeft: item.unidade ? `Meta: ${item.meta} ${item.unidade}` : "Meta cadastrada no backend",
+            footerRight: vinculo?.status || "Disponível",
+          }
+        }))
+      })
+      .catch((error) => setErro(error.message))
+  }, [])
+
+  const filtros = useMemo(() => [
+    { key: "todas", label: `Todas as Insígnias (${insignias.length})` },
+    { key: "conquistado", label: `Conquistadas (${insignias.filter((i) => i.status === "conquistado").length})` },
+    { key: "em_progresso", label: `Em Progresso (${insignias.filter((i) => i.status === "em_progresso").length})` },
+    { key: "bloqueado", label: `Bloqueadas (${insignias.filter((i) => i.status === "bloqueado").length})` },
+  ], [insignias])
 
   const insigniasFiltradas =
     filtroAtivo === "todas"
-      ? INSIGNIAS
-      : INSIGNIAS.filter((i) => i.status === filtroAtivo)
+      ? insignias
+      : insignias.filter((i) => i.status === filtroAtivo)
 
   return (
     <main className="flex w-full flex-1 justify-center bg-[#FAF8FF]">
       <div className="flex w-[85%] flex-col gap-8 px-6 py-8">
         <h1 className="text-[30px] font-bold">Jornada Circular & Insígnias</h1>
+        {erro && <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-600">{erro}</p>}
 
         <CardProgresso
           nivel={4}
@@ -91,7 +62,7 @@ export default function Insignias() {
 
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-3">
-            {FILTROS.map((f) => (
+            {filtros.map((f) => (
               <Botao
                 key={f.key}
                 onClick={() => setFiltroAtivo(f.key)}

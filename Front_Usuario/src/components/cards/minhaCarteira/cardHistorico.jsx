@@ -12,24 +12,14 @@ const FILTROS = [
   { id: "bonus", label: "Bônus Gamificação" },
 ]
 
-const transacoes = [
-  { id: 1, tipo: "entrega", icone: "reciclagem", cor: "verde", titulo: "Entrega de Plástico PET (12kg)", status: "Confirmado", local: "EcoPonto Pinheiros", quando: "Há 2 dias", pontos: 120 },
-  { id: 2, tipo: "resgate", icone: "resgate", cor: "verde", titulo: "Resgate de Cupom Feira Orgânica R$30", status: "Concluído", local: "Vale Compra Digital", quando: "Há 4 dias", pontos: -300 },
-  { id: 3, tipo: "entrega", icone: "metais", cor: "roxo", titulo: "Entrega de Alumínio & Metais (8kg)", status: "Confirmado", local: "EcoPonto Vila Madalena", quando: "Há 1 semana", pontos: 240 },
-  { id: 4, tipo: "venda", icone: "bicicleta", cor: "verde", titulo: "Venda de Bicicleta Reformada", status: "Confirmado", local: "Marketplace Ecowayer", quando: "Há 2 semanas", pontos: 450 },
-  { id: 5, tipo: "bonus", icone: "bonus", cor: "roxo", titulo: "Bônus Nível Guardião Circular", status: "Creditado", local: "Conquista da Comunidade", quando: "Há 3 semanas", pontos: 150},
-  { id: 6, tipo: "entrega", icone: "reciclagem", cor: "verde", titulo: "Entrega de Plástico PET (12kg)", status: "Confirmado", local: "EcoPonto Pinheiros", quando: "Há 2 dias", pontos: 120 },
-  { id: 7, tipo: "entrega", icone: "metais", cor: "roxo", titulo: "Entrega de Alumínio & Metais (8kg)", status: "Confirmado", local: "EcoPonto Vila Madalena", quando: "Há 1 semana", pontos: 240 },
-]
-
-export default function CardHistorico() {
+export default function CardHistorico({ transacoes = [] }) {
   const [filtro, setFiltro] = useState("todas")
   const [busca, setBusca] = useState("")
   const [pagina, setPagina] = useState(1)
 
   const filtradas = transacoes.filter((t) => {
     const tipoOk = filtro === "todas" || t.tipo === filtro
-    const texto = `${t.titulo} ${t.local} ${t.detalhe}`.toLowerCase()
+    const texto = `${t.titulo} ${t.local} ${t.detalhe || ''}`.toLowerCase()
     return tipoOk && texto.includes(busca.toLowerCase())
   })
 

@@ -37,6 +37,66 @@ export async function buscarAnuncios() {
     return resposta(dados, 'anuncio') || []
 }
 
+export async function listarPontosUsuario() {
+    try {
+        const dados = await apiFetch('/pontos')
+        return resposta(dados, 'pontos') || []
+    } catch (erro) {
+        if (erro.message?.includes('404')) return []
+        throw erro
+    }
+}
+
+export async function listarEntregasUsuario() {
+    try {
+        const dados = await apiFetch('/entrega')
+        return resposta(dados, 'entrega') || []
+    } catch (erro) {
+        if (erro.message?.includes('404')) return []
+        throw erro
+    }
+}
+
+export async function listarInsignias() {
+    try {
+        const dados = await apiFetch('/insignia')
+        return resposta(dados, 'insignia') || []
+    } catch (erro) {
+        if (erro.message?.includes('404')) return []
+        throw erro
+    }
+}
+
+export async function listarInsigniasUsuario() {
+    try {
+        const dados = await apiFetch('/usuario_insignia')
+        return resposta(dados, 'usuario_insignia') || []
+    } catch (erro) {
+        if (erro.message?.includes('404')) return []
+        throw erro
+    }
+}
+
+export async function listarRecompensas() {
+    try {
+        const dados = await apiFetch('/voucher_catalogo')
+        return resposta(dados, 'voucher_catalogo') || []
+    } catch (erro) {
+        if (erro.message?.includes('404')) return []
+        throw erro
+    }
+}
+
+export async function listarVouchersUsuario() {
+    try {
+        const dados = await apiFetch('/voucher')
+        return resposta(dados, 'voucher') || []
+    } catch (erro) {
+        if (erro.message?.includes('404')) return []
+        throw erro
+    }
+}
+
 export async function buscarAnuncio(id) {
     const dados = await apiFetch(`/anuncio/${id}`)
     const anuncio = resposta(dados, 'anuncio')
