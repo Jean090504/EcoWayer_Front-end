@@ -4,7 +4,7 @@ import Desempenho from "../components/cards/perfil/cardDesempenho";
 import AnunciosPublicados from "../components/cards/perfil/cardCatalogoDeAnuncios";
 import { buscarAnuncios, buscarPerfil } from "../services/userService.js";
 
-export default function Perfil() {
+export default function Perfil({ onNavegar }) {
     const sessao = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null");
     const [dados, setDados] = useState(null);
     const [erro, setErro] = useState("");
@@ -19,7 +19,7 @@ export default function Perfil() {
                     ...anuncio,
                     titulo: anuncio.nome,
                     categoria: anuncio.categoria || "EcoWayer",
-                    modalidade: anuncio.id_modalidade,
+                    modalidade: String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(),
                     imagem: anuncio.imagem || "",
                     views: Number(anuncio.views || 0),
                     preco: Number(anuncio.preco || 0)
@@ -34,7 +34,11 @@ export default function Perfil() {
 
     const anuncios = [...dados.anuncios].sort((a, b) => ordenacao === "antigos" ? a.id - b.id : b.id - a.id);
     return <div className="flex flex-col gap-10 bg-[#F8F7FE] px-4 py-10 sm:px-[74px]">
-        <DadosConta usuario={dados.usuario} />
+        <DadosConta
+            usuario={dados.usuario}
+            onExtratoCarteira={() => onNavegar("minhaCarteira")}
+            onNovoAnuncio={() => onNavegar("novoAnuncio")}
+        />
         <Desempenho desempenho={dados.desempenho} />
         <AnunciosPublicados anuncios={anuncios} atualizadoEm="agora" abaAtiva={abaAtiva} abaComNotificacao="" ordenacao={ordenacao} onMudarAba={setAbaAtiva} onMudarOrdenacao={setOrdenacao} />
     </div>;

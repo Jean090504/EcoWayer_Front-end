@@ -6,6 +6,7 @@ import CardAnuncioRelacionado from '../components/cards/detalhesAnuncio/cardAnun
 
 export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onConversar }) {
     const [anuncio, setAnuncio] = useState(null);
+    const [fotoAtiva, setFotoAtiva] = useState(0);
     const [erro, setErro] = useState('');
     const [tentativa, setTentativa] = useState(0);
     const [favoritos, setFavoritos] = useState([]);
@@ -14,7 +15,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
         let ativo = true;
         const id = anuncioSelecionado?.id;
         if (!id) { setErro('Anúncio inválido.'); return () => { ativo = false; }; }
-        buscarAnuncio(id).then(dados => { if (ativo) setAnuncio(dados); }).catch(error => { if (ativo) setErro(error.message || 'Não foi possível carregar o anúncio.'); });
+        buscarAnuncio(id).then(dados => { if (ativo) { setAnuncio(dados); setFotoAtiva(0); } }).catch(error => { if (ativo) setErro(error.message || 'Não foi possível carregar o anúncio.'); });
         return () => { ativo = false; };
     }, [anuncioSelecionado, tentativa]);
     function favoritar(id) { setFavoritos(atuais => atuais.includes(id) ? atuais.filter(item => item !== id) : [...atuais, id]); }
@@ -37,7 +38,8 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
             {aviso && <div role="status" className="mb-4 flex items-center justify-between gap-4 rounded-xl border border-purple-100 bg-white px-4 py-3 text-sm text-[#724BC2]"><span>{aviso}</span><button type="button" onClick={() => setAviso('')} aria-label="Fechar aviso" className="px-2 text-lg">×</button></div>}
             <div className="grid items-start gap-6 lg:grid-cols-[1.43fr_1fr]">
                 <div className="min-w-0 space-y-6">
-                    <img src={anuncio.imagem} alt={anuncio.nome} className="aspect-[1.67] w-full rounded-[26px] bg-gray-100 object-cover" />
+                    <img src={anuncio.imagens[fotoAtiva] || anuncio.imagem} alt={anuncio.nome} className="aspect-[1.67] w-full rounded-[26px] bg-gray-100 object-cover" />
+                    {anuncio.imagens.length > 1 && <div className="flex gap-3 overflow-x-auto" aria-label="Fotos do anúncio">{anuncio.imagens.map((url, indice) => <button key={url} type="button" onClick={() => setFotoAtiva(indice)} aria-label={`Ver foto ${indice + 1}`} aria-pressed={fotoAtiva === indice} className={`shrink-0 overflow-hidden rounded-xl border-2 ${fotoAtiva === indice ? 'border-[#724BC2]' : 'border-transparent'}`}><img src={url} alt={`Foto ${indice + 1} de ${anuncio.nome}`} className="h-20 w-24 object-cover" /></button>)}</div>}
                     <section className="rounded-[26px] bg-white p-6 shadow-sm sm:p-8"><h2 className="mb-7 flex items-center gap-2 text-base font-semibold text-[#724BC2]"><Archive size={18} />Especificações do material</h2><dl className="grid grid-cols-2 gap-5"><div><dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Volume / peso</dt><dd className="mt-1 text-lg font-bold">{anuncio.peso}</dd><dd className="mt-1 text-xs text-gray-500">{anuncio.quantidade}</dd></div><div><dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Estado</dt><dd className="mt-1 text-lg font-bold text-[#4CAF50]">{anuncio.estado}</dd><dd className="mt-1 text-xs text-gray-500">{anuncio.conservacao}</dd></div></dl></section>
                 </div>
                 <div className="min-w-0 space-y-3">

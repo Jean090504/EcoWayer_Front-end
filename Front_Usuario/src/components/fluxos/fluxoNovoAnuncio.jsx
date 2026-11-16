@@ -21,7 +21,7 @@ export default function FluxoCriarAnuncio({ onNavegar }) {
         const usuario = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null");
         if (!usuario?.id) throw new Error("Faça login antes de publicar um anúncio.");
         await publicarAnuncio(dados, usuario.id);
-        onNavegar("home");
+        onNavegar("perfil");
     }
 
     // Salva o rascunho e volta pra home

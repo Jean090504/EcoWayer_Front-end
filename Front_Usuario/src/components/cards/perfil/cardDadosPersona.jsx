@@ -18,6 +18,11 @@ function pegarInicial(nome) {
     return (nome ?? "").trim().charAt(0).toUpperCase();
 }
 
+function formatarDataMembro(valor) {
+    const data = String(valor ?? "").match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s]|$)/);
+    return data ? `${data[3]}/${data[2]}/${data[1]}` : valor;
+}
+
 
 // ===================================================================
 //                            CONSTANTES
@@ -69,8 +74,8 @@ function InfoComIcone({ Icone, children }) {
 //   usuario            -> { nome, foto, localizacao, membroDesde, nota,
 //                           totalAvaliacoes, verificado }
 //   onCompartilhar     -> clique no botão de compartilhar
-//   onExtratoCarteira  -> clique em "Extrato Carteira"
-//   onNovoAnuncio      -> clique em "Novo Anúncio"
+//   onExtratoCarteira  -> clique em "Carteira"
+//   onNovoAnuncio      -> clique em "Anunciar"
 // ===================================================================
 export default function CardDadosPersona({
     usuario,
@@ -131,7 +136,7 @@ export default function CardDadosPersona({
 
                         {membroDesde && (
                             <InfoComIcone Icone={CalendarDays}>
-                                Membro desde {membroDesde}
+                                Membro desde {formatarDataMembro(membroDesde)}
                             </InfoComIcone>
                         )}
                     </div>
@@ -170,7 +175,7 @@ export default function CardDadosPersona({
                         className={`${botaoAcaoClass} bg-[#4CAF50] hover:bg-[#3E9A42]`}
                     >
                         <Wallet size={16} />
-                        Extrato Carteira
+                        Carteira
                     </button>
 
                     <button
@@ -179,7 +184,7 @@ export default function CardDadosPersona({
                         className={`${botaoAcaoClass} bg-[#724BC2] shadow-md shadow-[#724BC2]/30 hover:bg-[#6539B8]`}
                     >
                         <PlusCircle size={16} />
-                        Novo Anúncio
+                        Anunciar
                     </button>
                 </div>
 

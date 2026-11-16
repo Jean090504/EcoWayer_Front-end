@@ -74,7 +74,7 @@ export default function App() {
                 {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
-                {telaAtiva === "perfil" && <TelaMeuPerfil />}
+                {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} />}
                 {telaAtiva === "denunciarAnuncio" && <DenunciarAnuncio onNavegar={navegar} />}
             </main>
 

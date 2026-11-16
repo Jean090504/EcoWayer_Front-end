@@ -1,5 +1,6 @@
 
 import { useEffect, useRef, useState } from "react";
+import { buscarOpcoesAnuncio } from "../../../services/userService.js";
 import {
     ImagePlus,
     Camera,
@@ -51,6 +52,7 @@ function pesoParaNumero(texto) {
 
 // Devolve a mensagem do primeiro problema, ou "" se estiver tudo certo
 function validarFormulario(f, modalidade, qtdFotos) {
+    if (!Number.isFinite(pesoParaNumero(f.peso))) return "Informe uma quantidade válida.";
     if (qtdFotos === 0) return "Adicione pelo menos 1 foto do material.";
     if (!f.titulo.trim()) return "Informe o título do anúncio.";
     if (!f.categoria) return "Escolha a categoria do material.";
@@ -100,24 +102,6 @@ const MODALIDADES = [
     { id: "venda", titulo: "Venda", descricao: "Receba via EcoCarteira ou Pix", Icone: Banknote },
     { id: "troca", titulo: "Troca", descricao: "Permute por outros materiais", Icone: ArrowLeftRight },
     { id: "doacao", titulo: "Doação", descricao: "Destine a cooperativas/catadores", Icone: HandHeart }
-];
-
-const CATEGORIAS = [
-    { valor: "papelao-papel", rotulo: "Papelão & Papel" },
-    { valor: "plastico", rotulo: "Plástico" },
-    { valor: "metal", rotulo: "Metal" },
-    { valor: "vidro", rotulo: "Vidro" },
-    { valor: "eletronicos", rotulo: "Eletrônicos" },
-    { valor: "madeira", rotulo: "Madeira" },
-    { valor: "textil", rotulo: "Têxtil" },
-    { valor: "outros", rotulo: "Outros" }
-];
-
-const CONDICOES = [
-    { valor: "excelente", rotulo: "Excelente / Higienizado / Pronto p/ Processamento" },
-    { valor: "bom", rotulo: "Bom / Pequenas sujidades" },
-    { valor: "regular", rotulo: "Regular / Requer triagem" },
-    { valor: "sujo", rotulo: "Sujo / Requer limpeza" }
 ];
 
 const UNIDADES = [
@@ -274,6 +258,18 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
     //                            Estados
     // ---------------------------------------------------------------
 
+    const [categorias, setCategorias] = useState([]);
+    const [condicoes, setCondicoes] = useState([]);
+    useEffect(() => {
+        let ativo = true;
+        buscarOpcoesAnuncio().then(opcoes => {
+            if (!ativo) return;
+            const opcao = item => ({ valor: String(item.id), rotulo: item.nome });
+            setCategorias(opcoes.categorias.map(opcao));
+            setCondicoes(opcoes.condicoes.map(opcao));
+        }).catch(error => { if (ativo) setErro(error.message); });
+        return () => { ativo = false; };
+    }, []);
     const [fotos, setFotos] = useState([]);
     const [arrastando, setArrastando] = useState(false);
     const [modalidade, setModalidade] = useState("venda");
@@ -311,14 +307,14 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
 
         if (arquivos.length === 0) return;
 
-        const imagens = arquivos.filter((a) => a.type.startsWith("image/"));
+        const imagens = arquivos.filter((a) => ["image/jpeg", "image/png", "image/webp"].includes(a.type));
         const leves = imagens.filter((a) => a.size <= MAX_FOTO_MB * 1024 * 1024);
         const vagas = Math.max(MAX_FOTOS - fotos.length, 0);
 
         const avisos = [];
 
         if (imagens.length < arquivos.length) {
-            avisos.push("Só são aceitas imagens.");
+            avisos.push("Use imagens JPEG, PNG ou WebP.");
         }
 
         if (leves.length < imagens.length) {
@@ -502,7 +498,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                     <input
                         ref={inputArquivo}
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         multiple
                         onChange={aoEscolherArquivos}
                         className="hidden"
@@ -583,7 +579,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                                 name="categoria"
                                 value={formulario.categoria}
                                 onChange={atualizarCampo}
-                                opcoes={CATEGORIAS}
+                                opcoes={categorias}
                                 placeholder="Selecione a categoria"
                             />
                         </div>
@@ -596,7 +592,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                                 name="condicao"
                                 value={formulario.condicao}
                                 onChange={atualizarCampo}
-                                opcoes={CONDICOES}
+                                opcoes={condicoes}
                                 placeholder="Selecione a condição"
                             />
                         </div>

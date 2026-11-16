@@ -1,4 +1,4 @@
-import { apiFetch } from './api.js'
+import { apiFetch, urlImagem } from './api.js'
 
 const resposta = (dados, chave) => dados?.response?.[chave] ?? dados?.[chave] ?? dados
 
@@ -35,7 +35,7 @@ export async function criarUsuario(dados) {
 
 export async function buscarAnuncios() {
     const dados = await apiFetch('/anuncio')
-    return resposta(dados, 'anuncio') || []
+    return (resposta(dados, 'anuncio') || []).map(anuncio => ({ ...anuncio, imagem: urlImagem(anuncio.imagem) }))
 }
 
 export async function buscarAnuncio(id) {
@@ -43,11 +43,12 @@ export async function buscarAnuncio(id) {
     const anuncio = resposta(dados, 'anuncio')
     return {
         ...anuncio,
-        imagem: anuncio?.imagem || null,
+        imagem: urlImagem(anuncio?.imagem) || null,
+        imagens: (anuncio?.imagens || (anuncio?.imagem ? [anuncio.imagem] : [])).map(urlImagem),
         categoria: anuncio?.categoria || 'Anúncio',
         subcategoria: anuncio?.subcategoria || '',
         publicado: anuncio?.data_publicacao || '',
-        peso: anuncio?.peso || anuncio?.peso_kg ? `${anuncio.peso || anuncio.peso_kg} kg` : 'Não informado',
+        peso: anuncio?.quantidade && anuncio?.unidade ? `${anuncio.quantidade} ${anuncio.unidade}` : anuncio?.peso || anuncio?.peso_kg ? `${anuncio.peso || anuncio.peso_kg} kg` : 'Não informado',
         quantidade: anuncio?.quantidade || '',
         estado: anuncio?.estado || anuncio?.status || 'Ativo',
         conservacao: anuncio?.conservacao || '',
@@ -63,20 +64,33 @@ export async function buscarPerfil(id) {
 }
 
 export async function publicarAnuncio(dados, idUsuario) {
+    const opcoes = await buscarOpcoesAnuncio()
+    const normalizar = valor => String(valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    const modalidade = opcoes.modalidades.find(item => normalizar(item.nome) === dados.modalidade)
+    if (!modalidade) throw new Error('Modalidade não disponível no backend.')
     const payload = {
         nome: dados.titulo,
         descricao: dados.descricao,
         data_publicacao: new Date().toISOString().slice(0, 19).replace('T', ' '),
         id_usuario: Number(idUsuario),
-        id_categoria: Number(dados.id_categoria || 1),
-        id_modalidade: Number(dados.id_modalidade || 1),
-        id_condicao_item: Number(dados.id_condicao_item || 1),
-        preco: dados.preco || null,
-        peso_kg: dados.peso || null,
+        id_categoria: Number(dados.categoria),
+        id_modalidade: modalidade.id,
+        id_condicao_item: Number(dados.condicao),
+        preco: dados.modalidade === 'venda' ? dados.preco : '',
+        quantidade: dados.peso,
+        unidade: dados.unidade,
         status: 'ativo'
     }
-    const retorno = await apiFetch('/anuncio', { method: 'POST', body: JSON.stringify(payload) })
+    const body = new FormData()
+    Object.entries(payload).forEach(([chave, valor]) => body.append(chave, String(valor)))
+    dados.fotos.forEach(foto => body.append('fotos', foto))
+    const retorno = await apiFetch('/anuncio/publicar', { method: 'POST', body })
     return resposta(retorno, 'anuncio')
+}
+
+export async function buscarOpcoesAnuncio() {
+    const dados = await apiFetch('/anuncio/opcoes')
+    return dados.response
 }
 
 export function logoutUsuario() {
