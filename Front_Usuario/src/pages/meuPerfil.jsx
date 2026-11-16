@@ -1,95 +1,41 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import DadosConta from "../components/cards/perfil/cardDadosPersona";
 import Desempenho from "../components/cards/perfil/cardDesempenho";
 import AnunciosPublicados from "../components/cards/perfil/cardCatalogoDeAnuncios";
+import { buscarAnuncios, buscarPerfil } from "../services/userService.js";
 
-import mockPerfil from "../mocks/mockMeuPerfil";
-
-
-// ===================================================================
-//                         FUNÇÕES AUXILIARES
-// ===================================================================
-
-// Ordena os anúncios conforme a opção escolhida
-// (com o back end, essa ordenação pode vir pronta da API)
-function ordenarAnuncios(lista, ordenacao) {
-    const copia = [...lista];
-
-    if (ordenacao === "antigos") return copia.sort((a, b) => a.id - b.id);
-    if (ordenacao === "visualizacoes") return copia.sort((a, b) => b.views - a.views);
-
-    return copia.sort((a, b) => b.id - a.id); // "recentes"
-}
-
-
-// ===================================================================
-//                          PAGE MEU PERFIL
-// ===================================================================
 export default function Perfil() {
-
-    // ---------------------------------------------------------------
-    //                            Estados
-    // ---------------------------------------------------------------
-
-    // Por enquanto vem do mock. Depois: troque por useState + fetch da API.
-    const dados = mockPerfil;
-
+    const sessao = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null");
+    const [dados, setDados] = useState(null);
+    const [erro, setErro] = useState("");
     const [abaAtiva, setAbaAtiva] = useState("anuncios");
     const [ordenacao, setOrdenacao] = useState("recentes");
 
-    // ---------------------------------------------------------------
-    //                            Funções
-    // ---------------------------------------------------------------
+    useEffect(() => {
+        if (!sessao?.id) { setErro("Faça login para acessar seu perfil."); return; }
+        Promise.all([buscarPerfil(sessao.id), buscarAnuncios()])
+            .then(([usuario, anuncios]) => {
+                const meus = anuncios.filter(anuncio => Number(anuncio.id_usuario) === Number(sessao.id)).map(anuncio => ({
+                    ...anuncio,
+                    titulo: anuncio.nome,
+                    categoria: anuncio.categoria || "EcoWayer",
+                    modalidade: anuncio.id_modalidade,
+                    imagem: anuncio.imagem || "",
+                    views: Number(anuncio.views || 0),
+                    preco: Number(anuncio.preco || 0)
+                }));
+                setDados({ usuario: { ...usuario, foto: usuario.imagem, localizacao: usuario.enderecos?.[0]?.cidade, membroDesde: usuario.data_cadastro, verificado: true }, desempenho: { saldoPontos: 0, pontosNoMes: 0, kgReciclados: 0, itensRegenerados: meus.length }, anuncios: meus });
+            })
+            .catch(error => setErro(error.message));
+    }, [sessao?.id]);
 
-    // Cada função abaixo é o ponto de ligação com o fluxo / back end
-    function handleCompartilhar() {
-        console.log("Compartilhar perfil");
-    }
+    if (erro) return <p role="alert" className="p-10 text-red-600">{erro}</p>;
+    if (!dados) return <p role="status" className="p-10 text-gray-500">Carregando perfil...</p>;
 
-    function handleExtratoCarteira() {
-        console.log("Abrir extrato da carteira");
-    }
-
-    function handleNovoAnuncio() {
-        console.log("Abrir criar novo anúncio");
-    }
-
-    function handleEditarAnuncio(anuncio) {
-        console.log("Editar anúncio", anuncio.id);
-    }
-
-    function handleAlterarVisibilidade(anuncio) {
-        console.log("Alterar visibilidade do anúncio", anuncio.id);
-    }
-
-    // ---------------------------------------------------------------
-    //                              Tela
-    // ---------------------------------------------------------------
-    return (
-        <div className="flex flex-col gap-10 bg-[#F8F7FE] px-4 py-10 sm:px-[74px]">
-
-            <DadosConta
-                usuario={dados.usuario}
-                onCompartilhar={handleCompartilhar}
-                onExtratoCarteira={handleExtratoCarteira}
-                onNovoAnuncio={handleNovoAnuncio}
-            />
-
-            <Desempenho desempenho={dados.desempenho} />
-
-            <AnunciosPublicados
-                anuncios={ordenarAnuncios(dados.anuncios, ordenacao)}
-                atualizadoEm={dados.atualizadoEm}
-                abaAtiva={abaAtiva}
-                abaComNotificacao={dados.abaComNotificacao}
-                ordenacao={ordenacao}
-                onMudarAba={setAbaAtiva}
-                onMudarOrdenacao={setOrdenacao}
-                onEditarAnuncio={handleEditarAnuncio}
-                onAlterarVisibilidade={handleAlterarVisibilidade}
-            />
-
-        </div>
-    );
+    const anuncios = [...dados.anuncios].sort((a, b) => ordenacao === "antigos" ? a.id - b.id : b.id - a.id);
+    return <div className="flex flex-col gap-10 bg-[#F8F7FE] px-4 py-10 sm:px-[74px]">
+        <DadosConta usuario={dados.usuario} />
+        <Desempenho desempenho={dados.desempenho} />
+        <AnunciosPublicados anuncios={anuncios} atualizadoEm="agora" abaAtiva={abaAtiva} abaComNotificacao="" ordenacao={ordenacao} onMudarAba={setAbaAtiva} onMudarOrdenacao={setOrdenacao} />
+    </div>;
 }

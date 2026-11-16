@@ -1,10 +1,18 @@
 import Categorias from "../components/layout/categorias.jsx";
 import Banner from "../components/layout/banner.jsx";
-import DestaqueAnuncios from "../components/layout/destaqueAnuncios.jsx";
 import DestaquesCategorias from "../components/layout/anunciosDestaquePorCategoria.jsx";
+import { useEffect, useState } from "react";
+import { buscarAnuncios } from "../services/userService.js";
 
 
 export default function Home({ onAbrirAnuncio }) {
+    const [anuncios, setAnuncios] = useState([]);
+    const [erro, setErro] = useState("");
+
+    useEffect(() => {
+        buscarAnuncios().then(setAnuncios).catch(error => setErro(error.message));
+    }, []);
+
     return (
         // espaçamento vertical cresce e diminui junto com a tela
         <main className="flex flex-1 w-full flex-col items-center py-[clamp(1.5rem,3vw,2.5rem)]">
@@ -20,14 +28,9 @@ export default function Home({ onAbrirAnuncio }) {
                     <Banner />
                 </div>
 
-                {/* Anúncios em destaque */}
+                {erro && <p role="alert" className="w-full rounded-xl bg-red-50 p-4 text-red-600">{erro}</p>}
                 <div className="w-full min-w-0">
-                    <DestaqueAnuncios onAbrirAnuncio={onAbrirAnuncio} />
-                </div>
-
-                {/* Carrosséis por categoria */}
-                <div className="w-full min-w-0">
-                    <DestaquesCategorias onAbrirAnuncio={onAbrirAnuncio} />
+                    <DestaquesCategorias anuncios={anuncios} onAbrirAnuncio={onAbrirAnuncio} />
                 </div>
             </div>
         </main>

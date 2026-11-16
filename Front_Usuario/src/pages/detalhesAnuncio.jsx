@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Archive, CalendarDays, Heart, Home, MessageSquare, RefreshCw, Share2 } from 'lucide-react';
-import { buscarDetalhesAnuncio } from '../mocks/mockDetalhesAnuncio.js';
+import { buscarAnuncio } from '../services/userService.js';
 import CardAnunciante from '../components/cards/detalhesAnuncio/cardAnunciante.jsx';
 import CardAnuncioRelacionado from '../components/cards/detalhesAnuncio/cardAnuncioRelacionado.jsx';
 
@@ -12,7 +12,9 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
     const [aviso, setAviso] = useState('');
     useEffect(() => {
         let ativo = true;
-        buscarDetalhesAnuncio(anuncioSelecionado).then(dados => { if (ativo) setAnuncio(dados); }).catch(error => { if (ativo) setErro(error.message || 'Não foi possível carregar o anúncio.'); });
+        const id = anuncioSelecionado?.id;
+        if (!id) { setErro('Anúncio inválido.'); return () => { ativo = false; }; }
+        buscarAnuncio(id).then(dados => { if (ativo) setAnuncio(dados); }).catch(error => { if (ativo) setErro(error.message || 'Não foi possível carregar o anúncio.'); });
         return () => { ativo = false; };
     }, [anuncioSelecionado, tentativa]);
     function favoritar(id) { setFavoritos(atuais => atuais.includes(id) ? atuais.filter(item => item !== id) : [...atuais, id]); }

@@ -1,12 +1,11 @@
 import CriarAnuncio from "../../components/cards/criarAnuncio/cardNovoAnuncio.jsx";
-import { enviarAnuncio, enviarRascunho } from "../../mocks/mockCriarNovoAnuncio.js";
+import { publicarAnuncio } from "../../services/userService.js";
 
 
 // ===================================================================
 //                     FLUXO DE CRIAR NOVO ANÚNCIO
 //
-// Liga o card ao mock (backend de mentira).
-// Se o mock lançar erro, o card mostra a mensagem acima dos botões.
+// Liga o formulário ao backend do usuário.
 //
 // Props recebidas do App (via página):
 //   onNavegar -> troca a tela ativa (depois de publicar, salvar ou cancelar)
@@ -19,14 +18,15 @@ export default function FluxoCriarAnuncio({ onNavegar }) {
 
     // Publica o anúncio e volta pra home
     async function publicar(dados) {
-        await enviarAnuncio(dados);
+        const usuario = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null");
+        if (!usuario?.id) throw new Error("Faça login antes de publicar um anúncio.");
+        await publicarAnuncio(dados, usuario.id);
         onNavegar("home");
     }
 
     // Salva o rascunho e volta pra home
-    async function salvarRascunho(dados) {
-        await enviarRascunho(dados);
-        onNavegar("home");
+    async function salvarRascunho() {
+        throw new Error("Rascunhos ainda não possuem tabela no backend.");
     }
 
     // Descarta tudo e volta pra home

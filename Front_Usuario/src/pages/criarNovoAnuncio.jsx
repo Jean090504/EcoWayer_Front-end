@@ -6,7 +6,7 @@ export default function CriarNovoAnuncio({ onNavegar }) {
         <div className="flex flex-col items-center bg-[#FAF8FF] py-25">
             <div className="flex w-[60%] items-center">
 
-                {/* Fluxo do anúncio (card + mock) */}
+                {/* Fluxo do anúncio integrado ao backend */}
                 <FluxoCriarAnuncio onNavegar={onNavegar} />
 
             </div>

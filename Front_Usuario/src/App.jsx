@@ -4,7 +4,6 @@ import Header from "./components/layout/header.jsx"
 import Footer from "./components/layout/footer.jsx"
 import Login from "./components/cards/conta/cardLogin.jsx"
 import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx"
-import mockPerfil from "./mocks/mockMeuPerfil.js"
 
 import Home from "./pages/Home.jsx"
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx"
@@ -17,7 +16,9 @@ import TelaMeuPerfil from "./pages/meuPerfil.jsx"
 import DenunciarAnuncio from "./pages/DenunciarAnuncio.jsx"
 
 export default function App() {
-    const [usuario, setUsuario] = useState(mockPerfil.usuario)
+    const [usuario, setUsuario] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null") } catch { return null }
+    })
     const [anuncioSelecionado, setAnuncioSelecionado] = useState(null)
     const [telaAtiva, setTelaAtiva] = useState("home")
     const [abrirLogin, setAbrirLogin] = useState(false)

@@ -1,27 +1,11 @@
 
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { apiFetch } from "../../../services/api.js";
+import { loginUsuario } from "../../../services/userService.js";
 
 // Estilo padrão dos campos de entrada
 const inputClass = "h-[48px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[48px] pr-[10px] text-[14px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
 
-const USAR_MOCK = import.meta.env.VITE_USAR_MOCK === "true";
-
-// Lê os dados da credencial do Google
-function lerCredencialGoogle(credential) {
-    const parteDados = credential.split(".")[1];
-    const base64 = parteDados.replace(/-/g, "+").replace(/_/g, "/");
-
-    const texto = decodeURIComponent(
-        atob(base64)
-            .split("")
-            .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
-            .join("")
-    );
-
-    return JSON.parse(texto);
-}
 
 // Impede o preenchimento automático do navegador
 function liberarCampo(evento) {
@@ -42,55 +26,8 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
     const [erro, setErro] = useState("");
 
     // Login com Google
-    async function handleGoogleSuccess(credentialResponse) {
-        setErro("");
-
-        try {
-            let usuario;
-
-            if (USAR_MOCK) {
-                const dados = lerCredencialGoogle(credentialResponse.credential);
-
-                usuario = {
-                    nome: dados.name,
-                    email: dados.email,
-                    foto: dados.picture ?? null
-                };
-            } else {
-                const resposta = await fetch("http://localhost:3000/api/auth/google", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        credential: credentialResponse.credential
-                    })
-                });
-
-                if (!resposta.ok) {
-                    throw new Error("Não foi possível autenticar com o Google.");
-                }
-
-                const retorno = await resposta.json();
-                const dados = retorno.usuario ?? retorno;
-
-                usuario = {
-                    nome: dados.nome ?? dados.name,
-                    email: dados.email,
-                    foto: dados.foto ?? dados.picture ?? null
-                };
-            }
-
-            console.log("Login realizado:", usuario);
-
-            if (typeof onLoginSuccess === "function") {
-                onLoginSuccess(usuario);
-            }
-
-        } catch (error) {
-            console.error("Erro na autenticação:", error);
-            setErro("Não foi possível entrar com o Google.");
-        }
+    function handleGoogleSuccess() {
+        setErro("Login com Google ainda não está disponível no backend.");
     }
 
     // Botão "Entrar" (e-mail e senha)
@@ -98,20 +35,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
         event.preventDefault();
         setErro("");
         try {
-            if (USAR_MOCK) {
-                if (senha !== "123456") throw new Error("Senha mock inválida.");
-                onLoginSuccess?.({ id: 1, nome: "Usuário EcoWayer", email });
-                return;
-            }
-            const retorno = await apiFetch("/usuario/login", {
-                method: "POST",
-                body: JSON.stringify({ email, senha }),
-            });
-            const token = retorno.response?.token;
-            const usuario = retorno.response?.usuario;
-            if (!token || !usuario) throw new Error("A API não retornou os dados de autenticação.");
-            sessionStorage.setItem("ecowayer_token", token);
-            sessionStorage.setItem("ecowayer_usuario", JSON.stringify(usuario));
+            const usuario = await loginUsuario(email, senha);
             onLoginSuccess?.(usuario);
         } catch (error) {
             setErro(error.message || "Não foi possível realizar o login.");

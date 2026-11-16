@@ -6,7 +6,7 @@ export default function CriarNovoAnuncio({ onNavegar }) {
         <div className="flex flex-col items-center bg-[#FAF8FF] py-25">
             <div className="flex w-[60%] items-center">
 
-                {/* Fluxo do editar anúncio (card + mock) */}
+                {/* Fluxo de edição do anúncio */}
                 <FluxoEditarAnuncio onNavegar={onNavegar} />
 
             </div>

@@ -9,6 +9,6 @@ export async function apiFetch(endpoint, options = {}) {
         headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(options.headers || {}) }
     })
     const dados = await resposta.json().catch(() => ({}))
-    if (!resposta.ok) throw new Error(dados.erro?.mensagem || dados.message || "Não foi possível concluir a operação.")
+    if (!resposta.ok) throw new Error(dados.erro?.mensagem || dados.message || dados.field || "Não foi possível concluir a operação.")
     return dados
 }
