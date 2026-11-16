@@ -1,0 +1,41 @@
+import { test, beforeEach } from 'node:test'
+import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
+const sessao = new URL('../src/services/sessionService.js', import.meta.url).href
+const apiSource = (await readFile(new URL('../src/services/api.js', import.meta.url), 'utf8'))
+    .replace('import.meta.env.VITE_API_URL', 'undefined').replace("'./sessionService.js'", JSON.stringify(sessao))
+const apiUrl = `data:text/javascript;base64,${Buffer.from(apiSource).toString('base64')}`
+const serviceSource = (await readFile(new URL('../src/services/userService.js', import.meta.url), 'utf8'))
+    .replace("'./api.js'", JSON.stringify(apiUrl)).replace("'./sessionService.js'", JSON.stringify(sessao))
+const { criarUsuario, loginUsuario, buscarGenerosCadastro } = await import(`data:text/javascript;base64,${Buffer.from(serviceSource).toString('base64')}`)
+beforeEach(() => {
+    const dados = new Map()
+    globalThis.sessionStorage = { getItem: k => dados.get(k) ?? null, setItem: (k, v) => dados.set(k, String(v)), removeItem: k => dados.delete(k) }
+    globalThis.window = new EventTarget()
+})
+const cadastro = { nome: 'Teste', nascimento: '01/01/2000', cpf: '52998224725', email: 'teste@example.com', telefone: '11999999999', senha: 'Teste123', id_genero: 7 }
+
+test('cadastro envia gênero escolhido, sem endereço artificial, e só login cria sessão local', async () => {
+    const chamadas = []
+    globalThis.fetch = async (url, options) => {
+        chamadas.push({ url, payload: JSON.parse(options.body) })
+        return Response.json({ response: { usuario: { id: 42, nome: 'Teste' } } }, { status: url.endsWith('/login') ? 200 : 201 })
+    }
+    await criarUsuario(cadastro)
+    assert.equal(chamadas[0].payload.id_genero, 7)
+    assert.equal('id_endereco' in chamadas[0].payload, false)
+    assert.equal(chamadas[0].payload.data_nascimento, '2000-01-01')
+    assert.equal(sessionStorage.getItem('ecowayer_usuario'), null)
+    await loginUsuario(cadastro.email, cadastro.senha)
+    assert.equal(JSON.parse(sessionStorage.getItem('ecowayer_usuario')).id, 42)
+})
+test('gênero ausente é rejeitado antes de enviar cadastro', async () => {
+    let chamadas = 0
+    globalThis.fetch = async () => { chamadas++ }
+    await assert.rejects(criarUsuario({ ...cadastro, id_genero: '' }), /Selecione seu gênero/)
+    assert.equal(chamadas, 0)
+})
+test('gêneros disponíveis vêm do catálogo do backend', async () => {
+    globalThis.fetch = async () => Response.json({ response: { genero: [{ id: 7, nome: 'Opção cadastrada' }] } })
+    assert.deepEqual(await buscarGenerosCadastro(), [{ id: 7, nome: 'Opção cadastrada' }])
+})

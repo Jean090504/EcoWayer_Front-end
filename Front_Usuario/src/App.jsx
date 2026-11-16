@@ -31,6 +31,7 @@ export default function App() {
     const [telaAtiva, setTelaAtiva] = useState("home")
     const [abrirLogin, setAbrirLogin] = useState(false)
     const [abrirCadastro, setAbrirCadastro] = useState(false)
+    const [cadastroConcluido, setCadastroConcluido] = useState(null)
     const [anuncioAlterado, setAnuncioAlterado] = useState(false)
     const [sessaoExpirada, setSessaoExpirada] = useState(sessaoFoiEncerrada)
     const [encerrandoSessao, setEncerrandoSessao] = useState(false)
@@ -61,6 +62,7 @@ export default function App() {
     function realizarLogin(dadosUsuario) {
         setUsuario(dadosUsuario)
         setAbrirLogin(false)
+        setCadastroConcluido(null)
         if (sessaoExpirada) setTelaAtiva("perfil")
         setSessaoExpirada(false)
     }
@@ -151,8 +153,10 @@ export default function App() {
 
             {abrirLogin && (
                 <Login
+                    emailInicial={cadastroConcluido?.email || ""}
+                    aviso={cadastroConcluido ? "Conta criada com sucesso. Faça login para continuar." : ""}
                     exigirLogin={sessaoExpirada}
-                    onClose={() => setAbrirLogin(false)}
+                    onClose={() => { setAbrirLogin(false); setCadastroConcluido(null) }}
                     onLoginSuccess={realizarLogin}
                     onAbrirCriarConta={() => {
                         setAbrirLogin(false)
@@ -164,9 +168,10 @@ export default function App() {
             {abrirCadastro && (
                 <FluxoCriarConta
                     onClose={() => setAbrirCadastro(false)}
-                    onContaCriada={(novoUsuario) => {
-                        setUsuario(novoUsuario)
+                    onContaCriada={(dados) => {
+                        setCadastroConcluido(dados)
                         setAbrirCadastro(false)
+                        setAbrirLogin(true)
                     }}
                 />
             )}

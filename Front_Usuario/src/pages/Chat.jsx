@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Archive, Check, CheckCheck, MessageSquare, RefreshCw, Search, Send, Smile, X } from 'lucide-react'
-import { criarConversa, enviarMensagem, listarConversas, listarMensagens, marcarLida } from '../services/chatService.js'
+import { criarConversa, enviarMensagem, listarConversas, listarMensagens, marcarConversaLida } from '../services/chatService.js'
+import { enviarComAtualizacao, INTERVALO_CONVERSAS, INTERVALO_MENSAGENS } from '../services/chatDelivery.js'
 import { conversaDaPessoa, conversaDoAnuncio, conversaInicial } from '../services/chatSelection.js'
 
 const nomeContato = (conversa, id) => Number(conversa.id_anunciante) === Number(id) ? conversa.interessado : conversa.anunciante
@@ -74,7 +75,7 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
         let ativo = true
         let carregandoLista = false
         async function atualizarLista() {
-            if (carregandoLista) return
+            if (carregandoLista || document.visibilityState !== 'visible') return
             carregandoLista = true
             try {
                 const lista = await listarConversas(idUsuario)
@@ -88,7 +89,7 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
             } catch (error) { if (ativo) setErro(error.message) }
             finally { carregandoLista = false }
         }
-        const timer = setInterval(atualizarLista, 5000)
+        const timer = setInterval(atualizarLista, INTERVALO_CONVERSAS)
         return () => { ativo = false; clearInterval(timer) }
     }, [idUsuario])
 
@@ -97,24 +98,23 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
         if (!idConversa) return () => { ativo = false }
         let atualizando = false
         async function atualizar() {
-            if (atualizando) return
+            if (atualizando || document.visibilityState !== 'visible') return
             atualizando = true
             try {
                 const itens = await listarMensagens(idConversa)
                 if (!ativo) return
                 setMensagens(itens)
                 const naoLidas = itens.filter(item => Number(item.id_remetente) !== Number(idUsuario) && !Number(item.lida))
-                if (document.visibilityState === 'visible' && document.hasFocus()) {
-                    await Promise.all(naoLidas.map(item => marcarLida(item.id)))
+                if (naoLidas.length && document.visibilityState === 'visible' && document.hasFocus()) {
+                    await marcarConversaLida(idConversa, Math.max(...itens.map(item => Number(item.id))))
+                    if (!ativo) return
+                    setConversas(lista => lista.map(item => Number(item.id) === Number(idConversa) ? { ...item, nao_lidas: Math.max(0, Number(item.nao_lidas || 0) - naoLidas.length) } : item))
                 }
-                if (!ativo) return
-                const lista = await listarConversas(idUsuario)
-                if (ativo) setConversas(lista)
             } catch (error) { if (ativo) setErro(error.message) }
             finally { atualizando = false }
         }
         atualizar()
-        const timer = setInterval(atualizar, 5000)
+        const timer = setInterval(atualizar, INTERVALO_MENSAGENS)
         window.addEventListener('focus', atualizar)
         document.addEventListener('visibilitychange', atualizar)
         return () => {
@@ -143,15 +143,24 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
                 const conversa = await criarConversa(origem, idUsuario)
                 idEnvio = conversa.id
             }
-            await enviarMensagem(idEnvio, idUsuario, conteudo)
-            setContextoPendente(null)
-            setTexto('')
-            const itens = await listarMensagens(idEnvio)
-            const lista = await listarConversas(idUsuario)
-            const unificada = conversaDaPessoa(lista, atual.id_interessado, atual.id_anunciante)
-            setConversas(lista)
-            setSelecionada(unificada || atual)
-            setMensagens(itens)
+            const resultado = await enviarComAtualizacao({
+                enviar: () => enviarMensagem(idEnvio, idUsuario, conteudo),
+                confirmar: mensagem => {
+                    setContextoPendente(null)
+                    setTexto('')
+                    setSelecionada({ ...atual, id: atual.id || idEnvio, id_conversa_envio: idEnvio, ids_conversas: [...new Set([...(atual.ids_conversas || []), atual.id || idEnvio, idEnvio])] })
+                    if (mensagem?.id) setMensagens(itens => itens.some(item => item.id === mensagem.id) ? itens : [...itens, mensagem])
+                },
+                atualizar: async () => {
+                    const itens = await listarMensagens(idEnvio)
+                    const lista = await listarConversas(idUsuario)
+                    const unificada = conversaDaPessoa(lista, atual.id_interessado, atual.id_anunciante)
+                    setConversas(lista)
+                    if (unificada) setSelecionada(unificada)
+                    setMensagens(itens)
+                }
+            })
+            if (resultado.erroAtualizacao) setErro('Mensagem enviada. Não foi possível atualizar o histórico agora; aguarde a atualização automática.')
         } catch (error) { setTexto(conteudo); setErro(error.message) }
         finally { travaEnvio.current = false; setEnviando(false); campo.current?.focus() }
     }

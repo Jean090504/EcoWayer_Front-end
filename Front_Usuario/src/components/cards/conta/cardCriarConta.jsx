@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { buscarGenerosCadastro } from "../../../services/userService.js";
 import { requisitosSenha, validarSenha } from "../../../services/passwordValidation.js";
 
 
@@ -187,6 +188,15 @@ export default function CreateAccount({
     // ---------------------------------------------------------------
     //                            Estados
     // ---------------------------------------------------------------
+    const [generos, setGeneros] = useState([]);
+    const [erroGeneros, setErroGeneros] = useState("");
+    const [tentativaGeneros, setTentativaGeneros] = useState(0);
+    useEffect(() => {
+        let ativo = true;
+        buscarGenerosCadastro().then(lista => { if (ativo) setGeneros(lista); })
+            .catch(error => { if (ativo) setErroGeneros(error.message); });
+        return () => { ativo = false; };
+    }, [tentativaGeneros]);
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
     const [erro, setErro] = useState("");                                       // Mensagem acima do botão
@@ -195,6 +205,7 @@ export default function CreateAccount({
     const [formulario, setFormulario] = useState(                               // Ao voltar da verificação, começa com os dados de antes
         dadosIniciais ?? {
             nome: "",
+            id_genero: "",
             nascimento: "",
             cpf: "",
             email: "",
@@ -226,6 +237,7 @@ export default function CreateAccount({
         event.preventDefault();
         setErro("");
 
+        if (!formulario.id_genero) { setErro("Selecione seu gênero para continuar."); return; }
         // 1. As senhas precisam ser iguais
         const erroSenha = validarSenha(formulario.senha);
         if (erroSenha) { setErro(erroSenha); return; }
@@ -322,6 +334,15 @@ export default function CreateAccount({
                             onChange={atualizarCampo}
                         />
 
+                    </div>
+
+                    <div>
+                        <label htmlFor="id_genero" className={labelClass}>Gênero</label>
+                        <select id="id_genero" name="id_genero" value={formulario.id_genero || ""} onChange={atualizarCampo} required className={inputClass} disabled={!generos.length}>
+                            <option value="">{generos.length ? 'Selecione' : 'Carregando opções...'}</option>
+                            {generos.map(item => <option key={item.id} value={item.id}>{item.nome}</option>)}
+                        </select>
+                        {erroGeneros && <p role="alert" className="mt-2 text-xs text-red-600">{erroGeneros} <button type="button" onClick={() => { setErroGeneros(""); setTentativaGeneros(t => t + 1); }} className="underline">Tentar novamente</button></p>}
                     </div>
 
                     {/* E-mail */}

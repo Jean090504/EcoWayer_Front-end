@@ -3,8 +3,8 @@ import { criarUsuario } from "../../services/userService.js";
 
 export default function FluxoCriarConta({ onClose, onContaCriada }) {
     async function cadastrar(dados) {
-        const usuario = await criarUsuario(dados);
-        onContaCriada(usuario);
+        await criarUsuario(dados);
+        onContaCriada({ email: dados.email });
     }
 
     return <CriarConta onClose={onClose} onContinuarVerificacao={cadastrar} />;

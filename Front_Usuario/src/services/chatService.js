@@ -21,3 +21,4 @@ export async function enviarMensagem(idConversa, idRemetente, texto) {
     return dados.response.mensagem
 }
 export const marcarLida = id => apiFetch(`/mensagens/${id}`, { method: 'PUT', body: JSON.stringify({ lida: true }) })
+export const marcarConversaLida = (id, ateId) => apiFetch('/mensagens/lidas', { method: 'PUT', body: JSON.stringify({ id_conversa: Number(id), ate_id: Number(ateId) }) })

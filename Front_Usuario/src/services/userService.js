@@ -20,6 +20,7 @@ export async function loginUsuario(email, senha) {
 }
 
 export async function criarUsuario(dados) {
+    if (!Number.isSafeInteger(Number(dados.id_genero)) || Number(dados.id_genero) <= 0) throw new Error('Selecione seu gênero para continuar.')
     const payload = {
         nome: dados.nome,
         data_nascimento: dataParaApi(dados.nascimento),
@@ -27,12 +28,14 @@ export async function criarUsuario(dados) {
         email: dados.email,
         telefone: dados.telefone,
         senha: dados.senha,
-        // Valores iniciais do seed local; a tela de endereço/gênero pode substituir estes campos depois.
-        id_genero: Number(dados.id_genero || 1),
-        id_endereco: Number(dados.id_endereco || 1)
+        id_genero: Number(dados.id_genero)
     }
     const retorno = await apiFetch('/usuario', { method: 'POST', body: JSON.stringify(payload) })
     return resposta(retorno, 'usuario')
+}
+
+export async function buscarGenerosCadastro() {
+    return resposta(await apiFetch('/genero'), 'genero') || []
 }
 
 export async function buscarAnuncios() {

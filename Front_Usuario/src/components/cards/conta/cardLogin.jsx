@@ -12,12 +12,12 @@ function liberarCampo(evento) {
     evento.target.removeAttribute("readonly");
 }
 
-export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exigirLogin = false }) {
+export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exigirLogin = false, emailInicial = "", aviso = "" }) {
 
     const larguraGoogle = "250";
 
     // Dados digitados
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState(emailInicial);
     const [senha, setSenha] = useState("");
 
     // Controles da tela
@@ -67,6 +67,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exig
                         Login
                     </h2>
 
+                    {aviso && <p role="status" className="mb-5 rounded-xl bg-green-50 p-3 text-sm text-green-800">{aviso}</p>}
                     <form onSubmit={handleSubmit} autoComplete="off">
 
                         {/* E-mail */}
