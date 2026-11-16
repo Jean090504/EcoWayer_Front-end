@@ -8,6 +8,7 @@ export async function apiFetch(endpoint, options = {}) {
     try {
         resposta = await fetch(`${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`, {
             ...options,
+            credentials: 'include',
             headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(options.headers || {}) }
         })
     } catch {
