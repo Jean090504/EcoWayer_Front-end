@@ -4,7 +4,7 @@ import DestaqueAnuncios from "../components/layout/destaqueAnuncios.jsx";
 import DestaquesCategorias from "../components/layout/anunciosDestaquePorCategoria.jsx";
 
 
-export default function Home() {
+export default function Home({ onAbrirAnuncio }) {
     return (
         // espaçamento vertical cresce e diminui junto com a tela
         <main className="flex flex-1 w-full flex-col items-center py-[clamp(1.5rem,3vw,2.5rem)]">
@@ -22,12 +22,12 @@ export default function Home() {
 
                 {/* Anúncios em destaque */}
                 <div className="w-full min-w-0">
-                    <DestaqueAnuncios />
+                    <DestaqueAnuncios onAbrirAnuncio={onAbrirAnuncio} />
                 </div>
 
                 {/* Carrosséis por categoria */}
                 <div className="w-full min-w-0">
-                    <DestaquesCategorias />
+                    <DestaquesCategorias onAbrirAnuncio={onAbrirAnuncio} />
                 </div>
             </div>
         </main>

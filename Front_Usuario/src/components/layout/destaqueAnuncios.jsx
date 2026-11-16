@@ -84,9 +84,12 @@ function imagemComErro(e, nome) {
 // ===================================================================
 
 // Card de um anúncio (imagem, etiqueta, coração, preço, data e local)
-function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
+function CardAnuncio({ anuncio, favoritado, onFavoritar, onAbrir }) {
     return (
-        <article className="w-[clamp(160px,17vw,230px)] min-w-[clamp(160px,17vw,230px)] shrink-0 snap-start cursor-pointer">
+        <article
+            className="w-[clamp(160px,17vw,230px)] min-w-[clamp(160px,17vw,230px)] shrink-0 snap-start cursor-pointer"
+            onClick={() => onAbrir?.(anuncio)}
+        >
 
             {/* Imagem */}
             <div className="relative h-[clamp(160px,17vw,230px)] w-full overflow-hidden rounded-xl bg-gray-100">
@@ -108,7 +111,10 @@ function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
                 {/* Favoritar */}
                 <button
                     type="button"
-                    onClick={onFavoritar}
+                    onClick={(event) => {
+                        event.stopPropagation()
+                        onFavoritar()
+                    }}
                     aria-label={favoritado ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                     aria-pressed={favoritado}
                     className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 shadow-sm transition hover:scale-110"
@@ -145,7 +151,7 @@ function CardAnuncio({ anuncio, favoritado, onFavoritar }) {
 }
 
 // Um carrossel completo de uma modalidade (título, setas e lista de cards)
-function CarrosselModalidade({ titulo, anuncios }) {
+function CarrosselModalidade({ titulo, anuncios, onAbrirAnuncio }) {
     const carrosselRef = useRef(null);
     const [favoritos, setFavoritos] = useState([]);
 
@@ -215,6 +221,16 @@ function CarrosselModalidade({ titulo, anuncios }) {
                         anuncio={anuncio}
                         favoritado={favoritos.includes(anuncio.id)}
                         onFavoritar={() => alternarFavorito(anuncio.id)}
+                        onAbrir={onAbrirAnuncio}
+                    />
+                ))}
+                {anuncios.map((anuncio) => (
+                    <CardAnuncio
+                        key={anuncio.id}
+                        anuncio={anuncio}
+                        favoritado={favoritos.includes(anuncio.id)}
+                        onFavoritar={() => alternarFavorito(anuncio.id)}
+                        onAbrir={onAbrirAnuncio}
                     />
                 ))}
             </div>
@@ -250,6 +266,7 @@ export default function AnunciosDestaquePorCategoria({ anunciosNovos = [] }) {
                         key={modalidade.id}
                         titulo={modalidade.titulo}
                         anuncios={anuncios}
+                        onAbrirAnuncio={onAbrirAnuncio}
                     />
                 );
             })}
