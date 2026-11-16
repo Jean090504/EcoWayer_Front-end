@@ -6,6 +6,7 @@ import ControlesMapa from "./ControlesMapa.jsx";
 
 const CENTRO_SP = { lat: -23.55, lng: -46.65 };
 const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAPS_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID";
 let mapsPromise;
 
 function carregarGoogleMaps() {
@@ -13,13 +14,20 @@ function carregarGoogleMaps() {
   if (!GOOGLE_MAPS_KEY) return Promise.reject(new Error("VITE_GOOGLE_MAPS_API_KEY não configurada."));
   if (mapsPromise) return mapsPromise;
   mapsPromise = new Promise((resolve, reject) => {
+    const callbackName = "__ecowayerGoogleMapsLoaded";
+    window[callbackName] = () => {
+      delete window[callbackName];
+      resolve(window.google.maps);
+    };
     const script = document.createElement("script");
     script.dataset.googleMaps = "true";
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_KEY)}&libraries=geometry&language=pt-BR&region=BR`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_KEY)}&loading=async&callback=${callbackName}&libraries=geometry,places,marker&language=pt-BR&region=BR`;
     script.async = true;
     script.defer = true;
-    script.onload = () => resolve(window.google.maps);
-    script.onerror = () => reject(new Error("Não foi possível carregar o Google Maps."));
+    script.onerror = () => {
+      delete window[callbackName];
+      reject(new Error("Não foi possível carregar o Google Maps."));
+    };
     document.head.appendChild(script);
   });
   return mapsPromise;
@@ -27,18 +35,7 @@ function carregarGoogleMaps() {
 
 const COR_PIN = { ativo: "#4da558", manutencao: "#b7791f", cheio: "#c9363d" };
 
-function iconePin(status, selecionado) {
-  return {
-    path: window.google.maps.SymbolPath.CIRCLE,
-    scale: selecionado ? 10 : 7,
-    fillColor: selecionado ? "#65BA69" : "#ffffff",
-    fillOpacity: 1,
-    strokeColor: selecionado ? "#65BA69" : (COR_PIN[status] || "#64748b"),
-    strokeWeight: 3,
-  };
-}
-
-export default function MapaPontosGoogle({ pontos, selecionadoId, onSelect }) {
+export default function MapaPontosGoogle({ pontos, selecionadoId, onSelect, consulta = "", onResultadosExternos }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const infoWindowRef = useRef(null);
@@ -54,7 +51,7 @@ export default function MapaPontosGoogle({ pontos, selecionadoId, onSelect }) {
       if (!ativo || !containerRef.current) return;
       mapRef.current = new maps.Map(containerRef.current, {
         center: CENTRO_SP, zoom: 11.5, mapTypeControl: false,
-        streetViewControl: false, fullscreenControl: false,
+        streetViewControl: false, fullscreenControl: false, mapId: GOOGLE_MAPS_MAP_ID,
       });
       infoWindowRef.current = new maps.InfoWindow({ content: popupNode, disableAutoPan: false });
       setMapReady(true);
@@ -62,7 +59,7 @@ export default function MapaPontosGoogle({ pontos, selecionadoId, onSelect }) {
 
     return () => {
       ativo = false;
-      Object.values(marcadoresRef.current).forEach(({ marker }) => marker.setMap(null));
+      Object.values(marcadoresRef.current).forEach(({ marker }) => { marker.map = null; });
       marcadoresRef.current = {};
       mapRef.current = null;
     };
@@ -71,26 +68,64 @@ export default function MapaPontosGoogle({ pontos, selecionadoId, onSelect }) {
   useEffect(() => {
     const map = mapRef.current;
     if (!mapReady || !map) return;
-    Object.values(marcadoresRef.current).forEach(({ marker }) => marker.setMap(null));
+    Object.values(marcadoresRef.current).forEach(({ marker }) => { marker.map = null; });
     marcadoresRef.current = {};
-    pontos.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng)).forEach((p) => {
-      const marker = new window.google.maps.Marker({
-        map, position: { lat: p.lat, lng: p.lng }, title: p.nome,
-        icon: iconePin(p.status, p.id === selecionadoId),
+    const pontosComCoordenadas = pontos.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+    const limites = new window.google.maps.LatLngBounds();
+    window.google.maps.importLibrary("marker").then(({ AdvancedMarkerElement, PinElement }) => {
+      pontosComCoordenadas.forEach((p) => {
+        const pin = new PinElement({
+          background: p.id === selecionadoId ? "#65BA69" : "#ffffff",
+          borderColor: p.id === selecionadoId ? "#65BA69" : (COR_PIN[p.status] || "#64748b"),
+          glyphColor: p.id === selecionadoId ? "#ffffff" : (COR_PIN[p.status] || "#64748b"),
+          scale: p.id === selecionadoId ? 1.15 : 0.9,
+        });
+        const marker = new AdvancedMarkerElement({
+          map, position: { lat: p.lat, lng: p.lng }, title: p.nome,
+          content: pin, gmpClickable: true,
+        });
+        marker.addEventListener("gmp-click", () => onSelect(p.id));
+        marcadoresRef.current[p.id] = { marker };
+        limites.extend({ lat: p.lat, lng: p.lng });
       });
-      marker.addListener("click", () => onSelect(p.id));
-      marcadoresRef.current[p.id] = { marker };
+      if (pontosComCoordenadas.length > 1) map.fitBounds(limites, 70);
+      if (pontosComCoordenadas.length === 1) {
+        map.setCenter({ lat: pontosComCoordenadas[0].lat, lng: pontosComCoordenadas[0].lng });
+        map.setZoom(14);
+      }
     });
   }, [mapReady, pontos, selecionadoId, onSelect]);
+
+  useEffect(() => {
+    if (!mapReady || !mapRef.current || !onResultadosExternos) return;
+    const busca = consulta.trim();
+    if (busca.length < 3) {
+      onResultadosExternos([]);
+      return undefined;
+    }
+
+    let ativo = true;
+    window.google.maps.importLibrary("places")
+      .then(({ Place }) => Place.searchByText({
+        textQuery: `ecoponto ${busca}, Brasil`,
+        fields: ["displayName", "formattedAddress", "location", "id"],
+        maxResultCount: 20,
+        language: "pt-BR",
+        region: "BR",
+      }))
+      .then(({ places }) => {
+        if (ativo) onResultadosExternos(lugaresToPontos(places || []));
+      })
+      .catch(() => {
+        if (ativo) onResultadosExternos([]);
+      });
+    return () => { ativo = false; };
+  }, [consulta, mapReady, onResultadosExternos]);
 
   useEffect(() => {
     const map = mapRef.current;
     const infoWindow = infoWindowRef.current;
     if (!mapReady || !map || !infoWindow) return;
-    pontos.forEach((p) => {
-      const item = marcadoresRef.current[p.id];
-      if (item) item.marker.setIcon(iconePin(p.status, p.id === selecionadoId));
-    });
     if (selecionado && Number.isFinite(selecionado.lat) && Number.isFinite(selecionado.lng)) {
       const posicao = { lat: selecionado.lat, lng: selecionado.lng };
       map.panTo(posicao); map.setZoom(14); infoWindow.setPosition(posicao); infoWindow.open({ map });
@@ -114,4 +149,23 @@ export default function MapaPontosGoogle({ pontos, selecionadoId, onSelect }) {
       {selecionado && createPortal(<PopupPonto ponto={selecionado} />, popupNode)}
     </section>
   );
+}
+
+function lugaresToPontos(lugares) {
+  return lugares
+    .filter((lugar) => lugar.location && lugar.id)
+    .map((lugar) => ({
+      id: `google-${lugar.id}`,
+      nome: lugar.displayName || "Ecoponto encontrado no Google Maps",
+      endereco: lugar.formattedAddress || "Endereço não informado",
+      cep: "",
+      cidade: "",
+      status: "ativo",
+      materiais: [],
+      materiaisObj: [],
+      lat: lugar.location.lat(),
+      lng: lugar.location.lng(),
+      externo: true,
+      origem: "Google Maps",
+    }));
 }

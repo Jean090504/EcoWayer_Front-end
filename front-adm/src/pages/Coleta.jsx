@@ -4,7 +4,7 @@ import ListaPontos from "../components/coleta/ListaPontos.jsx";
 import MapaPontos from "../components/coleta/MapaPontosGoogle.jsx";
 import ModalPonto from "../components/coleta/ModalPonto.jsx";
 import ModalNovoPonto from "../components/coleta/ModalNovoPonto.jsx";
-import { listarPontos, buscarPontosOpenStreetMap } from "../services/pontoColetaService.js";
+import { listarPontos } from "../services/pontoColetaService.js";
 
 // Remove acentos e deixa minúsculo para a busca não depender disso
 const normalizar = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -14,10 +14,9 @@ export default function Coleta() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const [termo, setTermo] = useState("");
+  const [materialFiltro, setMaterialFiltro] = useState("");
   const [selecionadoId, setSelecionadoId] = useState(null);
   const [pontosExternos, setPontosExternos] = useState([]);
-  const [buscandoExternos, setBuscandoExternos] = useState(false);
-  const [erroExterno, setErroExterno] = useState(null);
   const [pontoParaCadastrar, setPontoParaCadastrar] = useState(null);
 
   // Modal de edição (id do ponto) e modal de cadastro (aberto/fechado)
@@ -44,28 +43,6 @@ export default function Coleta() {
     carregar();
   }, [carregar]);
 
-  useEffect(() => {
-    const busca = termo.trim();
-    if (busca.length < 3) {
-      setPontosExternos([]);
-      setErroExterno(null);
-      return undefined;
-    }
-    const timer = setTimeout(async () => {
-      setBuscandoExternos(true);
-      try {
-        setPontosExternos(await buscarPontosOpenStreetMap(busca));
-        setErroExterno(null);
-      } catch {
-        setPontosExternos([]);
-        setErroExterno("Não foi possível consultar os pontos públicos agora.");
-      } finally {
-        setBuscandoExternos(false);
-      }
-    }, 700);
-    return () => clearTimeout(timer);
-  }, [termo]);
-
   // Atualiza os cards depois de excluir: tira o ponto da tela na hora e confirma com o servidor
   const aoExcluir = useCallback(
     async (idExcluido) => {
@@ -79,12 +56,15 @@ export default function Coleta() {
 
   const pontosFiltrados = useMemo(() => {
     const t = normalizar(termo.trim());
-    if (!t) return pontos;
-    const locais = pontos.filter((p) =>
-      normalizar([p.nome, p.endereco, p.cep, p.cidade, ...p.materiais].join(" ")).includes(t)
-    );
-    return locais.length ? locais : pontosExternos;
-  }, [termo, pontos, pontosExternos]);
+    const locais = [...pontos, ...pontosExternos];
+    return locais.filter((p) => {
+      const textoCorresponde = !t || normalizar([p.nome, p.endereco, p.cep, p.cidade, ...p.materiais].join(" ")).includes(t);
+      const materialCorresponde = !materialFiltro || p.materiais.some((material) => normalizar(material) === normalizar(materialFiltro));
+      return textoCorresponde && materialCorresponde;
+    });
+  }, [termo, materialFiltro, pontos, pontosExternos]);
+
+  const materiaisDisponiveis = useMemo(() => [...new Set(pontos.flatMap((ponto) => ponto.materiais))].sort((a, b) => a.localeCompare(b, "pt-BR")), [pontos]);
 
   return (
     <div className="min-h-full bg-[#f6f7fb] pb-10">
@@ -95,7 +75,10 @@ export default function Coleta() {
             <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800 sm:text-4xl">Pontos de coleta</h1>
           </div>
           <div className="flex gap-2">
-            <button className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#7350B9] shadow-sm transition hover:border-[#7350B9] hover:bg-violet-50">Todos os resíduos</button>
+            <select value={materialFiltro} onChange={(event) => setMaterialFiltro(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#7350B9] shadow-sm outline-none transition hover:border-[#7350B9] hover:bg-violet-50">
+              <option value="">Todos os resíduos</option>
+              {materiaisDisponiveis.map((material) => <option key={material} value={material}>{material}</option>)}
+            </select>
             <button onClick={() => setNovoAberto(true)} className="rounded-xl bg-[#65BA69] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#51a856]">+ Adicionar ponto</button>
           </div>
         </header>
@@ -108,9 +91,6 @@ export default function Coleta() {
 
         {carregando && <p className="mt-4 rounded-xl bg-white p-4 text-sm text-slate-500 shadow-sm">Carregando pontos...</p>}
         {erro && <p className="mt-4 rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-500">Não foi possível carregar os pontos: {erro}</p>}
-        {buscandoExternos && <p className="mt-3 text-xs text-slate-500">Consultando pontos públicos próximos...</p>}
-        {erroExterno && <p className="mt-3 text-xs text-orange-600">{erroExterno}</p>}
-
       <div className="mt-5 flex flex-col gap-5 xl:flex-row">
         <ListaPontos
           pontos={pontosFiltrados}
@@ -119,7 +99,13 @@ export default function Coleta() {
           onGerenciar={setModalId}
           onCadastrar={setPontoParaCadastrar}
         />
-        <MapaPontos pontos={pontosFiltrados} selecionadoId={selecionadoId} onSelect={setSelecionadoId} />
+        <MapaPontos
+          pontos={pontosFiltrados}
+          selecionadoId={selecionadoId}
+          onSelect={setSelecionadoId}
+          consulta={termo}
+          onResultadosExternos={setPontosExternos}
+        />
       </div>
 
       {pontoDoModal && (

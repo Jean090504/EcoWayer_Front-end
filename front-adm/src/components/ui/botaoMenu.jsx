@@ -1,4 +1,6 @@
-export default function BotaoMenu({ ativo, imagem, larguraImagem, altura: alturaImagem, texto, onClick }) {
+export default function BotaoMenu({ ativo, imagem, larguraImagem, alturaImagem, altura, texto, onClick }) {
+  const tamanhoAltura = alturaImagem || altura || larguraImagem
+
   return (
     <div className="w-full">
       <button
@@ -10,7 +12,8 @@ export default function BotaoMenu({ ativo, imagem, larguraImagem, altura: altura
         <img
           src={imagem}
           alt=""
-          className={`${larguraImagem} ${alturaImagem} shrink-0 object-contain ${ativo ? "brightness-0 invert" : ""}`}
+          style={{ width: larguraImagem, height: tamanhoAltura }}
+          className={`shrink-0 object-contain ${ativo ? "brightness-0 invert" : ""}`}
         />
         <span className="whitespace-nowrap">{texto}</span>
       </button>
