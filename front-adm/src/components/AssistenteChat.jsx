@@ -3,8 +3,6 @@ import { Send, X } from "lucide-react";
 import ecoPersonagem from "../assets/icons/imagens/assistente-eco-personagem.png";
 import { apiFetch } from "../services/api";
 
-const AI_URL = import.meta.env.VITE_AI_URL || "http://localhost:3333/api/v1/ai";
-const AI_TOKEN = import.meta.env.VITE_AI_TOKEN || "";
 
 export default function AssistenteChat() {
   const [aberto, setAberto] = useState(false);
@@ -47,9 +45,7 @@ export default function AssistenteChat() {
     setCarregando(true);
     try {
       const contextoPainel = await obterContextoPainel(mensagem).catch(() => null);
-      const res = await fetch(`${AI_URL}/assistant/chat`, { method: "POST", headers: { "Content-Type": "application/json", ...(AI_TOKEN && { "x-ai-token": AI_TOKEN }) }, body: JSON.stringify({ message: mensagem, history: historico.slice(-10), audience: "admin", context: contextoPainel }) });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Assistente indisponível.");
+      const data = await apiFetch("/ia/assistant-chat", { method: "POST", body: JSON.stringify({ message: mensagem, history: historico.slice(-10), audience: "admin", context: contextoPainel }) });
       setMensagens((atual) => [...atual, { role: "model", text: data.resposta }]);
     } catch (error) {
       setMensagens((atual) => [...atual, { role: "model", text: error.message }]);
