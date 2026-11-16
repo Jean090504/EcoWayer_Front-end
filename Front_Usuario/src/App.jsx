@@ -13,6 +13,7 @@ import PontosBeneficios from "./pages/PontosBeneficios.jsx"
 import Insignias from "./pages/Insignias.jsx"
 import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
 import TelaMeuPerfil from "./pages/meuPerfil.jsx"
+import DenunciarAnuncio from "./pages/DenunciarAnuncio.jsx"
 
 export default function App() {
     const [usuario, setUsuario] = useState(mockPerfil.usuario)
@@ -47,6 +48,7 @@ export default function App() {
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "perfil" && <TelaMeuPerfil />}
+                {telaAtiva === "denunciarAnuncio" && <DenunciarAnuncio onNavegar={navegar} />}
             </main>
 
             <Footer />
