@@ -14,6 +14,7 @@ import Insignias from "./pages/Insignias.jsx"
 import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
 import TelaMeuPerfil from "./pages/meuPerfil.jsx"
 import DenunciarAnuncio from "./pages/DenunciarAnuncio.jsx"
+import Notificacoes from "./pages/Notificacoes.jsx"
 
 export default function App() {
     const [usuario, setUsuario] = useState(() => {
@@ -66,6 +67,7 @@ export default function App() {
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "perfil" && <TelaMeuPerfil />}
                 {telaAtiva === "denunciarAnuncio" && <DenunciarAnuncio onNavegar={navegar} />}
+
             </main>
 
             <Footer />
