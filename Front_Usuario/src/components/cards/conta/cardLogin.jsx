@@ -12,7 +12,7 @@ function liberarCampo(evento) {
     evento.target.removeAttribute("readonly");
 }
 
-export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
+export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exigirLogin = false }) {
 
     const larguraGoogle = "250";
 
@@ -245,7 +245,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
 
                         {/* Link para criar conta */}
-                        <div className="mt-[30px] flex items-center justify-center gap-2 text-[12px]">
+                        {!exigirLogin && <div className="mt-[30px] flex items-center justify-center gap-2 text-[12px]">
 
                             <span className="text-[#222]">
                                 Ainda não tem uma conta?
@@ -259,7 +259,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                                 Criar conta
                             </button>
 
-                        </div>
+                        </div>}
 
                     </form>
 

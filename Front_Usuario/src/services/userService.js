@@ -1,4 +1,5 @@
 import { apiFetch, urlImagem } from './api.js'
+import { registrarNovaSessao } from './sessionService.js'
 
 const resposta = (dados, chave) => dados?.response?.[chave] ?? dados?.[chave] ?? dados
 
@@ -12,6 +13,7 @@ export async function loginUsuario(email, senha) {
     const dados = await apiFetch('/usuario/login', { method: 'POST', body: JSON.stringify({ email, senha }) })
     const autenticacao = dados.response || dados
     if (!autenticacao.usuario) throw new Error('A API não retornou os dados de autenticação.')
+    registrarNovaSessao()
     if (autenticacao.token) sessionStorage.setItem('ecowayer_token', autenticacao.token)
     sessionStorage.setItem('ecowayer_usuario', JSON.stringify(autenticacao.usuario))
     return autenticacao.usuario
@@ -45,6 +47,7 @@ export async function buscarAnuncio(id) {
         ...anuncio,
         imagem: urlImagem(anuncio?.imagem) || null,
         imagens: (anuncio?.imagens || (anuncio?.imagem ? [anuncio.imagem] : [])).map(urlImagem),
+        imagensOriginais: anuncio?.imagens || (anuncio?.imagem ? [anuncio.imagem] : []),
         categoria: anuncio?.categoria || 'Anúncio',
         subcategoria: anuncio?.subcategoria || '',
         publicado: anuncio?.data_publicacao || '',
@@ -63,7 +66,7 @@ export async function buscarPerfil(id) {
     return resposta(dados, 'usuario')
 }
 
-export async function publicarAnuncio(dados, idUsuario) {
+async function salvarAnuncioComFotos(dados, idUsuario, idAnuncio) {
     const opcoes = await buscarOpcoesAnuncio()
     const normalizar = valor => String(valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     const modalidade = opcoes.modalidades.find(item => normalizar(item.nome) === dados.modalidade)
@@ -83,10 +86,14 @@ export async function publicarAnuncio(dados, idUsuario) {
     }
     const body = new FormData()
     Object.entries(payload).forEach(([chave, valor]) => body.append(chave, String(valor)))
+    if (idAnuncio) body.append('fotos_mantidas', JSON.stringify(dados.fotosMantidas || []))
     dados.fotos.forEach(foto => body.append('fotos', foto))
-    const retorno = await apiFetch('/anuncio/publicar', { method: 'POST', body })
+    const retorno = await apiFetch(idAnuncio ? `/anuncio/${idAnuncio}/publicar` : '/anuncio/publicar', { method: idAnuncio ? 'PUT' : 'POST', body })
     return resposta(retorno, 'anuncio')
 }
+
+export const publicarAnuncio = (dados, idUsuario) => salvarAnuncioComFotos(dados, idUsuario)
+export const atualizarAnuncio = (id, dados, idUsuario) => salvarAnuncioComFotos(dados, idUsuario, id)
 
 export async function buscarOpcoesAnuncio() {
     const dados = await apiFetch('/anuncio/opcoes')

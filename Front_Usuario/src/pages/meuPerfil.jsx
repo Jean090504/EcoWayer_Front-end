@@ -4,7 +4,7 @@ import Desempenho from "../components/cards/perfil/cardDesempenho";
 import AnunciosPublicados from "../components/cards/perfil/cardCatalogoDeAnuncios";
 import { buscarAnuncios, buscarPerfil } from "../services/userService.js";
 
-export default function Perfil({ onNavegar }) {
+export default function Perfil({ onNavegar, onEditarAnuncio }) {
     const sessao = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null");
     const [dados, setDados] = useState(null);
     const [erro, setErro] = useState("");
@@ -40,6 +40,6 @@ export default function Perfil({ onNavegar }) {
             onNovoAnuncio={() => onNavegar("novoAnuncio")}
         />
         <Desempenho desempenho={dados.desempenho} />
-        <AnunciosPublicados anuncios={anuncios} atualizadoEm="agora" abaAtiva={abaAtiva} abaComNotificacao="" ordenacao={ordenacao} onMudarAba={setAbaAtiva} onMudarOrdenacao={setOrdenacao} />
+        <AnunciosPublicados anuncios={anuncios} atualizadoEm="agora" abaAtiva={abaAtiva} abaComNotificacao="" ordenacao={ordenacao} onMudarAba={setAbaAtiva} onMudarOrdenacao={setOrdenacao} onEditarAnuncio={onEditarAnuncio} />
     </div>;
 }
