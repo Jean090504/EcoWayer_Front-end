@@ -12,6 +12,7 @@ export async function loginUsuario(email, senha) {
     const dados = await apiFetch('/usuario/login', { method: 'POST', body: JSON.stringify({ email, senha }) })
     const autenticacao = dados.response || dados
     if (!autenticacao.usuario) throw new Error('A API não retornou os dados de autenticação.')
+    if (autenticacao.token) sessionStorage.setItem('ecowayer_token', autenticacao.token)
     sessionStorage.setItem('ecowayer_usuario', JSON.stringify(autenticacao.usuario))
     return autenticacao.usuario
 }
@@ -81,4 +82,5 @@ export async function publicarAnuncio(dados, idUsuario) {
 export function logoutUsuario() {
     apiFetch('/usuario/logout', { method: 'POST' }).catch(() => {})
     sessionStorage.removeItem('ecowayer_usuario')
+    sessionStorage.removeItem('ecowayer_token')
 }

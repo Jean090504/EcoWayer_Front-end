@@ -290,7 +290,7 @@ export default function Header({
                 >
                     <ItemNavegacao Icone={Mail} texto="Meus anúncios" onClick={() => onNavegar?.("perfil")} />
                     <ItemNavegacao Icone={Wallet} texto="Carteira" onClick={() => onNavegar?.("minhaCarteira")} />
-                    <ItemNavegacao Icone={MessageSquare} texto="Chat" />
+                    <ItemNavegacao Icone={MessageSquare} texto="Chat" onClick={() => onNavegar?.("chat")} />
                 </nav>
 
                 {/* Renderização condicional: usuário logado ou deslogado */}

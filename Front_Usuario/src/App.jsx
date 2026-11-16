@@ -14,12 +14,14 @@ import Insignias from "./pages/Insignias.jsx"
 import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
 import TelaMeuPerfil from "./pages/meuPerfil.jsx"
 import DenunciarAnuncio from "./pages/DenunciarAnuncio.jsx"
+import Chat from "./pages/Chat.jsx"
 
 export default function App() {
     const [usuario, setUsuario] = useState(() => {
         try { return JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null") } catch { return null }
     })
     const [anuncioSelecionado, setAnuncioSelecionado] = useState(null)
+    const [anuncioConversa, setAnuncioConversa] = useState(null)
     const [telaAtiva, setTelaAtiva] = useState("home")
     const [abrirLogin, setAbrirLogin] = useState(false)
     const [abrirCadastro, setAbrirCadastro] = useState(false)
@@ -36,6 +38,12 @@ export default function App() {
     function abrirAnuncio(anuncio) {
         setAnuncioSelecionado(anuncio)
         setTelaAtiva("detalhesAnuncio")
+        window.scrollTo(0, 0)
+    }
+
+    function abrirChat(anuncio) {
+        setAnuncioConversa(anuncio)
+        setTelaAtiva("chat")
         window.scrollTo(0, 0)
     }
 
@@ -57,9 +65,11 @@ export default function App() {
                         anuncioSelecionado={anuncioSelecionado}
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
+                        onConversar={abrirChat}
                     />
                 )}
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
+                {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
