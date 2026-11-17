@@ -48,7 +48,7 @@ export async function listarPontosUsuario() {
         const dados = await apiFetch('/pontos')
         return resposta(dados, 'pontos') || []
     } catch (erro) {
-        if (erro.message?.includes('404')) return []
+        if (erro.status === 404) return []
         throw erro
     }
 }
@@ -58,7 +58,7 @@ export async function listarEntregasUsuario() {
         const dados = await apiFetch('/entrega')
         return resposta(dados, 'entrega') || []
     } catch (erro) {
-        if (erro.message?.includes('404')) return []
+        if (erro.status === 404) return []
         throw erro
     }
 }
@@ -68,7 +68,7 @@ export async function listarInsignias() {
         const dados = await apiFetch('/insignia')
         return resposta(dados, 'insignia') || []
     } catch (erro) {
-        if (erro.message?.includes('404')) return []
+        if (erro.status === 404) return []
         throw erro
     }
 }
@@ -78,7 +78,7 @@ export async function listarInsigniasUsuario() {
         const dados = await apiFetch('/usuario_insignia')
         return resposta(dados, 'usuario_insignia') || []
     } catch (erro) {
-        if (erro.message?.includes('404')) return []
+        if (erro.status === 404) return []
         throw erro
     }
 }
@@ -88,7 +88,7 @@ export async function listarRecompensas() {
         const dados = await apiFetch('/voucher_catalogo')
         return resposta(dados, 'voucher_catalogo') || []
     } catch (erro) {
-        if (erro.message?.includes('404')) return []
+        if (erro.status === 404) return []
         throw erro
     }
 }
@@ -98,7 +98,7 @@ export async function listarVouchersUsuario() {
         const dados = await apiFetch('/voucher')
         return resposta(dados, 'voucher') || []
     } catch (erro) {
-        if (erro.message?.includes('404')) return []
+        if (erro.status === 404) return []
         throw erro
     }
 }
