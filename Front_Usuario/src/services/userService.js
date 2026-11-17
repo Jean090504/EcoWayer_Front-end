@@ -40,7 +40,9 @@ export async function buscarGenerosCadastro() {
 
 export async function buscarAnuncios() {
     const dados = await apiFetch('/anuncio')
-    return (resposta(dados, 'anuncio') || []).map(anuncio => ({ ...anuncio, imagem: urlImagem(anuncio.imagem) }))
+    return (resposta(dados, 'anuncio') || [])
+        .map(anuncio => ({ ...anuncio, imagem: urlImagem(anuncio.imagem) }))
+        .sort((a, b) => Number(b.id) - Number(a.id))
 }
 
 export async function listarPontosUsuario() {

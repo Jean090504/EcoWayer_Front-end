@@ -10,7 +10,30 @@ export default function Home({ onAbrirAnuncio }) {
     const [erro, setErro] = useState("");
 
     useEffect(() => {
-        buscarAnuncios().then(setAnuncios).catch(error => setErro(error.message));
+        let ativo = true;
+        let carregando = false;
+        async function atualizar() {
+            if (carregando || document.visibilityState === "hidden") return;
+            carregando = true;
+            try {
+                const lista = await buscarAnuncios();
+                if (ativo) { setAnuncios(lista); setErro(""); }
+            } catch (error) {
+                if (ativo) setErro(error.message);
+            } finally {
+                carregando = false;
+            }
+        }
+        atualizar();
+        window.addEventListener("focus", atualizar);
+        document.addEventListener("visibilitychange", atualizar);
+        const intervalo = window.setInterval(atualizar, 30000);
+        return () => {
+            ativo = false;
+            window.clearInterval(intervalo);
+            window.removeEventListener("focus", atualizar);
+            document.removeEventListener("visibilitychange", atualizar);
+        };
     }, []);
 
     return (
