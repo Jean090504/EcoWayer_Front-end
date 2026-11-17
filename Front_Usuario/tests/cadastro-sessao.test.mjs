@@ -7,7 +7,7 @@ const apiSource = (await readFile(new URL('../src/services/api.js', import.meta.
 const apiUrl = `data:text/javascript;base64,${Buffer.from(apiSource).toString('base64')}`
 const serviceSource = (await readFile(new URL('../src/services/userService.js', import.meta.url), 'utf8'))
     .replace("'./api.js'", JSON.stringify(apiUrl)).replace("'./sessionService.js'", JSON.stringify(sessao))
-const { criarUsuario, loginUsuario, buscarGenerosCadastro } = await import(`data:text/javascript;base64,${Buffer.from(serviceSource).toString('base64')}`)
+const { criarUsuario, loginUsuario, buscarGenerosCadastro, atualizarPerfil } = await import(`data:text/javascript;base64,${Buffer.from(serviceSource).toString('base64')}`)
 beforeEach(() => {
     const dados = new Map()
     globalThis.sessionStorage = { getItem: k => dados.get(k) ?? null, setItem: (k, v) => dados.set(k, String(v)), removeItem: k => dados.delete(k) }
@@ -38,4 +38,16 @@ test('gênero ausente é rejeitado antes de enviar cadastro', async () => {
 test('gêneros disponíveis vêm do catálogo do backend', async () => {
     globalThis.fetch = async () => Response.json({ response: { genero: [{ id: 7, nome: 'Opção cadastrada' }] } })
     assert.deepEqual(await buscarGenerosCadastro(), [{ id: 7, nome: 'Opção cadastrada' }])
+})
+
+
+test('edição do perfil envia contato e endereço sem depender de IDs removidos da resposta', async () => {
+    globalThis.fetch = async (url, options) => {
+        assert.ok(url.endsWith('/usuario/42/perfil'))
+        assert.equal(options.method, 'PATCH')
+        assert.deepEqual(JSON.parse(options.body), { nome: 'Nome atualizado', email: 'teste@example.com', confirmar_email: 'teste@example.com', telefone: '11999999999', endereco: { cidade: 'São Paulo' } })
+        return Response.json({ response: { usuario: { id: 42, nome: 'Nome atualizado' } } })
+    }
+    const usuario = await atualizarPerfil(42, { nome: 'Nome atualizado', email: 'teste@example.com', confirmar_email: 'teste@example.com', telefone: '11999999999', endereco: { cidade: 'São Paulo' }, id_genero: undefined })
+    assert.equal(usuario.nome, 'Nome atualizado')
 })

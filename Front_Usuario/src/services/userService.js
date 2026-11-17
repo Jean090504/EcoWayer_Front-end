@@ -127,7 +127,25 @@ export async function buscarAnuncio(id) {
 }
 
 export async function buscarPerfil(id) {
-    const dados = await apiFetch(`/usuario/${id}`)
+    const dados = await apiFetch(`/usuario/${id}/perfil`)
+    return resposta(dados, 'usuario')
+}
+
+export async function atualizarPerfil(id, perfil) {
+    const dados = await apiFetch(`/usuario/${id}/perfil`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+            nome: perfil.nome,
+            email: perfil.email,
+            confirmar_email: perfil.confirmar_email,
+            telefone: perfil.telefone,
+            endereco: perfil.endereco,
+            senha_atual: perfil.senha_atual,
+            senha: perfil.senha,
+            confirmar_senha: perfil.confirmar_senha,
+            foto_url: perfil.foto_url
+        })
+    })
     return resposta(dados, 'usuario')
 }
 
