@@ -53,6 +53,24 @@ test('senha incorreta no login não encerra a sessão nem fecha o formulário', 
     assert.equal(sessaoFoiEncerrada(), false)
 })
 
+test('limite de tentativas com resposta em texto mostra uma orientação e preserva a sessão', async () => {
+    globalThis.fetch = async () => new Response('Too many requests, please try again later.', { status: 429 })
+    await assert.rejects(apiFetch('/usuario/login', { method: 'POST' }), {
+        status: 429,
+        message: 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.'
+    })
+    assert.equal(expiracoes.length, 0)
+    assert.equal(sessaoFoiEncerrada(), false)
+})
+
+test('erro sem JSON inclui o status HTTP para diagnóstico', async () => {
+    globalThis.fetch = async () => new Response('<html>Bad Gateway</html>', { status: 502 })
+    await assert.rejects(apiFetch('/usuario/login', { method: 'POST' }), {
+        status: 502,
+        message: 'Não foi possível concluir a operação (HTTP 502).'
+    })
+})
+
 test('403 de permissão não desloga o usuário', async () => {
     globalThis.fetch = async () => Response.json({ message: 'Acesso negado.' }, { status: 403 })
     await assert.rejects(apiFetch('/anuncio/2'), { status: 403 })

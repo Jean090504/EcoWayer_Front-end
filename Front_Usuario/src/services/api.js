@@ -27,7 +27,10 @@ export async function apiFetch(endpoint, options = {}) {
             // A tela é notificada imediatamente; o novo login aguarda o logout terminar.
             encerrarSessaoInvalida(API_BASE_URL)
         }
-        const erro = new Error(dados.erro?.mensagem || dados.field || dados.message || "Não foi possível concluir a operação.")
+        const mensagemPadrao = resposta.status === 429
+            ? 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.'
+            : `Não foi possível concluir a operação (HTTP ${resposta.status}).`
+        const erro = new Error(dados.erro?.mensagem || dados.field || dados.message || mensagemPadrao)
         erro.status = resposta.status
         throw erro
     }
