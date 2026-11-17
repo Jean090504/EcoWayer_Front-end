@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import Header from "./components/layout/header.jsx"
 import Footer from "./components/layout/footer.jsx"
@@ -15,23 +15,80 @@ import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
 import TelaMeuPerfil from "./pages/meuPerfil.jsx"
 import DenunciarAnuncio from "./pages/DenunciarAnuncio.jsx"
 import Notificacoes from "./pages/Notificacoes.jsx"
+import Chat from "./pages/Chat.jsx"
+import EditarAnuncio from "./pages/editarAnuncio.jsx"
+import ConfirmacaoAnuncioAlterado from "./components/cards/editarAnuncio/cardMenssagemDeAnuncioAlterado.jsx"
+import SessaoEncerrada from "./pages/SessaoEncerrada.jsx"
+import { logoutUsuario } from "./services/userService.js"
+import { EVENTO_SESSAO_EXPIRADA, sessaoFoiEncerrada } from "./services/sessionService.js"
 
 export default function App() {
     const [usuario, setUsuario] = useState(() => {
+        if (sessaoFoiEncerrada()) return null
         try { return JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null") } catch { return null }
     })
     const [anuncioSelecionado, setAnuncioSelecionado] = useState(null)
+    const [anuncioConversa, setAnuncioConversa] = useState(null)
     const [telaAtiva, setTelaAtiva] = useState("home")
     const [abrirLogin, setAbrirLogin] = useState(false)
     const [abrirCadastro, setAbrirCadastro] = useState(false)
+    const [cadastroConcluido, setCadastroConcluido] = useState(null)
+    const [anuncioAlterado, setAnuncioAlterado] = useState(false)
+    const [sessaoExpirada, setSessaoExpirada] = useState(sessaoFoiEncerrada)
+    const [encerrandoSessao, setEncerrandoSessao] = useState(false)
+
+    useEffect(() => {
+        let ativo = true
+        function sessaoEncerrada(evento) {
+            setUsuario(null)
+            setAnuncioSelecionado(null)
+            setAnuncioConversa(null)
+            setAnuncioAlterado(false)
+            setAbrirCadastro(false)
+            setAbrirLogin(false)
+            setSessaoExpirada(true)
+            setEncerrandoSessao(true)
+            setTelaAtiva("home")
+            window.scrollTo(0, 0)
+            evento.detail.encerramento.finally(() => { if (ativo) setEncerrandoSessao(false) })
+        }
+        window.addEventListener(EVENTO_SESSAO_EXPIRADA, sessaoEncerrada)
+        return () => { ativo = false; window.removeEventListener(EVENTO_SESSAO_EXPIRADA, sessaoEncerrada) }
+    }, [])
+
+    function pedirLogin() {
+        if (!encerrandoSessao) setAbrirLogin(true)
+    }
 
     function realizarLogin(dadosUsuario) {
         setUsuario(dadosUsuario)
         setAbrirLogin(false)
+        setCadastroConcluido(null)
+        if (sessaoExpirada) setTelaAtiva("perfil")
+        setSessaoExpirada(false)
     }
 
     function navegar(tela) {
+        if (sessaoExpirada) { pedirLogin(); return }
+        if (tela === "chat") setAnuncioConversa(null)
         setTelaAtiva(tela)
+        window.scrollTo(0, 0)
+    }
+
+    async function sair() {
+        const encerramento = logoutUsuario()
+        setUsuario(null)
+        setAnuncioSelecionado(null)
+        setAnuncioConversa(null)
+        setAnuncioAlterado(false)
+        setAbrirLogin(false)
+        setAbrirCadastro(false)
+        setSessaoExpirada(false)
+        setEncerrandoSessao(true)
+        setTelaAtiva("home")
+        window.scrollTo(0, 0)
+        await encerramento
+        setEncerrandoSessao(false)
     }
 
     function abrirAnuncio(anuncio) {
@@ -40,17 +97,36 @@ export default function App() {
         window.scrollTo(0, 0)
     }
 
+    function abrirChat(anuncio) {
+        setAnuncioConversa(anuncio)
+        setTelaAtiva("chat")
+        window.scrollTo(0, 0)
+    }
+
+    function editarAnuncio(anuncio) {
+        setAnuncioSelecionado(anuncio)
+        setTelaAtiva("editarAnuncio")
+        window.scrollTo(0, 0)
+    }
+
+    function concluirEdicao() {
+        setTelaAtiva("perfil")
+        setAnuncioAlterado(true)
+    }
+
     return (
         <div className="flex min-h-screen flex-col">
             <Header
                 usuario={usuario}
-                onAbrirLogin={() => setAbrirLogin(true)}
-                onAbrirCriarConta={() => setAbrirCadastro(true)}
+                onAbrirLogin={pedirLogin}
+                onAbrirCriarConta={() => sessaoExpirada ? pedirLogin() : setAbrirCadastro(true)}
                 onAbrirNovoAnuncio={() => navegar("novoAnuncio")}
                 onNavegar={navegar}
+                onSair={sair}
             />
 
             <main className="flex flex-1 flex-col">
+                {sessaoExpirada ? <SessaoEncerrada encerrando={encerrandoSessao} onEntrar={pedirLogin} /> : <>
                 {telaAtiva === "home" && <Home onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "detalhesAnuncio" && (
                     <DetalhesAnuncio
@@ -58,23 +134,31 @@ export default function App() {
                         anuncioSelecionado={anuncioSelecionado}
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
+                        onConversar={abrirChat}
                     />
                 )}
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
+                {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
-                {telaAtiva === "perfil" && <TelaMeuPerfil />}
+                {telaAtiva === "notificacoes" && <Notificacoes />}
+                {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} />}
+                {telaAtiva === "editarAnuncio" && <EditarAnuncio key={anuncioSelecionado?.id} anuncioId={anuncioSelecionado?.id} onNavegar={navegar} onSalvo={concluirEdicao} />}
                 {telaAtiva === "denunciarAnuncio" && <DenunciarAnuncio onNavegar={navegar} />}
-
+                </>}
             </main>
 
             <Footer />
+            {anuncioAlterado && <ConfirmacaoAnuncioAlterado onFechar={() => setAnuncioAlterado(false)} />}
 
             {abrirLogin && (
                 <Login
-                    onClose={() => setAbrirLogin(false)}
+                    emailInicial={cadastroConcluido?.email || ""}
+                    aviso={cadastroConcluido ? "Conta criada com sucesso. Faça login para continuar." : ""}
+                    exigirLogin={sessaoExpirada}
+                    onClose={() => { setAbrirLogin(false); setCadastroConcluido(null) }}
                     onLoginSuccess={realizarLogin}
                     onAbrirCriarConta={() => {
                         setAbrirLogin(false)
@@ -86,9 +170,10 @@ export default function App() {
             {abrirCadastro && (
                 <FluxoCriarConta
                     onClose={() => setAbrirCadastro(false)}
-                    onContaCriada={(novoUsuario) => {
-                        setUsuario(novoUsuario)
+                    onContaCriada={(dados) => {
+                        setCadastroConcluido(dados)
                         setAbrirCadastro(false)
+                        setAbrirLogin(true)
                     }}
                 />
             )}

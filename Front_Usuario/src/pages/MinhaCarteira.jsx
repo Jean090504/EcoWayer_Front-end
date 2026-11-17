@@ -1,5 +1,6 @@
-import { CircleHelp } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import { buscarPontosUsuario, resumirPontos } from "../services/pontosService"
+import { CircleHelp } from "lucide-react"
 
 import Botao from "../components/ui/botao"
 import CardSaldo from "../components/cards/minhaCarteira/cardSaldo"
@@ -8,85 +9,48 @@ import CardResgates from "../components/cards/minhaCarteira/cardResgates"
 import CardHistorico from "../components/cards/minhaCarteira/cardHistorico"
 import CardStatusDoador from "../components/cards/minhaCarteira/cardStatusDoador"
 import CardRecompensas from "../components/cards/minhaCarteira/cardRecompensas"
-import { buscarAnuncio, listarEntregasUsuario, listarPontosUsuario, listarRecompensas, listarVouchersUsuario } from "../services/userService"
-
-const numero = (valor) => Number(valor) || 0
-
-function dataLegivel(valor) {
-  if (!valor) return "Data não informada"
-  const data = new Date(String(valor).replace(" ", "T"))
-  return Number.isNaN(data.getTime()) ? String(valor) : data.toLocaleDateString("pt-BR")
-}
+import { listarEntregasUsuario, listarRecompensas, listarVouchersUsuario } from "../services/userService"
 
 export default function MinhaCarteira() {
-  const [pontos, setPontos] = useState([])
+  const [dados, setDados] = useState(null)
   const [entregas, setEntregas] = useState([])
   const [vouchers, setVouchers] = useState([])
   const [recompensas, setRecompensas] = useState([])
   const [erro, setErro] = useState("")
+  const [tentativa, setTentativa] = useState(0)
+  const [aviso, setAviso] = useState("")
 
   useEffect(() => {
-    Promise.allSettled([listarPontosUsuario(), listarEntregasUsuario(), listarVouchersUsuario(), listarRecompensas()])
-      .then(([pontosResult, entregasResult, vouchersResult, recompensasResult]) => {
-        if (pontosResult.status === "fulfilled") setPontos(pontosResult.value)
-        if (entregasResult.status === "fulfilled") setEntregas(entregasResult.value)
-        if (vouchersResult.status === "fulfilled") setVouchers(vouchersResult.value)
-        if (recompensasResult.status === "fulfilled") setRecompensas(recompensasResult.value.filter((item) => item.ativo !== 0))
-        if ([pontosResult, entregasResult, vouchersResult, recompensasResult].some((item) => item.status === "rejected")) {
-          setErro("Alguns dados da carteira não puderam ser carregados.")
-        }
-      })
-  }, [])
+    let ativo = true
+    async function carregar() {
+      try {
+        const usuario = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null")
+        const registros = await buscarPontosUsuario(usuario?.id)
+        const resumo = resumirPontos(registros)
+        const resultados = await Promise.allSettled([listarEntregasUsuario(), listarVouchersUsuario(), listarRecompensas()])
+        if (!ativo) return
+        setDados(resumo)
+        if (resultados[0].status === "fulfilled") setEntregas(resultados[0].value)
+        if (resultados[1].status === "fulfilled") setVouchers(resultados[1].value)
+        if (resultados[2].status === "fulfilled") setRecompensas(resultados[2].value.filter((item) => item.ativo !== 0))
+        if (resultados.some((item) => item.status === "rejected")) setErro("Alguns dados da carteira não puderam ser carregados.")
+      } catch (error) {
+        if (ativo) setErro(error.message)
+      }
+    }
+    carregar()
+    return () => { ativo = false }
+  }, [tentativa])
 
-  const saldo = useMemo(() => pontos.reduce((total, item) => total + numero(item.qntd_pontos), 0), [pontos])
-  const pontosMes = useMemo(() => {
-    const inicioMes = new Date()
-    inicioMes.setDate(1)
-    return pontos.filter((item) => new Date(String(item.data_registro || "").replace(" ", "T")) >= inicioMes)
-      .reduce((total, item) => total + numero(item.qntd_pontos), 0)
-  }, [pontos])
+  const saldo = dados?.total || 0
+  const pontosMes = dados?.pontosMes || 0
   const transacoes = useMemo(() => [
-    ...pontos.map((item) => ({
-      id: `ponto-${item.id}`,
-      tipo: "entrega",
-      icone: "reciclagem",
-      cor: "verde",
-      titulo: `Pontuação registrada${item.id_categoria ? ` · categoria ${item.id_categoria}` : ""}`,
-      status: "Confirmado",
-      local: item.id_entrega ? `Entrega #${item.id_entrega}` : "EcoWayer",
-      quando: dataLegivel(item.data_registro),
-      pontos: numero(item.qntd_pontos),
-    })),
-    ...entregas.map((item) => ({
-      id: `entrega-${item.id}`,
-      tipo: "entrega",
-      icone: "reciclagem",
-      cor: "verde",
-      titulo: `Entrega de resíduo${item.peso_estimado ? ` (${item.peso_estimado} kg)` : ""}`,
-      status: item.status || "Pendente",
-      local: `Entrega #${item.id}`,
-      quando: dataLegivel(item.data_entrega),
-      pontos: 0,
-    })),
-    ...vouchers.map((item) => ({
-      id: `voucher-${item.id}`,
-      tipo: "resgate",
-      icone: "resgate",
-      cor: "roxo",
-      titulo: `Resgate ${item.id_voucher_catalogo ? `#${item.id_voucher_catalogo}` : "de benefício"}`,
-      status: item.status || "Registrado",
-      local: "Catálogo de benefícios",
-      quando: dataLegivel(item.data_emissao || item.data_criacao),
-      pontos: -numero(item.pontos_utilizados || item.pontos_necessarios),
-    })),
-  ].sort((a, b) => String(b.quando).localeCompare(String(a.quando))), [pontos, entregas, vouchers])
+    ...(dados?.transacoes || []),
+    ...entregas.map((item) => ({ id: `entrega-${item.id}`, tipo: "entrega", icone: "reciclagem", cor: "verde", titulo: `Entrega de resíduo${item.peso_estimado ? ` (${item.peso_estimado} kg)` : ""}`, status: item.status || "Pendente", local: `Entrega #${item.id}`, pontos: 0, quando: item.data_entrega || "Data não informada" })),
+    ...vouchers.map((item) => ({ id: `voucher-${item.id}`, tipo: "resgate", icone: "resgate", cor: "roxo", titulo: "Resgate de benefício", status: item.status || "Registrado", local: "Catálogo de benefícios", pontos: -(Number(item.pontos_utilizados || item.pontos_necessarios) || 0), quando: item.data_emissao || item.data_criacao || "Data não informada" })),
+  ], [dados, entregas, vouchers])
 
-  const recompensasFormatadas = useMemo(() => recompensas.map((item) => ({
-    id: item.id,
-    categoria: item.nome_parceiro || "Parceiro EcoWayer",
-    titulo: item.beneficio || "Benefício disponível",
-    pontos: numero(item.pontos_necessarios),
-  })), [recompensas])
+  const recompensasFormatadas = useMemo(() => recompensas.map((item) => ({ id: item.id, categoria: item.nome_parceiro || "Parceiro EcoWayer", titulo: item.beneficio || "Benefício disponível", pontos: Number(item.pontos_necessarios) || 0 })), [recompensas])
 
   return (
     <main className="flex flex-1 w-full justify-center bg-[#F8F9FB]">
@@ -96,7 +60,7 @@ export default function MinhaCarteira() {
         <div className="flex items-center justify-between">
           <h1 className="text-[#191C1E] text-[32px] font-bold">Minha Carteira</h1>
           <Botao
-            onClick={() => console.log("como pontuar")}
+            onClick={() => setAviso("Os pontos são creditados após o registro das suas entregas. Consulte o histórico para acompanhar seus créditos.")}
             className="inline-flex items-center gap-2 rounded-xl bg-[#724BC2] px-5 py-3 text-[13px] font-semibold text-white cursor-pointer"
           >
             <CircleHelp size={16} />
@@ -104,17 +68,21 @@ export default function MinhaCarteira() {
           </Botao>
         </div>
 
+        {aviso && <p role="status" className="rounded-xl bg-white p-4 text-sm">{aviso}</p>}
+        {erro && <div role="alert" className="rounded-xl bg-white p-4 text-sm text-red-700">{erro} <button className="underline" onClick={() => { setErro(""); setDados(null); setTentativa(tentativa + 1) }}>Tentar novamente</button></div>}
+        {!dados && !erro && <p role="status">Carregando seus pontos...</p>}
+        {dados && <>
         {/* 3 cards de resumo: mesma largura e mesma altura */}
         <div className="grid grid-cols-3 items-stretch gap-6">
           <CardSaldo
             saldo={saldo}
             valorReais={null}
-            onResgatar={() => console.log("resgatar")}
-            onTransferir={() => console.log("transferir")}
+            onResgatar={() => setAviso("O resgate de pontos ainda não está disponível.")}
+            onTransferir={() => setAviso("A transferência de pontos ainda não está disponível.")}
           />
           <CardAcumulo total={saldo} pontosMes={pontosMes} />
           <CardResgates
-            total={vouchers.reduce((total, item) => total + numero(item.pontos_utilizados || item.pontos_necessarios), 0)}
+            total={vouchers.reduce((total, item) => total + (Number(item.pontos_utilizados || item.pontos_necessarios) || 0), 0)}
             cuponsConcluidos={vouchers.length}
           />
         </div>
@@ -136,6 +104,7 @@ export default function MinhaCarteira() {
                 <CardRecompensas recompensas={recompensasFormatadas} />
             </div>
         </div>
+        </>}
       </div>
     </main>
   )

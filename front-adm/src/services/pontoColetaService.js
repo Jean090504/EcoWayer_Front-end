@@ -1,3 +1,4 @@
+import { lerToken } from './sessionService.js';
 const RAW_API_URL = (import.meta.env.VITE_API_URL || "http://localhost:8080").replace(/\/$/, "");
 const BASE = `${RAW_API_URL.replace("/meraki/ecowayer/admin", "")}/meraki/ecowayer/admin`;
 const API_URL = `${BASE}/ponto-coleta`;
@@ -14,7 +15,7 @@ const OSM_OVERPASS_SERVERS = [
 const osmCache = new Map();
 
 const cabecalhos = () => {
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  const token = lerToken();
   return {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),

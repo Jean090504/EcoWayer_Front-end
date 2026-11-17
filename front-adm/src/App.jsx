@@ -16,9 +16,10 @@ import AssistenteChat from "./components/AssistenteChat.jsx"
 import Sidebar from "./components/layout/sidebar.jsx"
 import CardSair from "./components/layout/cardSair.jsx"
 import { apiFetch } from "./services/api.js"
+import { lerToken, salvarSessao, limparSessao } from "./services/sessionService.js"
 
 export default function App() {
-  const [logado, setLogado] = useState(() => Boolean(localStorage.getItem("token") || sessionStorage.getItem("token")))
+  const [logado, setLogado] = useState(() => Boolean(lerToken()))
   const [ativa, setAtiva] = useState("home")
   const [mostrarCard, setMostrarCard] = useState(false)
   const [categoriaAberta, setCategoriaAberta] = useState(null) // id da categoria aberta
@@ -39,7 +40,7 @@ export default function App() {
     const token = resposta.response?.token
     if (!token) throw new Error("A API não retornou um token de acesso.")
 
-    sessionStorage.setItem("token", token)
+    salvarSessao(token)
     setLogado(true)
   }
 
@@ -74,8 +75,7 @@ export default function App() {
           aoCancelar = {() => setMostrarCard(false)}
           aoConfirmar = {() => {
             setMostrarCard(false)
-            localStorage.removeItem("token")
-            sessionStorage.removeItem("token")
+            limparSessao()
             setLogado(false)
           }}
         />

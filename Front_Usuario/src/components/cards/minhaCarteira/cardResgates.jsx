@@ -15,7 +15,7 @@ export default function CardResgates({ total, cuponsConcluidos }) {
         <div className="flex items-center justify-between text-[12px]">
           <span className="text-[#3E4A3D]">Cupons gerados</span>
           <span className="font-semibold text-[#724BC2]">
-            {cuponsConcluidos} resgates concluídos
+            {cuponsConcluidos == null ? "Indisponível" : `${cuponsConcluidos} resgates concluídos`}
           </span>
         </div>
       }

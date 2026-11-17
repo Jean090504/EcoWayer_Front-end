@@ -12,12 +12,12 @@ function liberarCampo(evento) {
     evento.target.removeAttribute("readonly");
 }
 
-export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
+export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exigirLogin = false, emailInicial = "", aviso = "" }) {
 
     const larguraGoogle = "250";
 
     // Dados digitados
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState(emailInicial);
     const [senha, setSenha] = useState("");
 
     // Controles da tela
@@ -67,6 +67,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                         Login
                     </h2>
 
+                    {aviso && <p role="status" className="mb-5 rounded-xl bg-green-50 p-3 text-sm text-green-800">{aviso}</p>}
                     <form onSubmit={handleSubmit} autoComplete="off">
 
                         {/* E-mail */}
@@ -245,7 +246,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
 
 
                         {/* Link para criar conta */}
-                        <div className="mt-[30px] flex items-center justify-center gap-2 text-[12px]">
+                        {!exigirLogin && <div className="mt-[30px] flex items-center justify-center gap-2 text-[12px]">
 
                             <span className="text-[#222]">
                                 Ainda não tem uma conta?
@@ -259,7 +260,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess }) {
                                 Criar conta
                             </button>
 
-                        </div>
+                        </div>}
 
                     </form>
 

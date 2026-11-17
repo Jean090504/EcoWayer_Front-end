@@ -1,15 +1,11 @@
-import FluxoEditarAnuncio from "../components/fluxos/fluxoEditarAnuncio";
+import { ArrowLeft } from "lucide-react";
+import FluxoEditarAnuncio from "../components/fluxos/fluxoEditarAnuncio.jsx";
 
-export default function CriarNovoAnuncio({ onNavegar }) {
-    return (
-        // adiciona um fundo lilas e chama o fluxo do card
-        <div className="flex flex-col items-center bg-[#FAF8FF] py-25">
-            <div className="flex w-[60%] items-center">
-
-                {/* Fluxo de edição do anúncio */}
-                <FluxoEditarAnuncio onNavegar={onNavegar} />
-
-            </div>
-        </div>
-    );
+export default function EditarAnuncio({ anuncioId, onNavegar, onSalvo }) {
+    return <section className="flex-1 bg-[#FAF8FF] px-4 py-8 sm:px-8 sm:py-12">
+        <nav aria-label="Caminho de navegação" className="mx-auto mb-6 flex max-w-[960px] items-center gap-2 text-xs text-[#3E4A3D]">
+            <button onClick={() => onNavegar("home")} className="flex items-center gap-1 hover:underline"><ArrowLeft size={14} />Voltar ao Início</button><span>/</span><h1 className="font-semibold text-[#191C30]">Editar Anúncio</h1>
+        </nav>
+        <FluxoEditarAnuncio anuncioId={anuncioId} onNavegar={onNavegar} onSalvo={onSalvo} />
+    </section>;
 }

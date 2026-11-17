@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Search, Calendar, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight } from "lucide-react"
 import CardTransacao from "./cardTransacao"
 
 const POR_PAGINA = 7
@@ -9,6 +9,7 @@ const FILTROS = [
   { id: "entrega", label: "Entregas em EcoPontos" },
   { id: "resgate", label: "Resgates" },
   { id: "venda", label: "Vendas no Marketplace" },
+  { id: "credito", label: "Créditos" },
   { id: "bonus", label: "Bônus Gamificação" },
 ]
 
@@ -42,11 +43,7 @@ export default function CardHistorico({ transacoes = [] }) {
       <div className="flex items-start justify-between">
         <h2 className="text-[24px] font-semibold text-[#191C1E]">Histórico de Transações</h2>
 
-        <button className="flex items-center gap-2 rounded-full bg-[#F3F3F3] px-4 py-2 text-[12px] font-semibold text-[#3E4A3D] cursor-pointer">
-          <Calendar size={14} />
-          Últimos 30 dias
-          <ChevronDown size={14} />
-        </button>
+
       </div>
 
       {/* Filtros */}

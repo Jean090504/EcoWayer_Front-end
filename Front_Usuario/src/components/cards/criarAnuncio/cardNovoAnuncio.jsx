@@ -1,5 +1,6 @@
 
 import { useEffect, useRef, useState } from "react";
+import { buscarOpcoesAnuncio } from "../../../services/userService.js";
 import {
     ImagePlus,
     Camera,
@@ -51,6 +52,7 @@ function pesoParaNumero(texto) {
 
 // Devolve a mensagem do primeiro problema, ou "" se estiver tudo certo
 function validarFormulario(f, modalidade, qtdFotos) {
+    if (!Number.isFinite(pesoParaNumero(f.peso))) return "Informe uma quantidade válida.";
     if (qtdFotos === 0) return "Adicione pelo menos 1 foto do material.";
     if (!f.titulo.trim()) return "Informe o título do anúncio.";
     if (!f.categoria) return "Escolha a categoria do material.";
@@ -100,24 +102,6 @@ const MODALIDADES = [
     { id: "venda", titulo: "Venda", descricao: "Receba via EcoCarteira ou Pix", Icone: Banknote },
     { id: "troca", titulo: "Troca", descricao: "Permute por outros materiais", Icone: ArrowLeftRight },
     { id: "doacao", titulo: "Doação", descricao: "Destine a cooperativas/catadores", Icone: HandHeart }
-];
-
-const CATEGORIAS = [
-    { valor: "papelao-papel", rotulo: "Papelão & Papel" },
-    { valor: "plastico", rotulo: "Plástico" },
-    { valor: "metal", rotulo: "Metal" },
-    { valor: "vidro", rotulo: "Vidro" },
-    { valor: "eletronicos", rotulo: "Eletrônicos" },
-    { valor: "madeira", rotulo: "Madeira" },
-    { valor: "textil", rotulo: "Têxtil" },
-    { valor: "outros", rotulo: "Outros" }
-];
-
-const CONDICOES = [
-    { valor: "excelente", rotulo: "Excelente / Higienizado / Pronto p/ Processamento" },
-    { valor: "bom", rotulo: "Bom / Pequenas sujidades" },
-    { valor: "regular", rotulo: "Regular / Requer triagem" },
-    { valor: "sujo", rotulo: "Sujo / Requer limpeza" }
 ];
 
 const UNIDADES = [
@@ -268,26 +252,38 @@ function SlotFoto({ numero, foto, principal, onRemover }) {
 //                       CARD DE CRIAR ANÚNCIO
 // ===================================================================
 
-export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar }) {
+export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar, dadosIniciais, editando = false }) {
 
     // ---------------------------------------------------------------
     //                            Estados
     // ---------------------------------------------------------------
 
-    const [fotos, setFotos] = useState([]);
+    const [categorias, setCategorias] = useState([]);
+    const [condicoes, setCondicoes] = useState([]);
+    useEffect(() => {
+        let ativo = true;
+        buscarOpcoesAnuncio().then(opcoes => {
+            if (!ativo) return;
+            const opcao = item => ({ valor: String(item.id), rotulo: item.nome });
+            setCategorias(opcoes.categorias.map(opcao));
+            setCondicoes(opcoes.condicoes.map(opcao));
+        }).catch(error => { if (ativo) setErro(error.message); });
+        return () => { ativo = false; };
+    }, []);
+    const [fotos, setFotos] = useState(() => dadosIniciais?.fotosExistentes || []);
     const [arrastando, setArrastando] = useState(false);
-    const [modalidade, setModalidade] = useState("venda");
+    const [modalidade, setModalidade] = useState(dadosIniciais?.modalidade || "venda");
     const [erro, setErro] = useState("");
     const [enviando, setEnviando] = useState(false);
 
     const [formulario, setFormulario] = useState({
-        titulo: "",
-        categoria: "",
-        condicao: "",
-        preco: "",
-        peso: "",
-        unidade: "kg",
-        descricao: ""
+        titulo: dadosIniciais?.titulo || "",
+        categoria: String(dadosIniciais?.categoria || ""),
+        condicao: String(dadosIniciais?.condicao || ""),
+        preco: dadosIniciais?.preco ? Number(dadosIniciais.preco).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "",
+        peso: String(dadosIniciais?.peso || "").replace(".", ","),
+        unidade: dadosIniciais?.unidade || "kg",
+        descricao: dadosIniciais?.descricao || ""
     });
 
     const inputArquivo = useRef(null);
@@ -299,7 +295,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
     }, [fotos]);
 
     useEffect(() => {
-        return () => fotosRef.current.forEach((f) => URL.revokeObjectURL(f.url));
+        return () => fotosRef.current.filter(f => f.arquivo).forEach((f) => URL.revokeObjectURL(f.url));
     }, []);
 
     // ---------------------------------------------------------------
@@ -311,14 +307,14 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
 
         if (arquivos.length === 0) return;
 
-        const imagens = arquivos.filter((a) => a.type.startsWith("image/"));
+        const imagens = arquivos.filter((a) => ["image/jpeg", "image/png", "image/webp"].includes(a.type));
         const leves = imagens.filter((a) => a.size <= MAX_FOTO_MB * 1024 * 1024);
         const vagas = Math.max(MAX_FOTOS - fotos.length, 0);
 
         const avisos = [];
 
         if (imagens.length < arquivos.length) {
-            avisos.push("Só são aceitas imagens.");
+            avisos.push("Use imagens JPEG, PNG ou WebP.");
         }
 
         if (leves.length < imagens.length) {
@@ -364,7 +360,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
     function removerFoto(id) {
         const foto = fotos.find((f) => f.id === id);
 
-        if (foto) URL.revokeObjectURL(foto.url);
+        if (foto?.arquivo) URL.revokeObjectURL(foto.url);
 
         setFotos((atuais) => atuais.filter((f) => f.id !== id));
         setErro("");
@@ -385,7 +381,8 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
     function montarDados() {
         return {
             modalidade,
-            fotos: fotos.map((f) => f.arquivo),
+            fotos: fotos.filter(f => f.arquivo).map(f => f.arquivo),
+            fotosMantidas: fotos.filter(f => !f.arquivo).map(f => f.caminho),
             titulo: formulario.titulo.trim(),
             categoria: formulario.categoria,
             condicao: formulario.condicao,
@@ -451,7 +448,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
         <form
             onSubmit={handlePublicar}
             noValidate
-            className="mx-auto w-full max-w-[1320px] rounded-[48px] bg-white p-6 shadow-sm sm:p-10"
+            className={`mx-auto w-full ${editando ? "max-w-[960px] rounded-[32px]" : "max-w-[1320px] rounded-[48px]"} bg-white p-6 shadow-sm sm:p-10`}
         >
 
             {/* Título */}
@@ -461,7 +458,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                 </span>
 
                 <h2 className="text-[32px] font-bold leading-tight text-[#191C1E]">
-                    Criar Novo Anúncio
+                    {editando ? "Editar Anúncio" : "Criar Novo Anúncio"}
                 </h2>
             </div>
 
@@ -502,7 +499,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                     <input
                         ref={inputArquivo}
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         multiple
                         onChange={aoEscolherArquivos}
                         className="hidden"
@@ -583,7 +580,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                                 name="categoria"
                                 value={formulario.categoria}
                                 onChange={atualizarCampo}
-                                opcoes={CATEGORIAS}
+                                opcoes={categorias}
                                 placeholder="Selecione a categoria"
                             />
                         </div>
@@ -596,7 +593,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                                 name="condicao"
                                 value={formulario.condicao}
                                 onChange={atualizarCampo}
-                                opcoes={CONDICOES}
+                                opcoes={condicoes}
                                 placeholder="Selecione a condição"
                             />
                         </div>
@@ -699,14 +696,14 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                         Cancelar
                     </button>
 
-                    <button
+                    {!editando && (<button
                         type="button"
                         onClick={handleRascunho}
                         disabled={enviando}
                         className="cursor-pointer rounded-full bg-[#F1EFFB] px-6 py-2.5 text-[14px] font-semibold text-[#3E3A52] transition hover:bg-[#E6E1F7] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         Salvar Rascunho
-                    </button>
+                    </button>)}
                 </div>
 
                 <button
@@ -714,7 +711,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar 
                     disabled={enviando}
                     className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#724BC2] px-6 py-2.5 text-[16px] font-semibold text-white transition hover:bg-[#6539B8] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    {enviando ? "Enviando..." : "Publicar Anúncio"}
+                    {enviando ? "Enviando..." : (editando ? "Salvar Alterações" : "Publicar Anúncio")}
                     {!enviando && <ArrowRight size={18} />}
                 </button>
 
