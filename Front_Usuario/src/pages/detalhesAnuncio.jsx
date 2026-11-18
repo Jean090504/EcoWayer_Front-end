@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, ArrowRight, Archive, Heart, Home, Share2 } from 'lucide-react'
+import { ArrowLeft,  Heart, Home, Share2 } from 'lucide-react'
 
 import { buscarAnuncio } from '../services/userService.js'
 
-import CardAnunciante from '../components/cards/detalhesAnuncio/cardAnunciante.jsx'
-import CardPrecoAnuncio from '../components/cards/detalhesAnuncio/cardPrecoAnuncio.jsx'
-import CardAnuncioRelacionado from '../components/cards/detalhesAnuncio/cardAnuncioRelacionado.jsx'
+import { CardAnunciante, CardPrecoAnuncio, CardEspecificacoesMaterial, CardDescricaoDetalhada, CardOutrosAnunciosVendedor} from '../components/cards/detalhesAnuncio'
 
 function textoPreco(anuncio) {
     const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -174,23 +172,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                             </div>
                         )}
                         
-                        <section className="flex-1 rounded-[26px] bg-white p-6 shadow-sm sm:p-8">
-                            <h2 className="mb-7 flex items-center gap-2 text-base font-semibold text-[#724BC2]">
-                                <Archive size={18} />Especificações do material
-                            </h2>
-                            <dl className="grid grid-cols-2 gap-2">
-                                <div>
-                                    <dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Volume / peso</dt>
-                                    <dd className="mt-1 text-lg font-bold">{anuncio.peso}</dd>
-                                    <dd className="mt-1 text-xs text-gray-500">{anuncio.quantidade}</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Estado</dt>
-                                    <dd className="mt-1 text-lg font-bold text-[#4CAF50]">{anuncio.estado}</dd>
-                                    <dd className="mt-1 text-xs text-gray-500">{anuncio.conservacao}</dd>
-                                </div>
-                            </dl>
-                        </section>
+                        <CardEspecificacoesMaterial anuncio = {anuncio} />
                     </div>
 
                     <div className="flex min-w-0 flex-col gap-10">
@@ -203,35 +185,15 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                     </div>
                 </div>
 
-                <section className="my-7 rounded-[26px] bg-white p-6 shadow-sm sm:p-8">
-                    <h2 className="mb-8 text-base font-semibold">Descrição detalhada</h2>
-                    <p className="whitespace-pre-line text-[15px] leading-relaxed text-[#3E4A3D]">{anuncio.descricao}</p>
-                </section>
+                <CardDescricaoDetalhada anuncio = {anuncio} />
 
-                <section className="pb-2 pt-3">
-                    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                        <h2 className="text-lg font-semibold">Outros anúncios em destaque deste vendedor</h2>
-                        <button
-                            type="button"
-                            onClick={() => demonstrar('Todos os anúncios do vendedor')}
-                            className="flex items-center gap-1 text-xs font-medium text-[#724BC2] hover:underline"
-                        >
-                            Ver todos os itens de {anuncio.vendedor?.nome?.split(' ')[0] || 'anunciante'}
-                            <ArrowRight size={14} />
-                        </button>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">
-                        {anuncio.outrosAnuncios.map(item => (
-                            <CardAnuncioRelacionado
-                                key={item.id}
-                                anuncio={item}
-                                favoritado={favoritos.includes(item.id)}
-                                onFavoritar={() => favoritar(item.id)}
-                                onAbrir={() => onAbrirAnuncio(item)}
-                            />
-                        ))}
-                    </div>
-                </section>
+                <CardOutrosAnunciosVendedor
+                    anuncio = {anuncio}
+                    favoritos = {favoritos}
+                    demonstrar = {demonstrar}
+                    favoritar = {favoritar}
+                    onAbrirAnuncio = {onAbrirAnuncio}
+                />
             </div>
         </div>
     )

@@ -22,14 +22,14 @@ export default function CardAnunciante({ vendedor, onDenunciar, onVerPerfil }) {
             <div className="mb-6 flex items-center justify-between gap-2">
                 <h2 className="text-sm font-semibold">Sobre o anunciante</h2>
                 {onVerPerfil && (
-                    <button type="button" onClick={() => onVerPerfil(vendedor)} className="text-[11px] font-medium text-[#724BC2] hover:underline">
-                        Ver perfil completo
+                    <button type="button" onClick={onDenunciar} className="text-[11px] font-medium text-[#E53935] hover:underline">
+                        Denunciar Anúncio
                     </button>
                 )}
             </div>
 
-            <div className="mb-6 mt-10 flex items-center gap-4">
-                <div className="relative shrink-0">
+            <div className="mt-6 flex items-center gap-4">
+                <div className="relative shrink-0 cursor-pointer" onClick={() => onVerPerfil(vendedor)}>
                     {vendedor.foto ? (
                         <img src={vendedor.foto} alt={vendedor.nome} className="h-16 w-16 rounded-full border-2 border-[#4CAF50] object-cover" />
                     ) : (
@@ -65,17 +65,6 @@ export default function CardAnunciante({ vendedor, onDenunciar, onVerPerfil }) {
                     rotulo="Entregas no prazo"
                     className="text-[#4CAF50]"
                 />
-            </div>
-
-            {/* mt-auto empurra o botão para a base do card, alinhada com o card de especificações */}
-            <div className="mt-auto flex justify-center pt-4">
-                <button
-                    type="button"
-                    onClick={onDenunciar}
-                    className="rounded-full bg-[#E53935] px-8 py-2 text-sm font-semibold text-white hover:bg-[#c62828]"
-                >
-                    Denunciar Anúncio
-                </button>
             </div>
         </section>
     )

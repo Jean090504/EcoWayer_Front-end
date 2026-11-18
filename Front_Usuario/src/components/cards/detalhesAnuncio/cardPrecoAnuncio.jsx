@@ -1,4 +1,4 @@
-import { CalendarDays, MessageSquare, RefreshCw } from 'lucide-react'
+import { MessageSquare, RefreshCw } from 'lucide-react'
 
 function formatarDataPublicacao(valor) {
     const partes = String(valor || '').match(/^(\d{4})-(\d{2})-(\d{2})/)
@@ -29,18 +29,18 @@ function textoPreco(anuncio) {
 
 export default function CardPrecoAnuncio({ anuncio, onConversar, onContraproposta }) {
     return (
-        <section className="rounded-[26px] bg-white p-6 shadow-sm">
+        <section className="rounded-[26px] bg-white p-6 px-9 shadow-sm">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[10px]">
-                <span className="font-semibold uppercase tracking-wider text-[#724BC2]">
+                <span className="font-semibold uppercase tracking-wider text-[#6E7B6C]">
                     {[anuncio.categoria, anuncio.subcategoria].filter(Boolean).join(' • ')}
                 </span>
                 <span className="text-[#6E7B6C]">{tempoDecorrido(anuncio.publicado)}</span>
             </div>
 
-            <h1 className="text-[30px] font-bold leading-[1.15] text-[#191C30]">{anuncio.nome}</h1>
+            <h1 className="text-[22.5px] font-bold leading-[1.15] text-[#191C30]">{anuncio.nome}</h1>
 
             <p className="mb-6 mt-4 flex flex-wrap items-baseline gap-2">
-                <span className="text-[42px] font-bold leading-none text-[#4CAF50]">
+                <span className="text-[27.5px] font-bold leading-none text-[#4CAF50]">
                     {textoPreco(anuncio)}
                 </span>
                 {anuncio.peso && anuncio.peso !== 'Não informado' && (
@@ -68,7 +68,7 @@ export default function CardPrecoAnuncio({ anuncio, onConversar, onContrapropost
                     onClick={() => onContraproposta(anuncio)}
                     className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#4CAF50] bg-white px-4 py-3 text-sm font-semibold text-[#4CAF50] hover:bg-[#4CAF50]/10"
                 >
-                    <CalendarDays size={16} />Fazer contraproposta / Agendar Retirada
+                    Fazer contraproposta
                 </button>
             </div>
         </section>
