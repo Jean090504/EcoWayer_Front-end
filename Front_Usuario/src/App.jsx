@@ -4,6 +4,7 @@ import Header from "./components/layout/header.jsx"
 import Footer from "./components/layout/footer.jsx"
 import Login from "./components/cards/conta/cardLogin.jsx"
 import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx"
+import FluxoDenunciarAnuncio from "./components/fluxos/fluxoDenunciarAnuncio.jsx" // NOVO (confira o nome do arquivo)
 
 import Home from "./pages/Home.jsx"
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx"
@@ -13,7 +14,6 @@ import PontosBeneficios from "./pages/PontosBeneficios.jsx"
 import Insignias from "./pages/Insignias.jsx"
 import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
 import TelaMeuPerfil from "./pages/meuPerfil.jsx"
-import DenunciarAnuncio from "./pages/DenunciarAnuncio.jsx"
 import Notificacoes from "./pages/Notificacoes.jsx"
 import Chat from "./pages/Chat.jsx"
 import EditarAnuncio from "./pages/editarAnuncio.jsx"
@@ -36,6 +36,7 @@ export default function App() {
     const [anuncioAlterado, setAnuncioAlterado] = useState(false)
     const [sessaoExpirada, setSessaoExpirada] = useState(sessaoFoiEncerrada)
     const [encerrandoSessao, setEncerrandoSessao] = useState(false)
+    const [avisoDetalhes, setAvisoDetalhes] = useState('')
 
     useEffect(() => {
         let ativo = true
@@ -92,6 +93,7 @@ export default function App() {
     }
 
     function abrirAnuncio(anuncio) {
+        setAvisoDetalhes('') // NOVO: limpa o aviso ao abrir outro anúncio
         setAnuncioSelecionado(anuncio)
         setTelaAtiva("detalhesAnuncio")
         window.scrollTo(0, 0)
@@ -112,6 +114,24 @@ export default function App() {
     function concluirEdicao() {
         setTelaAtiva("perfil")
         setAnuncioAlterado(true)
+    }
+
+    // NOVO
+    function abrirDenuncia() {
+        if (!usuario) { pedirLogin(); return } // precisa estar logado para denunciar
+        setAvisoDetalhes('')
+        navegar("denunciarAnuncio")
+    }
+
+    // NOVO
+    function voltarParaAnuncio() {
+        navegar("detalhesAnuncio")
+    }
+
+    // NOVO
+    function denunciaEnviada() {
+        setAvisoDetalhes('Denúncia enviada. Obrigado por ajudar a manter a comunidade segura!')
+        navegar("detalhesAnuncio")
     }
 
     return (
@@ -135,6 +155,8 @@ export default function App() {
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
                         onConversar={abrirChat}
+                        onDenunciar={abrirDenuncia}      // NOVO
+                        avisoInicial={avisoDetalhes}     // NOVO
                     />
                 )}
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
@@ -146,7 +168,13 @@ export default function App() {
                 {telaAtiva === "notificacoes" && <Notificacoes />}
                 {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} />}
                 {telaAtiva === "editarAnuncio" && <EditarAnuncio key={anuncioSelecionado?.id} anuncioId={anuncioSelecionado?.id} onNavegar={navegar} onSalvo={concluirEdicao} />}
-                {telaAtiva === "denunciarAnuncio" && <DenunciarAnuncio onNavegar={navegar} />}
+                {telaAtiva === "denunciarAnuncio" && (   // NOVO
+                    <FluxoDenunciarAnuncio
+                        anuncio={anuncioSelecionado}
+                        onNavegar={voltarParaAnuncio}
+                        onDenunciaEnviada={denunciaEnviada}
+                    />
+                )}
                 </>}
             </main>
 
