@@ -1,0 +1,203 @@
+/* Paleta compartilhada: fundo, superfícies, bordas e texto. O claro permanece original. */
+.ecowayer-app[data-tema="claro"] { color-scheme: light; }
+.ecowayer-app[data-tema="escuro"] {
+    color-scheme: dark;
+    --dark-bg: #14121b;
+    --dark-surface: #201c29;
+    --dark-raised: #2a2435;
+    --dark-field: #18151f;
+    --dark-border: #44394f;
+    --dark-text: #f1edf7;
+    --dark-muted: #bcb2ca;
+    --dark-purple: #c4a6ff;
+    --dark-green: #8cdda0;
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+    min-height: 100vh;
+}
+
+.ecowayer-app[data-tema="escuro"] [class~="bg-white"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-gray-50"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F8F9FB]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F8F7FE]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#FAF8FF]"] { background-color: var(--dark-surface); }
+
+.ecowayer-app[data-tema="escuro"] [class~="bg-gray-100"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-gray-200"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-gray-300"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F8F7FD]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F8F8F8]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F3F3F3]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F3F4F6]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F0F0F0]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#ECECEC]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#E5E7EB]"] { background-color: var(--dark-raised); }
+
+.ecowayer-app[data-tema="escuro"] [class~="bg-purple-50"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-purple-100"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-violet-50"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#EEE8FA]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#EEEAFB]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F1EFFB]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F1E9FB]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#E6E1F7]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#E8EAF6]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#EDE9FE]"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#F1EDFA]"] { background-color: #332640; }
+
+.ecowayer-app[data-tema="escuro"] [class~="text-black"],
+.ecowayer-app[data-tema="escuro"] [class~="text-gray-900"],
+.ecowayer-app[data-tema="escuro"] [class~="text-gray-800"],
+.ecowayer-app[data-tema="escuro"] [class~="text-gray-700"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#191C1E]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#191C30]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#1B1B1F]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#1F2937]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#222]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#252B35]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#303640]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#374151]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#3E3A52]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#3E4A3D]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#444]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#454545]"] { color: var(--dark-text); }
+
+.ecowayer-app[data-tema="escuro"] [class~="text-gray-600"],
+.ecowayer-app[data-tema="escuro"] [class~="text-gray-500"],
+.ecowayer-app[data-tema="escuro"] [class~="text-gray-400"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#4B5563]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#536252]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#555]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#5A665D]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#666]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#73806F]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#888]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#8C8C8C]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#929292]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#9AA39A]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#9CA3AF]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#BDBDBD]"] { color: var(--dark-muted); }
+
+.ecowayer-app[data-tema="escuro"] [class~="text-purple-600"],
+.ecowayer-app[data-tema="escuro"] [class~="text-purple-700"],
+.ecowayer-app[data-tema="escuro"] [class~="text-purple-800"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#6F2DBD]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#6F42C1]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#724BC2]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#7546CF]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#7548C8]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#7548CB]"] { color: var(--dark-purple); }
+
+.ecowayer-app[data-tema="escuro"] [class~="text-green-600"],
+.ecowayer-app[data-tema="escuro"] [class~="text-green-700"],
+.ecowayer-app[data-tema="escuro"] [class~="text-green-800"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#0B5D1E]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#258D43]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#2E7D32]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#2E9B3A]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#399B43]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#399B50]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#4CAF50]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#58A24D]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#61B86B]"] { color: var(--dark-green); }
+
+.ecowayer-app[data-tema="escuro"] [class~="border-gray-100"],
+.ecowayer-app[data-tema="escuro"] [class~="border-gray-200"],
+.ecowayer-app[data-tema="escuro"] [class~="border-gray-300"],
+.ecowayer-app[data-tema="escuro"] [class~="border-white"],
+.ecowayer-app[data-tema="escuro"] [class~="divide-gray-100"],
+.ecowayer-app[data-tema="escuro"] [class~="divide-gray-200"],
+.ecowayer-app[data-tema="escuro"] [class~="border-[#E2E6EB]"] { border-color: var(--dark-border); }
+
+.ecowayer-app[data-tema="escuro"] [class~="bg-red-50"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-red-100"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#FFF5F5]"] { background-color: #3a202a; }
+
+.ecowayer-app[data-tema="escuro"] [class~="text-red-400"],
+.ecowayer-app[data-tema="escuro"] [class~="text-red-500"],
+.ecowayer-app[data-tema="escuro"] [class~="text-red-600"],
+.ecowayer-app[data-tema="escuro"] [class~="text-red-700"],
+.ecowayer-app[data-tema="escuro"] [class~="text-red-800"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#E53E3E]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#EF4444]"],
+.ecowayer-app[data-tema="escuro"] [class~="text-[#FF4545]"] { color: #ffabb4; }
+
+.ecowayer-app[data-tema="escuro"] [class~="bg-green-50"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-green-100"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-[#E5F5E8]"] { background-color: #1b352b; }
+
+.ecowayer-app[data-tema="escuro"] [class~="bg-amber-50"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-amber-100"],
+.ecowayer-app[data-tema="escuro"] [class~="bg-yellow-50"] { background-color: #382e1f; }
+
+.ecowayer-app[data-tema="escuro"] [class~="text-amber-600"],
+.ecowayer-app[data-tema="escuro"] [class~="text-amber-700"],
+.ecowayer-app[data-tema="escuro"] [class~="text-amber-800"],
+.ecowayer-app[data-tema="escuro"] [class~="text-yellow-700"] { color: #f3cf8c; }
+
+.ecowayer-app[data-tema="escuro"] [class~="hover:bg-gray-50"]:hover,
+.ecowayer-app[data-tema="escuro"] [class~="hover:bg-gray-100"]:hover,
+.ecowayer-app[data-tema="escuro"] [class~="hover:bg-gray-200"]:hover { background-color: var(--dark-raised); }
+
+.ecowayer-app[data-tema="escuro"] [class~="hover:bg-purple-50"]:hover,
+.ecowayer-app[data-tema="escuro"] [class~="hover:bg-violet-50"]:hover { background-color: #3a2b4d; }
+
+.ecowayer-app[data-tema="escuro"] [class~="hover:bg-red-50"]:hover { background-color: #4b2632; }
+
+.ecowayer-app[data-tema="escuro"] [class~="hover:bg-green-50"]:hover { background-color: #234432; }
+
+.ecowayer-app[data-tema="escuro"] [class~="focus-visible:bg-gray-50"]:focus-visible,
+.ecowayer-app[data-tema="escuro"] [class~="focus-visible:bg-gray-100"]:focus-visible,
+.ecowayer-app[data-tema="escuro"] [class~="focus-visible:bg-gray-200"]:focus-visible { background-color: var(--dark-raised); }
+
+.ecowayer-app[data-tema="escuro"] [class~="focus-visible:bg-purple-50"]:focus-visible,
+.ecowayer-app[data-tema="escuro"] [class~="focus-visible:bg-violet-50"]:focus-visible { background-color: #3a2b4d; }
+
+.ecowayer-app[data-tema="escuro"] [class~="focus-visible:bg-red-50"]:focus-visible { background-color: #4b2632; }
+
+.ecowayer-app[data-tema="escuro"] [class~="focus-visible:bg-green-50"]:focus-visible { background-color: #234432; }
+
+
+.ecowayer-app[data-tema="escuro"] :is(header, footer) {
+    background-color: #1b1822;
+    border-color: var(--dark-border);
+}
+.ecowayer-app[data-tema="escuro"] main { background-color: var(--dark-bg); }
+.ecowayer-app[data-tema="escuro"] :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    background-color: var(--dark-field);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+.ecowayer-app[data-tema="escuro"] :is(input, textarea)::placeholder { color: #9f94ae; opacity: 1; }
+.ecowayer-app[data-tema="escuro"] :is(input, select, textarea):focus {
+    border-color: #b895fa;
+    box-shadow: 0 0 0 3px rgb(184 149 250 / 16%);
+}
+.ecowayer-app[data-tema="escuro"] :is(input, textarea):-webkit-autofill {
+    -webkit-text-fill-color: var(--dark-text);
+    box-shadow: 0 0 0 1000px var(--dark-field) inset;
+    caret-color: var(--dark-text);
+}
+.ecowayer-app[data-tema="escuro"] :is(input, select, textarea):disabled { color: #9f94ae; opacity: .7; }
+.ecowayer-app[data-tema="escuro"] :is(button, a, summary):focus-visible {
+    outline: 2px solid #c4a6ff;
+    outline-offset: 3px;
+}
+.ecowayer-app[data-tema="escuro"] input:is([type="radio"], [type="checkbox"]) { accent-color: #b895fa; }
+.ecowayer-app[data-tema="escuro"] :is(.shadow-sm, .shadow-md, .shadow-lg, .shadow-xl) {
+    --tw-shadow-color: rgb(0 0 0 / 35%);
+}
+/* Backdrops fortes destacam os modais sem alterar imagens ou gradientes. */
+.ecowayer-app[data-tema="escuro"] .fixed.inset-0[class*="bg-black/"] { background-color: rgb(5 3 10 / 74%); }
+.ecowayer-app[data-tema="escuro"] .fixed.inset-0 > .bg-white {
+    border: 1px solid var(--dark-border);
+    box-shadow: 0 24px 80px rgb(0 0 0 / 55%);
+}
+.ecowayer-app[data-tema="escuro"] .configuracoes-perfil { background-color: var(--dark-bg); }
+.ecowayer-app[data-tema="escuro"] .configuracoes-perfil :is(form, section, details) { background-color: var(--dark-surface); }
+.ecowayer-app[data-tema="escuro"] .configuracoes-perfil :is(h1, h2, legend, label) { color: var(--dark-text); }
+.ecowayer-app[data-tema="escuro"] .configuracoes-perfil :is(summary, fieldset > label) {
+    background-color: var(--dark-raised);
+    color: var(--dark-purple);
+}
+.ecowayer-app[data-tema="escuro"] * { scrollbar-color: #655174 #201c29; }

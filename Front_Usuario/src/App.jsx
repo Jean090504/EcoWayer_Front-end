@@ -7,6 +7,7 @@ import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx"
 import FluxoDenunciarAnuncio from "./components/fluxos/fluxoDenunciarAnuncio.jsx" // NOVO (confira o nome do arquivo)
 
 import Home from "./pages/Home.jsx"
+import ConfiguracoesPerfil from "./pages/ConfiguracoesPerfil.jsx"
 import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx"
 import DetalhesAnuncio from "./pages/detalhesAnuncio.jsx";
 import MinhaCarteira from "./pages/MinhaCarteira.jsx"
@@ -23,6 +24,12 @@ import { logoutUsuario } from "./services/userService.js"
 import { EVENTO_SESSAO_EXPIRADA, sessaoFoiEncerrada } from "./services/sessionService.js"
 
 export default function App() {
+    const [tema, setTema] = useState(() => localStorage.getItem("ecowayer_tema") === "escuro" ? "escuro" : "claro")
+    function alterarTema(valor) {
+        const novoTema = valor === "escuro" ? "escuro" : "claro"
+        setTema(novoTema)
+        localStorage.setItem("ecowayer_tema", novoTema)
+    }
     const [usuario, setUsuario] = useState(() => {
         if (sessaoFoiEncerrada()) return null
         try { return JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null") } catch { return null }
@@ -135,7 +142,7 @@ export default function App() {
     }
 
     return (
-        <div className="flex min-h-screen flex-col">
+        <div data-tema={tema} className="ecowayer-app flex min-h-screen flex-col">
             <Header
                 usuario={usuario}
                 onAbrirLogin={pedirLogin}
@@ -167,6 +174,7 @@ export default function App() {
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "notificacoes" && <Notificacoes />}
                 {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} />}
+                {telaAtiva === "configuracoesPerfil" && <ConfiguracoesPerfil tema={tema} onAlterarTema={alterarTema} usuario={usuario} onAtualizarUsuario={setUsuario} onNavegar={navegar} />}
                 {telaAtiva === "editarAnuncio" && <EditarAnuncio key={anuncioSelecionado?.id} anuncioId={anuncioSelecionado?.id} onNavegar={navegar} onSalvo={concluirEdicao} />}
                 {telaAtiva === "denunciarAnuncio" && (   // NOVO
                     <FluxoDenunciarAnuncio

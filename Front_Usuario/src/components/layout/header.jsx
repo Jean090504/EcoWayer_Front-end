@@ -323,7 +323,7 @@ export default function Header({
                                 <ChevronDown size={16} aria-hidden="true" className={`text-gray-500 transition-transform ${menuPerfil ? 'rotate-180' : ''}`} />
                             </button>
                             {menuPerfil && <nav id="menu-perfil" aria-label="Opções do perfil" className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-lg">
-                                <button type="button" disabled title="Em breve" className="flex w-full cursor-not-allowed items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-gray-400"><UserPen size={18} aria-hidden="true" />Editar perfil</button>
+                                <button type="button" onClick={() => { setMenuPerfil(false); onNavegar?.("configuracoesPerfil"); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-gray-700 hover:bg-purple-50 focus-visible:bg-purple-50"><UserPen size={18} aria-hidden="true" />Editar perfil</button>
                                 <div className="my-1 border-t border-gray-100" />
                                 <button type="button" onClick={() => { setMenuPerfil(false); onSair?.(); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 focus-visible:bg-red-50"><LogOut size={18} aria-hidden="true" />Sair</button>
                             </nav>}
