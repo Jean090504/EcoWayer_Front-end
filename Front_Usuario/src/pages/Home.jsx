@@ -1,8 +1,10 @@
-import Categorias from "../components/layout/categorias.jsx";
-import Banner from "../components/layout/banner.jsx";
-import DestaquesCategorias from "../components/layout/anunciosDestaquePorCategoria.jsx";
-import { useEffect, useState } from "react";
-import { buscarAnuncios } from "../services/userService.js";
+import { useEffect, useState } from "react"
+
+import Categorias from "../components/layout/categorias.jsx"
+import Banner from "../components/layout/banner.jsx"
+import DestaquesCategorias from "../components/layout/anunciosDestaquePorCategoria.jsx"
+
+import { buscarAnuncios } from "../services/userService.js"
 
 
 export default function Home({ onAbrirAnuncio }) {

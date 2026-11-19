@@ -1,0 +1,6 @@
+export { default as CardSaldo } from './cardSaldo.jsx'
+export { default as CardAcumulo } from './cardAcumulo.jsx'
+export { default as CardResgates } from './cardResgates.jsx'
+export { default as CardHistorico } from './cardHistorico.jsx'
+export { default as CardStatusDoador } from './cardStatusDoador.jsx'
+export { default as CardRecompensas } from './cardRecompensas.jsx'

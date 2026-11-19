@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Archive, Check, CheckCheck, MessageSquare, RefreshCw, Search, Send, Smile, X } from 'lucide-react'
+
 import { criarConversa, enviarMensagem, listarConversas, listarMensagens, marcarConversaLida } from '../services/chatService.js'
 import { enviarComAtualizacao, INTERVALO_CONVERSAS, INTERVALO_MENSAGENS } from '../services/chatDelivery.js'
 import { conversaDaPessoa, conversaDoAnuncio, conversaInicial } from '../services/chatSelection.js'

@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, ArrowRight, Archive, Heart, Home, Share2 } from 'lucide-react'
 
-import { buscarAnuncio } from '../services/userService.js'
+import { CardAnunciante, CardPrecoAnuncio, CardAnuncioRelacionado} from '../components/cards/detalhesAnuncio'
 
-import CardAnunciante from '../components/cards/detalhesAnuncio/cardAnunciante.jsx'
-import CardPrecoAnuncio from '../components/cards/detalhesAnuncio/cardPrecoAnuncio.jsx'
-import CardAnuncioRelacionado from '../components/cards/detalhesAnuncio/cardAnuncioRelacionado.jsx'
+import { buscarAnuncio } from '../services/userService.js'
 
 function textoPreco(anuncio) {
     const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
