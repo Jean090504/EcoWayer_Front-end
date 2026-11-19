@@ -55,7 +55,6 @@ export default function MinhaCarteira() {
   return (
     <main className="flex flex-1 w-full justify-center bg-[#F8F9FB]">
       <div className="flex w-full max-w-[80%] flex-col gap-8 px-6 py-10">
-        {erro && <p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-700">{erro}</p>}
         {/* Título */}
         <div className="flex items-center justify-between">
           <h1 className="text-[#191C1E] text-[32px] font-bold">Minha Carteira</h1>
