@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { Scale, BanknoteX, Skull, Copy, MessageSquareWarning, Ellipsis, CloudUpload, X } from "lucide-react"
-import TituloSecao from "../../ui/tituloSecao"
-import BotaoDenuncia from "../../ui/BotaoDenuncia"
+
+import { TituloSecao, BotaoDenuncia } from '../../ui'
 
 const MOTIVOS = [
   {
