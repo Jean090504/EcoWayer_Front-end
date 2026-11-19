@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
-import CardSaldoDisponivel from "../components/cards/pontosBeneficios/cardSaldoDisponivel"
-import CardPremio from "../components/cards/pontosBeneficios/cardPremio"
-import CardHistoricoPontuacao from "../components/cards/pontosBeneficios/cardHistoricoPontuacao"
+
+import { CardSaldoDisponivel, CardPremio, CardHistoricoPontuacao } from '../components/cards/pontosBeneficios'
+
 import { listarEntregasUsuario, listarPontosUsuario, listarVouchersUsuario } from "../services/userService"
 
 export default function PontosBeneficios() {

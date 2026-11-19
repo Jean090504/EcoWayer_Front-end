@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react"
 
-import Botao from "../components/ui/botao"
+import { Botao } from '../components/ui'
 
 import CardMotivoDenuncia from "../components/cards/denunciarAnuncio/cardMotivoDenuncia"
 

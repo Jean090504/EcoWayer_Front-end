@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft,  Heart, Home, Share2 } from 'lucide-react'
+import { ArrowLeft, Heart, Home, Share2 } from 'lucide-react'
 
+import { CardAnunciante, CardPrecoAnuncio, CardEspecificacoesMaterial, CardDescricaoDetalhada, CardOutrosAnunciosVendedor } from '../components/cards/detalhesAnuncio'
 import { buscarAnuncio } from '../services/userService.js'
-
-import { CardAnunciante, CardPrecoAnuncio, CardEspecificacoesMaterial, CardDescricaoDetalhada, CardOutrosAnunciosVendedor} from '../components/cards/detalhesAnuncio'
 
 function textoPreco(anuncio) {
     const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -181,7 +180,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                             onConversar={onConversar}
                             onContraproposta={() => demonstrar('Contraproposta / Agendar retirada')}
                         />
-                        <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={denunciar} onVerPerfil={(v) => navigate(`/perfil/${v.id}`)} />
+                        <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={denunciar} onVerPerfil={() => onNavegar('perfil')} />
                     </div>
                 </div>
 

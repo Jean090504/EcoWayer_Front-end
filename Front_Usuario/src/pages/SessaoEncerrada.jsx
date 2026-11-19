@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
-import { LogIn, ShieldCheck } from 'lucide-react';
+import { useEffect, useRef } from 'react'
+import { LogIn, ShieldCheck } from 'lucide-react'
 
 export default function SessaoEncerrada({ encerrando, onEntrar }) {
-    const botao = useRef(null);
+    const botao = useRef(null)
     useEffect(() => { if (!encerrando) botao.current?.focus(); }, [encerrando]);
     return <section className="flex flex-1 items-center justify-center bg-[#FAF8FF] px-4 py-16 sm:py-24" aria-labelledby="sessao-encerrada-titulo">
         <div className="w-full max-w-[480px] rounded-[32px] bg-white px-7 py-12 text-center shadow-sm sm:px-10">
@@ -12,5 +12,5 @@ export default function SessaoEncerrada({ encerrando, onEntrar }) {
             <button ref={botao} onClick={onEntrar} disabled={encerrando} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#724BC2] px-6 py-3 font-semibold text-white transition hover:bg-[#6539B8] disabled:cursor-wait disabled:opacity-60"><LogIn size={18} aria-hidden="true" />{encerrando ? 'Encerrando sessão...' : 'Entrar novamente'}</button>
             <p role="status" className="mt-4 text-xs text-gray-500">{encerrando ? 'Aguarde um instante.' : 'Faça login para acessar seus anúncios, mensagens e carteira.'}</p>
         </div>
-    </section>;
+    </section>
 }

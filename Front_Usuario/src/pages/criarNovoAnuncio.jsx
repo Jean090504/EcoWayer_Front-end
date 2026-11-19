@@ -1,4 +1,4 @@
-import FluxoCriarAnuncio from "../components/fluxos/fluxoNovoAnuncio";
+import FluxoCriarAnuncio from "../components/fluxos/fluxoNovoAnuncio"
 
 export default function CriarNovoAnuncio({ onNavegar }) {
     return (

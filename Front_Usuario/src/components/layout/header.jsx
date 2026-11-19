@@ -1,25 +1,25 @@
+import { useEffect, useRef, useState } from "react"
+import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, UserPen, LogOut } from "lucide-react"
 
-import { useEffect, useRef, useState } from "react";
-import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, UserPen, LogOut } from "lucide-react";
-import ItemNavegacao from "../ui/itemNavegacao.jsx";
-import BotaoHeader from "../ui/botao.jsx";
-import perfil from "../../assets/icons/icones/foto.png";
+import { ItemNavegacao, Botao } from '../ui'
+
+import perfil from "../../assets/icons/icones/foto.png"
 
 // ---------------------------------------------------------------------------
 //                              Constantes
 // ---------------------------------------------------------------------------
-const IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades";
+const IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades"
 
-const TEXTO_XS = "text-[length:clamp(11px,0.82vw,12px)]";
-const TEXTO_SM = "text-[length:clamp(12px,0.92vw,14px)]";
+const TEXTO_XS = "text-[length:clamp(11px,0.82vw,12px)]"
+const TEXTO_SM = "text-[length:clamp(12px,0.92vw,14px)]"
 
 const ICONE_NAV =
-    "h-[clamp(17px,1.32vw,20px)] w-[clamp(17px,1.32vw,20px)]";
+    "h-[clamp(17px,1.32vw,20px)] w-[clamp(17px,1.32vw,20px)]"
 
 // Espaçamentos
-const GAP_GRUPOS = "gap-[clamp(10px,1.1vw,18px)]";
-const GAP_NAV = "gap-[clamp(10px,1.15vw,18px)]";
-const GAP_ITEM = "gap-[clamp(7px,0.7vw,11px)]";
+const GAP_GRUPOS = "gap-[clamp(10px,1.1vw,18px)]"
+const GAP_NAV = "gap-[clamp(10px,1.15vw,18px)]"
+const GAP_ITEM = "gap-[clamp(7px,0.7vw,11px)]"
 
 // ---------------------------------------------------------------------------
 //   Props recebidas do App:
@@ -40,40 +40,40 @@ export default function Header({
     // -----------------------------------------------------------------------
     //                         Estados: interface
     // -----------------------------------------------------------------------
-    const [mostrarFiltro, setMostrarFiltro] = useState(false);
-    const [menuPerfil, setMenuPerfil] = useState(false);
-    const [fotoComErro, setFotoComErro] = useState(null);
-    const perfilRef = useRef(null);
-    const botaoPerfilRef = useRef(null);
+    const [mostrarFiltro, setMostrarFiltro] = useState(false)
+    const [menuPerfil, setMenuPerfil] = useState(false)
+    const [fotoComErro, setFotoComErro] = useState(null)
+    const perfilRef = useRef(null)
+    const botaoPerfilRef = useRef(null)
 
-    useEffect(() => { setMenuPerfil(false); }, [usuario?.id]);
+    useEffect(() => { setMenuPerfil(false) }, [usuario?.id])
 
     useEffect(() => {
-        if (!menuPerfil) return;
-        const fora = evento => { if (!perfilRef.current?.contains(evento.target)) setMenuPerfil(false); };
+        if (!menuPerfil) return
+        const fora = evento => { if (!perfilRef.current?.contains(evento.target)) setMenuPerfil(false) }
         const teclado = evento => {
-            if (evento.key === "Escape") { setMenuPerfil(false); botaoPerfilRef.current?.focus(); }
-        };
-        document.addEventListener("pointerdown", fora);
-        document.addEventListener("keydown", teclado);
-        return () => { document.removeEventListener("pointerdown", fora); document.removeEventListener("keydown", teclado); };
-    }, [menuPerfil]);
+            if (evento.key === "Escape") { setMenuPerfil(false); botaoPerfilRef.current?.focus() }
+        }
+        document.addEventListener("pointerdown", fora)
+        document.addEventListener("keydown", teclado)
+        return () => { document.removeEventListener("pointerdown", fora); document.removeEventListener("keydown", teclado) }
+    }, [menuPerfil])
 
     // -----------------------------------------------------------------------
     //                         Estados: estados (UF)
     // -----------------------------------------------------------------------
-    const [estados, setEstados] = useState([]);
-    const [ufSelecionada, setUfSelecionada] = useState("");
-    const [carregandoEstados, setCarregandoEstados] = useState(false);
-    const [erroEstados, setErroEstados] = useState(false);
+    const [estados, setEstados] = useState([])
+    const [ufSelecionada, setUfSelecionada] = useState("")
+    const [carregandoEstados, setCarregandoEstados] = useState(false)
+    const [erroEstados, setErroEstados] = useState(false)
 
     // -----------------------------------------------------------------------
     //                        Estados: cidades
     // -----------------------------------------------------------------------
-    const [cidades, setCidades] = useState([]);
-    const [cidadeSelecionada, setCidadeSelecionada] = useState("");
-    const [carregandoCidades, setCarregandoCidades] = useState(false);
-    const [erroCidades, setErroCidades] = useState(false);
+    const [cidades, setCidades] = useState([])
+    const [cidadeSelecionada, setCidadeSelecionada] = useState("")
+    const [carregandoCidades, setCarregandoCidades] = useState(false)
+    const [erroCidades, setErroCidades] = useState(false)
 
     // -----------------------------------------------------------------------
     //                             Efeitos
@@ -81,93 +81,93 @@ export default function Header({
 
     // Busca os estados ao montar o header
     useEffect(() => {
-        const controller = new AbortController();
+        const controller = new AbortController()
 
         async function buscarEstados() {
-            setCarregandoEstados(true);
-            setErroEstados(false);
+            setCarregandoEstados(true)
+            setErroEstados(false)
 
             try {
                 const resposta = await fetch(`${IBGE_API}/estados?orderBy=nome`, {
                     signal: controller.signal,
-                });
+                })
 
                 if (!resposta.ok) {
-                    throw new Error("Não foi possível carregar os estados.");
+                    throw new Error("Não foi possível carregar os estados.")
                 }
 
-                setEstados(await resposta.json());
+                setEstados(await resposta.json())
             } catch (erro) {
                 if (erro.name !== "AbortError") {
-                    console.error("Erro ao buscar estados:", erro);
-                    setErroEstados(true);
+                    console.error("Erro ao buscar estados:", erro)
+                    setErroEstados(true)
                 }
             } finally {
                 if (!controller.signal.aborted) {
-                    setCarregandoEstados(false);
+                    setCarregandoEstados(false)
                 }
             }
         }
 
-        buscarEstados();
-        return () => controller.abort();
-    }, []);
+        buscarEstados()
+        return () => controller.abort()
+    }, [])
 
     // Busca as cidades sempre que o estado muda
     useEffect(() => {
         if (!ufSelecionada) {
-            setCidades([]);
-            setCidadeSelecionada("");
-            setErroCidades(false);
-            return;
+            setCidades([])
+            setCidadeSelecionada("")
+            setErroCidades(false)
+            return
         }
 
-        const controller = new AbortController();
+        const controller = new AbortController()
 
         async function buscarCidades() {
-            setCarregandoCidades(true);
-            setErroCidades(false);
-            setCidades([]);
+            setCarregandoCidades(true)
+            setErroCidades(false)
+            setCidades([])
 
             try {
                 const resposta = await fetch(
                     `${IBGE_API}/estados/${ufSelecionada}/municipios?orderBy=nome`,
                     { signal: controller.signal }
-                );
+                )
 
                 if (!resposta.ok) {
-                    throw new Error("Não foi possível carregar as cidades.");
+                    throw new Error("Não foi possível carregar as cidades.")
                 }
 
-                setCidades(await resposta.json());
+                setCidades(await resposta.json())
             } catch (erro) {
                 if (erro.name !== "AbortError") {
-                    console.error("Erro ao buscar cidades:", erro);
-                    setErroCidades(true);
+                    console.error("Erro ao buscar cidades:", erro)
+                    setErroCidades(true)
                 }
             } finally {
                 if (!controller.signal.aborted) {
-                    setCarregandoCidades(false);
+                    setCarregandoCidades(false)
                 }
             }
         }
 
-        buscarCidades();
-        return () => controller.abort();
-    }, [ufSelecionada]);
+        buscarCidades()
+        return () => controller.abort()
+    }, [ufSelecionada])
 
     // -----------------------------------------------------------------------
     //                                 Funções
     // -----------------------------------------------------------------------
     function selecionarEstado(e) {
-        setUfSelecionada(e.target.value);
-        setCidadeSelecionada("");
+        setUfSelecionada(e.target.value)
+        setCidadeSelecionada("")
     }
 
     function limparLocalizacao() {
-        setUfSelecionada("");
-        setCidadeSelecionada("");
-        setCidades([]);
+        setUfSelecionada("")
+        setCidadeSelecionada("")
+        setCidades([])
     }
 
     // -----------------------------------------------------------------------
@@ -182,7 +182,7 @@ export default function Header({
             >
 
                 {/* Logo */}
-                <button type="button" aria-label="Ecomarket — voltar ao início" onClick={() => { setMenuPerfil(false); setMostrarFiltro(false); onNavegar?.("home"); }} className="flex shrink-0 items-center rounded-md focus-visible:outline-2 focus-visible:outline-[#724BC2]">
+                <button type="button" aria-label="Ecomarket — voltar ao início" onClick={() => { setMenuPerfil(false); setMostrarFiltro(false); onNavegar?.("home") }} className="flex shrink-0 items-center rounded-md focus-visible:outline-2 focus-visible:outline-[#724BC2]">
                     <p className="whitespace-nowrap font-bold leading-none text-[clamp(25px,2vw,32px)] text-[#4CAF50]">
                         Eco<span className="text-[#724BC2]">market</span>
                     </p>
@@ -225,13 +225,13 @@ export default function Header({
                                     Filtrar localização
                                 </h3>
 
-                                <BotaoHeader
+                                <Botao
                                     onClick={() => setMostrarFiltro(false)}
                                     className="text-[length:clamp(18px,1.32vw,22px)] text-gray-400 transition hover:text-gray-700"
                                     aria-label="Fechar filtro"
                                 >
                                     ×
-                                </BotaoHeader>
+                                </Botao>
                             </div>
 
                             {/* Seleção do estado */}
@@ -316,48 +316,48 @@ export default function Header({
                     <div className={`flex shrink-0 items-center ${GAP_ITEM}`}>
 
                         {/* Perfil do usuário */}
-                        <div ref={perfilRef} className="relative" onBlur={evento => { if (!evento.currentTarget.contains(evento.relatedTarget)) setMenuPerfil(false); }}>
+                        <div ref={perfilRef} className="relative" onBlur={evento => { if (!evento.currentTarget.contains(evento.relatedTarget)) setMenuPerfil(false) }}>
                             <button ref={botaoPerfilRef} type="button" aria-expanded={menuPerfil} aria-controls="menu-perfil" onClick={() => setMenuPerfil(valor => !valor)} className={`flex items-center rounded-full py-1 ${GAP_ITEM} focus-visible:outline-2 focus-visible:outline-[#724BC2]`}>
                                 {fotoComErro !== (usuario.foto || perfil) ? <img src={usuario.foto || perfil} onError={() => setFotoComErro(usuario.foto || perfil)} alt="" className="h-[clamp(34px,2.5vw,40px)] w-[clamp(34px,2.5vw,40px)] rounded-full object-cover" /> : <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEE8FA] font-bold text-[#724BC2]">{usuario.nome?.trim().charAt(0).toUpperCase()}</span>}
                                 <span className={`whitespace-nowrap ${TEXTO_SM} font-semibold text-black`}>{usuario.nome}</span>
                                 <ChevronDown size={16} aria-hidden="true" className={`text-gray-500 transition-transform ${menuPerfil ? 'rotate-180' : ''}`} />
                             </button>
                             {menuPerfil && <nav id="menu-perfil" aria-label="Opções do perfil" className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-lg">
-                                <button type="button" onClick={() => { setMenuPerfil(false); onNavegar?.("configuracoesPerfil"); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-gray-700 hover:bg-purple-50 focus-visible:bg-purple-50"><UserPen size={18} aria-hidden="true" />Editar perfil</button>
+                                <button type="button" onClick={() => { setMenuPerfil(false); onNavegar?.("configuracoesPerfil") }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-gray-700 hover:bg-purple-50 focus-visible:bg-purple-50"><UserPen size={18} aria-hidden="true" />Editar perfil</button>
                                 <div className="my-1 border-t border-gray-100" />
-                                <button type="button" onClick={() => { setMenuPerfil(false); onSair?.(); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 focus-visible:bg-red-50"><LogOut size={18} aria-hidden="true" />Sair</button>
+                                <button type="button" onClick={() => { setMenuPerfil(false); onSair?.() }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 focus-visible:bg-red-50"><LogOut size={18} aria-hidden="true" />Sair</button>
                             </nav>}
                         </div>
 
                         {/* Botão anunciar */}
-                        <BotaoHeader
+                        <Botao
                             onClick={onAbrirNovoAnuncio}
                             className={`flex h-[clamp(34px,2.5vw,40px)] shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-[clamp(18px,1.8vw,28px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
                         >
                             Anunciar
-                        </BotaoHeader>
+                        </Botao>
                     </div>
                 ) : (
                     <div className={`flex shrink-0 items-center ${GAP_ITEM}`}>
 
                         {/* Botão criar conta */}
-                        <BotaoHeader
+                        <Botao
                             onClick={onAbrirCriarConta}
                             className={`flex h-[clamp(34px,2.5vw,40px)] shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white px-[clamp(14px,1.35vw,21px)] ${TEXTO_SM} font-semibold text-gray-700 transition-colors hover:border-green-600 hover:text-green-600`}
                         >
                             Criar Conta
-                        </BotaoHeader>
+                        </Botao>
 
                         {/* Botão logar */}
-                        <BotaoHeader
+                        <Botao
                             onClick={onAbrirLogin}
                             className={`flex h-[clamp(34px,2.5vw,40px)] shrink-0 items-center justify-center rounded-full bg-[#724BC2] px-[clamp(16px,1.45vw,23px)] ${TEXTO_SM} font-semibold text-white transition hover:bg-purple-700`}
                         >
                             Logar
-                        </BotaoHeader>
+                        </Botao>
                     </div>
                 )}
             </div>
         </header>
-    );
+    )
 }

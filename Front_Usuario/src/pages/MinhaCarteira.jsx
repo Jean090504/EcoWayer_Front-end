@@ -2,13 +2,10 @@ import { useEffect, useMemo, useState } from "react"
 import { buscarPontosUsuario, resumirPontos } from "../services/pontosService"
 import { CircleHelp } from "lucide-react"
 
-import Botao from "../components/ui/botao"
-import CardSaldo from "../components/cards/minhaCarteira/cardSaldo"
-import CardAcumulo from "../components/cards/minhaCarteira/cardAcumulo"
-import CardResgates from "../components/cards/minhaCarteira/cardResgates"
-import CardHistorico from "../components/cards/minhaCarteira/cardHistorico"
-import CardStatusDoador from "../components/cards/minhaCarteira/cardStatusDoador"
-import CardRecompensas from "../components/cards/minhaCarteira/cardRecompensas"
+import { Botao } from '../components/ui'
+
+import { CardSaldo, CardAcumulo, CardResgates, CardHistorico, CardStatusDoador, CardRecompensas } from '../components/cards/minhaCarteira'
+
 import { listarEntregasUsuario, listarRecompensas, listarVouchersUsuario } from "../services/userService"
 
 export default function MinhaCarteira() {

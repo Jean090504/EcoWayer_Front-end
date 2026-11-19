@@ -1,10 +1,7 @@
 import { useState } from "react"
 import { CheckCheck, Settings } from "lucide-react"
 
-import CardNotificacoes, { ABAS, abaDoTipo } from "../components/cards/notificacoes/cardNotificacoes"
-import CardCarteiraEcologica from "../components/cards/notificacoes/cardCarteiraEcologica"
-import CardDicaSeguranca from "../components/cards/notificacoes/cardDicaSeguranca"
-import CardEcoPonto from "../components/cards/notificacoes/cardEcoPonto"
+import { CardNotificacoes, ABAS, abaDoTipo, CardCarteiraEcologica, CardDicaSeguranca, CardEcoPonto } from '../components/cards/notificacoes'
 
 const RESUMO_NOTIFICACOES = {
     novas: 3,

@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import DadosConta from "../components/cards/perfil/cardDadosPersona";
-import Desempenho from "../components/cards/perfil/cardDesempenho";
-import AnunciosPublicados from "../components/cards/perfil/cardCatalogoDeAnuncios";
-import { buscarAnuncios, buscarPerfil } from "../services/userService.js";
+import { useEffect, useState } from "react"
+
+import { DadosConta, Desempenho, AnunciosPublicados } from '../components/cards/perfil'
+
+import { buscarAnuncios, buscarPerfil } from "../services/userService.js"
 
 export default function Perfil({ onNavegar, onEditarAnuncio }) {
     const sessao = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null");

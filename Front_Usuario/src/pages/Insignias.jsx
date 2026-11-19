@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
-import CardProgresso from "../components/cards/insignia/cardProgresso"
-import CardInsignia from "../components/cards/insignia/cardInsignia"
-import Botao from "../components/ui/botao"
+
+import { Botao } from '../components/ui'
+
+import { CardProgresso, CardInsignia } from '../components/cards/insignia'
+
 import { listarInsignias, listarInsigniasUsuario } from "../services/userService"
 
 export default function Insignias() {
