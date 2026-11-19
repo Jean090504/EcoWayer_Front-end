@@ -4,6 +4,8 @@ import { criarConversa, enviarMensagem, listarConversas, listarMensagens, marcar
 import { enviarComAtualizacao, INTERVALO_CONVERSAS, INTERVALO_MENSAGENS } from '../services/chatDelivery.js'
 import { conversaDaPessoa, conversaDoAnuncio, conversaInicial } from '../services/chatSelection.js'
 
+const AVISO_ANUNCIO_INATIVO = 'Este anúncio não está mais ativo. Abra um anúncio ativo para iniciar uma conversa.'
+
 const nomeContato = (conversa, id) => Number(conversa.id_anunciante) === Number(id) ? conversa.interessado : conversa.anunciante
 const iniciais = nome => (nome || 'Anunciante').split(' ').filter(Boolean).slice(0, 2).map(parte => parte[0]).join('')
 const horario = valor => {
@@ -162,7 +164,10 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
                 }
             })
             if (resultado.erroAtualizacao) setErro('Mensagem enviada. Não foi possível atualizar o histórico agora; aguarde a atualização automática.')
-        } catch (error) { setTexto(conteudo); setErro(error.message) }
+        } catch (error) {
+            setTexto(conteudo)
+            setErro(error.message === '[ID_ANUNCIO] ANÚNCIO NÃO ESTÁ ATIVO' ? AVISO_ANUNCIO_INATIVO : error.message)
+        }
         finally { travaEnvio.current = false; setEnviando(false); campo.current?.focus() }
     }
 
@@ -174,7 +179,7 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
     return <section className="flex-1 bg-[#FAF8FF] px-[4%] py-7 text-[#191C30] sm:py-10">
         <nav aria-label="Caminho de navegação" className="mx-auto mb-5 flex max-w-[1440px] items-center gap-2 text-sm"><button onClick={() => onNavegar('home')} className="font-semibold text-[#724BC2] hover:underline">Início</button><span aria-hidden="true">›</span><h1 className="font-semibold">Chat &amp; Mensagens</h1>{conversas.length > 0 && <span className="rounded-full bg-[#724BC2] px-2.5 py-0.5 text-xs text-white">{conversas.length} conversas</span>}</nav>
         {!idUsuario ? <div className="mx-auto flex min-h-[450px] max-w-[1440px] flex-col items-center justify-center gap-4 rounded-[28px] bg-white p-6 text-center"><MessageSquare size={42} className="text-[#724BC2]"/><h2 className="text-xl font-bold">Converse com o anunciante</h2><p className="text-gray-500">Entre na sua conta para acessar suas mensagens.</p><button onClick={onAbrirLogin} className="rounded-full bg-[#724BC2] px-7 py-3 font-semibold text-white">Entrar na conta</button></div> : <>
-        {erro && <div role="alert" className="mx-auto mb-4 flex max-w-[1440px] items-center gap-3 rounded-xl border border-red-100 bg-white p-4 text-sm text-red-700"><span className="flex-1">{erro}</span><button onClick={() => setTentativa(valor => valor + 1)} className="font-semibold underline">Tentar novamente</button><button aria-label="Fechar erro" onClick={() => setErro('')}><X size={18}/></button></div>}
+        {erro && <div role="alert" className="mx-auto mb-4 flex max-w-[1440px] items-center gap-3 rounded-xl border border-red-100 bg-white p-4 text-sm text-red-700"><span className="flex-1">{erro}</span>{erro !== AVISO_ANUNCIO_INATIVO && <button onClick={() => setTentativa(valor => valor + 1)} className="font-semibold underline">Tentar novamente</button>}<button aria-label="Fechar erro" onClick={() => setErro('')}><X size={18}/></button></div>}
         <div className="mx-auto grid min-h-[620px] max-w-[1440px] overflow-hidden rounded-[28px] bg-white shadow-sm md:h-[min(780px,80vh)] md:grid-cols-[32%_1fr]">
             <aside className={`${selecionada ? 'hidden md:flex' : 'flex'} min-h-0 flex-col border-r border-gray-100 p-4 lg:p-5`}>
                 <div className="mb-4 flex items-center justify-between"><h2 className="text-2xl font-bold">Mensagens</h2><button disabled={carregando || enviando} onClick={() => setTentativa(valor => valor + 1)} aria-label="Atualizar conversas" className="rounded-full bg-[#F3F4F6] p-2.5 text-[#536252] disabled:opacity-50"><RefreshCw size={18} className={carregando ? 'animate-spin' : ''}/></button></div>

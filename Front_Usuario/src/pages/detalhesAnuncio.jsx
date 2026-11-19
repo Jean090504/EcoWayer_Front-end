@@ -65,7 +65,13 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                         <h1 className="text-2xl font-bold leading-tight sm:text-[30px]">{anuncio.nome}</h1>
                         <p className="my-5 text-[30px] font-bold leading-tight tracking-tight text-[#4CAF50] sm:text-[34px]">{textoPreco(anuncio)}</p>
                         {anuncio.troca?.trim() && <p className="mb-5 flex items-start gap-2 text-xs leading-relaxed"><RefreshCw size={23} aria-hidden="true" className="shrink-0 rounded-full bg-[#724BC2] p-1 text-white" />{anuncio.troca}</p>}
-                        <button type="button" onClick={() => onConversar(anuncio)} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#724BC2] px-4 py-3 text-sm font-semibold text-white hover:bg-[#603ca8]"><MessageSquare size={16} />Conversar com anunciante</button>
+                        {anuncio.status === 'ativo' ? (
+                            <button type="button" onClick={() => onConversar(anuncio)} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#724BC2] px-4 py-3 text-sm font-semibold text-white hover:bg-[#603ca8]"><MessageSquare size={16} />Conversar com anunciante</button>
+                        ) : (
+                            <p className="rounded-2xl bg-[#F3F4F6] px-4 py-3 text-center text-sm font-medium text-gray-600">
+                                {anuncio.status === 'negociado' ? 'Este anúncio já foi negociado.' : 'Este anúncio está indisponível para novas conversas.'}
+                            </p>
+                        )}
                     </section>
                     <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={onDenunciar} />
                 </div>
