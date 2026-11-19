@@ -18,7 +18,7 @@ function textoPreco(anuncio) {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onConversar }) {
+export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onConversar, onDenunciar }) {
     const [anuncio, setAnuncio] = useState(null);
     const [fotoAtiva, setFotoAtiva] = useState(0);
     const [erro, setErro] = useState('');
@@ -54,7 +54,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                 <div className="min-w-0 space-y-6">
                     <img src={anuncio.imagens[fotoAtiva] || anuncio.imagem} alt={anuncio.nome} className="aspect-[1.67] w-full rounded-[26px] bg-gray-100 object-cover" />
                     {anuncio.imagens.length > 1 && <div className="flex gap-3 overflow-x-auto" aria-label="Fotos do anúncio">{anuncio.imagens.map((url, indice) => <button key={url} type="button" onClick={() => setFotoAtiva(indice)} aria-label={`Ver foto ${indice + 1}`} aria-pressed={fotoAtiva === indice} className={`shrink-0 overflow-hidden rounded-xl border-2 ${fotoAtiva === indice ? 'border-[#724BC2]' : 'border-transparent'}`}><img src={url} alt={`Foto ${indice + 1} de ${anuncio.nome}`} className="h-20 w-24 object-cover" /></button>)}</div>}
-                    <section className="rounded-[26px] bg-white p-6 shadow-sm sm:p-8"><h2 className="mb-7 flex items-center gap-2 text-base font-semibold text-[#724BC2]"><Archive size={18} />Especificações do material</h2><dl className="grid grid-cols-2 gap-5"><div><dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Volume / peso</dt><dd className="mt-1 text-lg font-bold">{anuncio.peso}</dd><dd className="mt-1 text-xs text-gray-500">{anuncio.quantidade}</dd></div><div><dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Estado</dt><dd className="mt-1 text-lg font-bold text-[#4CAF50]">{anuncio.estado}</dd><dd className="mt-1 text-xs text-gray-500">{anuncio.conservacao}</dd></div></dl></section>
+                    <section className="rounded-[26px] bg-white p-6 shadow-sm sm:p-8"><h2 className="mb-7 flex items-center gap-2 text-base font-semibold text-[#724BC2]"><Archive size={18} />Especificações do material</h2><dl className="grid grid-cols-2 gap-5"><div><dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Volume / peso</dt><dd className="mt-1 text-lg font-bold">{anuncio.peso}</dd></div><div><dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">Estado</dt><dd className="mt-1 text-lg font-bold text-[#4CAF50]">{anuncio.estado}</dd><dd className="mt-1 text-xs text-gray-500">{anuncio.conservacao}</dd></div></dl></section>
                 </div>
                 <div className="min-w-0 space-y-3">
                     <section className="rounded-[26px] bg-white p-6 shadow-sm">
@@ -67,7 +67,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                         {anuncio.troca?.trim() && <p className="mb-5 flex items-start gap-2 text-xs leading-relaxed"><RefreshCw size={23} aria-hidden="true" className="shrink-0 rounded-full bg-[#724BC2] p-1 text-white" />{anuncio.troca}</p>}
                         <button type="button" onClick={() => onConversar(anuncio)} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#724BC2] px-4 py-3 text-sm font-semibold text-white hover:bg-[#603ca8]"><MessageSquare size={16} />Conversar com anunciante</button>
                     </section>
-                    <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={() => demonstrar('Denúncia de anúncio')} />
+                    <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={onDenunciar} />
                 </div>
             </div>
             <section className="my-7 rounded-[26px] bg-white p-6 shadow-sm sm:p-8"><h2 className="mb-6 text-base font-semibold">Descrição detalhada</h2><p className="whitespace-pre-line text-sm leading-relaxed text-[#3E4A3D]">{anuncio.descricao}</p></section>

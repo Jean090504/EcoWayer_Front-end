@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, Archive, Check, CheckCheck, MessageSquare, RefreshCw, Search, Send, Smile, X } from 'lucide-react'
+import { ArrowLeft, Archive, Check, CheckCheck, ChevronDown, Flag, MessageSquare, RefreshCw, Search, Send, Smile, X } from 'lucide-react'
 import { criarConversa, enviarMensagem, listarConversas, listarMensagens, marcarConversaLida } from '../services/chatService.js'
 import { enviarComAtualizacao, INTERVALO_CONVERSAS, INTERVALO_MENSAGENS } from '../services/chatDelivery.js'
 import { conversaDaPessoa, conversaDoAnuncio, conversaInicial } from '../services/chatSelection.js'
@@ -16,7 +16,7 @@ const dia = valor => {
     return Number.isNaN(data.getTime()) ? '' : data.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbrirAnuncio }) {
+export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbrirAnuncio, onDenunciarMensagem }) {
     const [conversas, setConversas] = useState([])
     const [selecionada, setSelecionada] = useState(null)
     const [contextoPendente, setContextoPendente] = useState(anuncio || null)
@@ -30,6 +30,7 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
     const [tentativa, setTentativa] = useState(0)
     const [mostrarBusca, setMostrarBusca] = useState(false)
     const [buscaMensagem, setBuscaMensagem] = useState('')
+    const [menuMensagem, setMenuMensagem] = useState(null)
     const [emojis, setEmojis] = useState(false)
     const fim = useRef(null)
     const campo = useRef(null)
@@ -210,7 +211,33 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
                             return <div key={item.id}>
                                 {(indice === 0 || dia(mensagensVisiveis[indice - 1].envio) !== data) && data && <div className="mb-5 text-center"><span className="rounded-full bg-[#EDE9FE] px-4 py-1.5 text-xs text-[#536252]">{data}</span></div>}
                                 {(indice === 0 || Number(mensagensVisiveis[indice - 1].id_anuncio) !== Number(item.id_anuncio)) && item.id_anuncio && <button type="button" onClick={() => onAbrirAnuncio({ id: item.id_anuncio })} className="mx-auto mb-5 flex max-w-md items-center gap-3 rounded-2xl border border-purple-100 bg-white px-4 py-3 text-left text-xs text-[#724BC2]"><Archive size={20} className="shrink-0" /><span><span className="block text-gray-500">{indice === 0 ? `${item.remetente} iniciou o contato pelo anúncio` : `${item.remetente} enviou uma mensagem sobre o anúncio`}</span><span className="mt-1 block font-semibold">{item.anuncio}</span><span className="mt-1 block underline">Ver anúncio</span></span></button>}
-                                <div className={`flex ${minha ? 'justify-end' : 'justify-start'}`}><div className="max-w-[88%] sm:max-w-[78%]"><p className={`whitespace-pre-wrap break-words rounded-[20px] px-4 py-3 text-sm leading-relaxed shadow-sm lg:px-5 lg:py-4 ${minha ? 'rounded-br-sm bg-[#724BC2] text-white' : 'rounded-bl-sm bg-white text-[#191C30]'}`}>{item.texto}</p><div className={`mt-1 flex items-center gap-1 px-1 text-[11px] text-[#536252] ${minha ? 'justify-end' : ''}`}><time>{horario(item.envio)}</time>{minha && (Number(item.lida) ? <CheckCheck size={14} className="text-[#4CAF50]" aria-label="Lida"/> : <Check size={14} aria-label="Enviada"/>)}</div></div></div>
+                                <div className={`flex ${minha ? 'justify-end' : 'justify-start'}`}><div className="relative min-w-0 max-w-[88%] sm:max-w-[78%]" onBlur={evento => {
+                                    if (!evento.currentTarget.contains(evento.relatedTarget)) setMenuMensagem(null)
+                                }}><p className={`whitespace-pre-wrap break-words rounded-[20px] px-4 py-3 text-sm leading-relaxed shadow-sm lg:px-5 lg:py-4 ${minha ? 'rounded-br-sm bg-[#724BC2] text-white' : 'rounded-bl-sm bg-white pr-11 text-[#191C30] lg:pr-12'}`}>{item.texto}</p>
+                                    {!minha && onDenunciarMensagem && (
+                                        <div className="absolute right-1 top-1" onKeyDown={evento => {
+                                            if (evento.key === 'Escape') {
+                                                evento.currentTarget.querySelector('button')?.focus()
+                                                setMenuMensagem(null)
+                                            }
+                                        }}>
+                                            <button
+                                                type="button"
+                                                aria-label="Opções da mensagem"
+                                                aria-expanded={menuMensagem === item.id}
+                                                onClick={() => setMenuMensagem(atual => atual === item.id ? null : item.id)}
+                                                className="rounded-full p-2 text-gray-600 hover:bg-purple-50 focus-visible:outline-2 focus-visible:outline-[#724BC2]"
+                                            ><ChevronDown size={16} aria-hidden="true" /></button>
+                                            {menuMensagem === item.id && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onDenunciarMensagem(item)}
+                                                    className="absolute left-0 top-full z-10 flex items-center gap-2 rounded-lg border border-gray-100 bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-lg hover:bg-red-50"
+                                                ><Flag size={15} aria-hidden="true" />Denunciar</button>
+                                            )}
+                                        </div>
+                                    )}
+                                    <div className={`mt-1 flex items-center gap-1 px-1 text-[11px] text-[#536252] ${minha ? 'justify-end' : ''}`}><time>{horario(item.envio)}</time>{minha && (Number(item.lida) ? <CheckCheck size={14} className="text-[#4CAF50]" aria-label="Lida"/> : <Check size={14} aria-label="Enviada"/>)}</div></div></div>
                             </div>
                         })}<div ref={fim}/>
                     </div>

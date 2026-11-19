@@ -36,6 +36,7 @@ export default function App() {
     })
     const [anuncioSelecionado, setAnuncioSelecionado] = useState(null)
     const [anuncioConversa, setAnuncioConversa] = useState(null)
+    const [mensagemDenunciada, setMensagemDenunciada] = useState(null)
     const [telaAtiva, setTelaAtiva] = useState("home")
     const [abrirLogin, setAbrirLogin] = useState(false)
     const [abrirCadastro, setAbrirCadastro] = useState(false)
@@ -50,6 +51,7 @@ export default function App() {
             setUsuario(null)
             setAnuncioSelecionado(null)
             setAnuncioConversa(null)
+            setMensagemDenunciada(null)
             setAnuncioAlterado(false)
             setAbrirCadastro(false)
             setAbrirLogin(false)
@@ -87,6 +89,7 @@ export default function App() {
         setUsuario(null)
         setAnuncioSelecionado(null)
         setAnuncioConversa(null)
+        setMensagemDenunciada(null)
         setAnuncioAlterado(false)
         setAbrirLogin(false)
         setAbrirCadastro(false)
@@ -108,6 +111,11 @@ export default function App() {
         setAnuncioConversa(anuncio)
         setTelaAtiva("chat")
         window.scrollTo(0, 0)
+    }
+
+    function denunciarMensagem(mensagem) {
+        setMensagemDenunciada(mensagem)
+        navegar("denunciarMensagem")
     }
 
     function editarAnuncio(anuncio) {
@@ -142,10 +150,11 @@ export default function App() {
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
                         onConversar={abrirChat}
+                        onDenunciar={() => usuario ? navegar("denunciarAnuncio") : pedirLogin()}
                     />
                 )}
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
-                {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
+                {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onDenunciarMensagem={denunciarMensagem} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
@@ -154,7 +163,10 @@ export default function App() {
                 {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} />}
                 {telaAtiva === "configuracoesPerfil" && <ConfiguracoesPerfil tema={tema} onAlterarTema={alterarTema} usuario={usuario} onAtualizarUsuario={setUsuario} onNavegar={navegar} />}
                 {telaAtiva === "editarAnuncio" && <EditarAnuncio key={anuncioSelecionado?.id} anuncioId={anuncioSelecionado?.id} onNavegar={navegar} onSalvo={concluirEdicao} />}
-                {telaAtiva === "denunciarAnuncio" && <DenunciarAnuncio onNavegar={navegar} />}
+                {telaAtiva === "denunciarMensagem" && mensagemDenunciada && (
+                    <DenunciarAnuncio mensagem={mensagemDenunciada} onNavegar={navegar} />
+                )}
+                {telaAtiva === "denunciarAnuncio" && <DenunciarAnuncio anuncioId={anuncioSelecionado?.id} onNavegar={navegar} />}
                 </>}
             </main>
 

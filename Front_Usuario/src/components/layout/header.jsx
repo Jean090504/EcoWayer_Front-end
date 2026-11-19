@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from "react";
-import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, UserPen, LogOut } from "lucide-react";
+import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, Award, Medal, Settings, LogOut } from "lucide-react";
 import ItemNavegacao from "../ui/itemNavegacao.jsx";
 import BotaoHeader from "../ui/botao.jsx";
 import perfil from "../../assets/icons/icones/foto.png";
@@ -20,6 +20,12 @@ const ICONE_NAV =
 const GAP_GRUPOS = "gap-[clamp(10px,1.1vw,18px)]";
 const GAP_NAV = "gap-[clamp(10px,1.15vw,18px)]";
 const GAP_ITEM = "gap-[clamp(7px,0.7vw,11px)]";
+
+const OPCOES_PERFIL = [
+    { tela: "insignias", texto: "Insígnias", Icone: Award },
+    { tela: "pontosBeneficios", texto: "Pontos e Benefícios", Icone: Medal },
+    { tela: "configuracoesPerfil", texto: "Configurações", Icone: Settings },
+];
 
 // ---------------------------------------------------------------------------
 //   Props recebidas do App:
@@ -323,8 +329,21 @@ export default function Header({
                                 <ChevronDown size={16} aria-hidden="true" className={`text-gray-500 transition-transform ${menuPerfil ? 'rotate-180' : ''}`} />
                             </button>
                             {menuPerfil && <nav id="menu-perfil" aria-label="Opções do perfil" className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-lg">
-                                <button type="button" onClick={() => { setMenuPerfil(false); onNavegar?.("configuracoesPerfil"); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-gray-700 hover:bg-purple-50 focus-visible:bg-purple-50"><UserPen size={18} aria-hidden="true" />Editar perfil</button>
-                                <div className="my-1 border-t border-gray-100" />
+                                {OPCOES_PERFIL.map(({ tela, texto, Icone }) => (
+                                    <div key={tela} className="border-b border-gray-100 pb-1 mb-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setMenuPerfil(false);
+                                                onNavegar?.(tela);
+                                            }}
+                                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-gray-700 hover:bg-purple-50 focus-visible:bg-purple-50"
+                                        >
+                                            <Icone size={18} aria-hidden="true" className="shrink-0" />
+                                            {texto}
+                                        </button>
+                                    </div>
+                                ))}
                                 <button type="button" onClick={() => { setMenuPerfil(false); onSair?.(); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 focus-visible:bg-red-50"><LogOut size={18} aria-hidden="true" />Sair</button>
                             </nav>}
                         </div>
