@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { buscarPontosUsuario, resumirPontos } from "../services/pontosService"
 import { CircleHelp } from "lucide-react"
 
-import Botao from "../components/ui/botao"
+import { Botao } from '../components/ui'
 
 import { CardSaldo, CardAcumulo, CardResgates, CardHistorico, CardStatusDoador, CardRecompensas } from '../components/cards/minhaCarteira'
 

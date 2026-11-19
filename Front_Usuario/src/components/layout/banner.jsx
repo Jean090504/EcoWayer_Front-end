@@ -1,7 +1,6 @@
 import { useState } from "react"
-import fundo1 from "../../assets/icons/img/banner1.png"
-import fundo2 from "../../assets/icons/img/banner2.png"
-import fundo3 from "../../assets/icons/img/banner3.png"
+
+import { fundo1, fundo2, fundo3 } from '../../assets/icons/img'
 
 export default function Banner() {
     const [bannerAtual, setBannerAtual] = useState(0)

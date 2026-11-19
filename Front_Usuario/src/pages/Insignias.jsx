@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 
-import Botao from "../components/ui/botao"
+import { Botao } from '../components/ui'
 
 import { CardProgresso, CardInsignia } from '../components/cards/insignia'
 

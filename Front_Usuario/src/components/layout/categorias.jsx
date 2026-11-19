@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import Botao from "../ui/botao.jsx"
+import { Botao } from '../ui'
 
 export default function Categorias() {
 

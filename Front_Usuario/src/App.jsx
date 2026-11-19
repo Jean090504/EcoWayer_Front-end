@@ -1,25 +1,28 @@
 import { useEffect, useState } from "react"
 
-import Header from "./components/layout/header.jsx"
-import Footer from "./components/layout/footer.jsx"
-import Login from "./components/cards/conta/cardLogin.jsx"
-import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx"
-import FluxoDenunciarAnuncio from "./components/fluxos/fluxoDenunciarAnuncio.jsx" // NOVO (confira o nome do arquivo)
+import { Header, Footer } from './components/layout'
 
-import Home from "./pages/Home.jsx"
-import ConfiguracoesPerfil from "./pages/ConfiguracoesPerfil.jsx"
-import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx"
-import DetalhesAnuncio from "./pages/detalhesAnuncio.jsx";
-import MinhaCarteira from "./pages/MinhaCarteira.jsx"
-import PontosBeneficios from "./pages/PontosBeneficios.jsx"
-import Insignias from "./pages/Insignias.jsx"
-import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
-import TelaMeuPerfil from "./pages/meuPerfil.jsx"
-import Notificacoes from "./pages/Notificacoes.jsx"
-import Chat from "./pages/Chat.jsx"
-import EditarAnuncio from "./pages/editarAnuncio.jsx"
-import ConfirmacaoAnuncioAlterado from "./components/cards/editarAnuncio/cardMenssagemDeAnuncioAlterado.jsx"
-import SessaoEncerrada from "./pages/SessaoEncerrada.jsx"
+import Login from "./components/cards/conta/cardLogin.jsx"
+
+import { FluxoCriarConta, FluxoDenunciarAnuncio } from './components/fluxos'
+
+import {
+    Home,
+    ConfiguracoesPerfil,
+    AvaliacaoAnuncio,
+    DetalhesAnuncio,
+    MinhaCarteira,
+    PontosBeneficios,
+    Insignias,
+    CriarNovoAnuncio,
+    TelaMeuPerfil,
+    Notificacoes,
+    Chat,
+    EditarAnuncio,
+    ConfirmacaoAnuncioAlterado,
+    SessaoEncerrada
+} from './pages'
+
 import { logoutUsuario } from "./services/userService.js"
 import { EVENTO_SESSAO_EXPIRADA, sessaoFoiEncerrada } from "./services/sessionService.js"
 
