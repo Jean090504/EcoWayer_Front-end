@@ -52,7 +52,7 @@ export default function Login({ aoLogar }){
                         <InputLogin 
                             label = "Email"
                             icone = {emailIcon}
-                            placeholder = "admin@root.com"
+                            placeholder = "admin@ecowayer.eco"
                             tipo = "email"
                             value = {email}
                             onChange = {(event) => setEmail(event.target.value)}
