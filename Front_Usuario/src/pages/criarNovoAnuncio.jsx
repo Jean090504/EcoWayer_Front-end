@@ -1,4 +1,4 @@
-import FluxoCriarAnuncio from "../components/fluxos/fluxoNovoAnuncio"
+import { FluxoNovoAnuncio } from "../components/fluxos"
 
 export default function CriarNovoAnuncio({ onNavegar }) {
     return (
@@ -7,7 +7,7 @@ export default function CriarNovoAnuncio({ onNavegar }) {
             <div className="flex w-[60%] items-center">
 
                 {/* Fluxo do anúncio integrado ao backend */}
-                <FluxoCriarAnuncio onNavegar={onNavegar} />
+                <FluxoNovoAnuncio onNavegar={onNavegar} />
 
             </div>
         </div>
