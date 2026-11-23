@@ -1,62 +1,57 @@
-import { useState } from "react"
+import { useId, useState } from "react";
+import { ChevronRight } from "lucide-react";
 
-import Botao from "../ui/botao.jsx"
-
-export default function Categorias() {
-
-    // Controla qual categoria está selecionada
-    const [categoriaSelecionada, setCategoriaSelecionada] = useState("Tudo")
-
-    // Controla se as categorias estão visíveis (aberto ou fechado)
-    const [mostrarCategorias, setMostrarCategorias] = useState(false)
-
-    const listaCategorias = [
-        "Tudo",
-        "favoritos",
-        "Móveis",
-        "Fardos",
-        "vidro",
-        "Papelão",
-        "madeira",
-        "eletro domesticos",
-        "dispositivos"
+export default function Categorias({ categorias, selecionada, onSelecionar }) {
+    const [aberta, setAberta] = useState(false);
+    const listaId = useId();
+    const opcoes = [
+        { id: "tudo", nome: "Tudo" },
+        { id: "favoritos", nome: "Favoritos" },
+        ...categorias
     ];
+    const categoriaAtiva = opcoes.find(opcao => opcao.id === selecionada);
 
     return (
-        <div className="flex h-12 w-full items-center justify-start gap-3.5 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-
-            {/* Botão para mostrar ou esconder as categorias */}
-            <Botao
-                texto="categorias"
-                onClick={() => setMostrarCategorias(!mostrarCategorias)}
-                className="flex h-9 shrink-0 items-center justify-center gap-1 rounded-full border border-gray-200 bg-white px-5 text-sm font-semibold text-gray-600 transition-colors hover:border-green-600 hover:text-green-600"
+        <div className="flex w-full min-w-0 items-center">
+            <button
+                type="button"
+                aria-expanded={aberta}
+                aria-controls={listaId}
+                onClick={() => setAberta(atual => !atual)}
+                className="flex min-h-9 shrink-0 items-center gap-1 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-600 transition-colors hover:border-green-600 hover:text-green-600"
             >
-                categorias
-                <span className="text-base leading-none">
-                    {mostrarCategorias ? "‹" : "›"}
-                </span>
-            </Botao>
+                Categorias
+                <ChevronRight aria-hidden="true" size={16} className={`transition-transform duration-300 motion-reduce:transition-none ${aberta ? "rotate-180" : ""}`} />
+            </button>
 
-            {/* Lista de categorias */}
-            {mostrarCategorias && (
-                <>
-                    {listaCategorias.map((categoria) => (
-
-                        <Botao
-                            key={categoria}
-                            texto={categoria}
-                            onClick={() => setCategoriaSelecionada(categoria)}
-                            className={`flex h-9 shrink-0 items-center justify-center rounded-full px-6 text-sm font-semibold transition-colors ${categoriaSelecionada === categoria
-                                    ? "bg-green-600 text-white"
-                                    : "border border-gray-200 bg-white text-gray-600"
-                                }`}
-                        > {categoria}
-                        </Botao>
-
-                    ))}
-                </>
+            <div
+                id={listaId}
+                role="group"
+                aria-label="Filtros de anúncios"
+                inert={!aberta}
+                className={`grid min-w-0 flex-1 transition-[grid-template-columns,opacity] duration-300 ease-out motion-reduce:transition-none ${aberta ? "grid-cols-[1fr] opacity-100" : "grid-cols-[0fr] opacity-0"}`}
+            >
+                <div className="min-w-0 overflow-hidden">
+                    <div className="flex gap-2 overflow-x-auto px-3 py-1.5 whitespace-nowrap">
+                        {opcoes.map(({ id, nome }) => (
+                            <button
+                                key={id}
+                                type="button"
+                                aria-pressed={selecionada === id}
+                                onClick={() => onSelecionar(id)}
+                                className={`h-9 shrink-0 rounded-full border px-5 text-sm font-semibold transition-colors ${selecionada === id
+                                    ? "border-green-700 bg-green-700 text-white"
+                                    : "border-gray-200 bg-white text-gray-600 hover:border-green-600 hover:text-green-600"}`}
+                            >
+                                {nome}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+            {!aberta && selecionada !== "tudo" && (
+                <span className="ml-3 min-w-0 truncate text-sm font-medium">{categoriaAtiva?.nome}</span>
             )}
-
         </div>
-    )
+    );
 }

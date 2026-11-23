@@ -28,7 +28,8 @@ export async function criarUsuario(dados) {
         email: dados.email,
         telefone: dados.telefone,
         senha: dados.senha,
-        id_genero: Number(dados.id_genero)
+        id_genero: Number(dados.id_genero),
+        foto_url: dados.foto_url
     }
     const retorno = await apiFetch('/usuario', { method: 'POST', body: JSON.stringify(payload) })
     return resposta(retorno, 'usuario')

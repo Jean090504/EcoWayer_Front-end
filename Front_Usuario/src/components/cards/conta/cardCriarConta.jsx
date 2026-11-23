@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { uploadFoto, validarFoto } from "../../../services/cloudinaryService.js";
 import { buscarGenerosCadastro } from "../../../services/userService.js";
 import { requisitosSenha, validarSenha } from "../../../services/passwordValidation.js";
 
@@ -201,6 +202,14 @@ export default function CreateAccount({
     const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
     const [erro, setErro] = useState("");                                       // Mensagem acima do botão
     const [enviando, setEnviando] = useState(false);                            // true enquanto envia o SMS (trava o botão)
+    const enviandoRef = useRef(false);
+    const [foto, setFoto] = useState(null);
+    const [previaFoto, setPreviaFoto] = useState("");
+    const [fotoUrl, setFotoUrl] = useState("");
+    const [enviandoFoto, setEnviandoFoto] = useState(false);
+    useEffect(() => {
+        if (previaFoto) return () => URL.revokeObjectURL(previaFoto);
+    }, [previaFoto]);
     const [aceitouTermos, setAceitouTermos] = useState(Boolean(dadosIniciais)); // Ao voltar da verificação, os termos já foram aceitos
     const [formulario, setFormulario] = useState(                               // Ao voltar da verificação, começa com os dados de antes
         dadosIniciais ?? {
@@ -233,8 +242,24 @@ export default function CreateAccount({
     }
 
     // Clique em "Criar conta"
+    function selecionarFoto(event) {
+        const arquivo = event.target.files?.[0];
+        event.target.value = "";
+        if (!arquivo) return;
+        try {
+            validarFoto(arquivo);
+            setFoto(arquivo);
+            setPreviaFoto(URL.createObjectURL(arquivo));
+            setFotoUrl("");
+            setErro("");
+        } catch (error) {
+            setErro(error.message);
+        }
+    }
+
     async function handleSubmit(event) {
         event.preventDefault();
+        if (enviandoRef.current) return;
         setErro("");
 
         if (!formulario.id_genero) { setErro("Selecione seu gênero para continuar."); return; }
@@ -261,13 +286,22 @@ export default function CreateAccount({
 
         // 4. Manda os dados pro fluxo (ele envia o SMS e abre a verificação).
         //    Se der erro, a mensagem aparece aqui mesmo.
+        enviandoRef.current = true;
         setEnviando(true);
 
         try {
-            await onContinuarVerificacao({ ...formulario });
+            let url = fotoUrl;
+            if (foto && !url) {
+                setEnviandoFoto(true);
+                try { url = await uploadFoto(foto); }
+                finally { setEnviandoFoto(false); }
+                setFotoUrl(url);
+            }
+            await onContinuarVerificacao({ ...formulario, foto_url: url || undefined });
         } catch (err) {
-            setErro(err.message || "Não foi possível enviar o código.");
+            setErro(err.message || "Não foi possível criar a conta.");
         } finally {
+            enviandoRef.current = false;
             setEnviando(false);
         }
     }
@@ -286,6 +320,7 @@ export default function CreateAccount({
                 <button
                     type="button"
                     onClick={onClose}
+                    disabled={enviando}
                     aria-label="Fechar"
                     className="absolute right-[13px] top-[11px] text-[16px] font-light leading-none text-[#FF4545] hover:text-red-700"
                 >
@@ -303,6 +338,16 @@ export default function CreateAccount({
                     onSubmit={handleSubmit}
                     autoComplete="off"
                 >
+
+                    <div className="flex items-center gap-3">
+                        {previaFoto && <img src={previaFoto} alt="Prévia da foto de perfil" className="h-14 w-14 rounded-full object-cover" />}
+                        <div className="min-w-0">
+                            <label htmlFor="foto-cadastro" className={labelClass}>Foto de perfil (opcional)</label>
+                            <input id="foto-cadastro" type="file" accept="image/jpeg,image/png,image/webp" onChange={selecionarFoto} disabled={enviando} className="block w-full text-xs" />
+                            <p className="mt-1 text-xs text-gray-500">JPG, PNG ou WebP, até 5 MB.</p>
+                            {foto && <button type="button" disabled={enviando} onClick={() => { setFoto(null); setPreviaFoto(""); setFotoUrl(""); setErro(""); }} className="mt-1 text-xs text-[#7548C8] underline">Remover foto</button>}
+                        </div>
+                    </div>
 
                     {/* Nome */}
                     <Campo
@@ -442,7 +487,7 @@ export default function CreateAccount({
                             disabled={enviando}
                             className="mx-auto flex h-[35px] w-full items-center justify-center rounded-[12px] bg-[#7548C8] text-[16px] font-bold text-white transition hover:bg-[#6539B8] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 sm:w-[calc(100%-72px)]"
                         >
-                            {enviando ? "Enviando código..." : "Criar conta"}
+                            {enviandoFoto ? "Enviando foto..." : enviando ? "Criando conta..." : "Criar conta"}
                         </button>
                     </div>
 

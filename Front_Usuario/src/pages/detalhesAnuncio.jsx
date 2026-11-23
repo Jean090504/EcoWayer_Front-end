@@ -18,12 +18,11 @@ function textoPreco(anuncio) {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onConversar, onDenunciar }) {
+export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onConversar, onDenunciar, favoritos, onFavoritar }) {
     const [anuncio, setAnuncio] = useState(null);
     const [fotoAtiva, setFotoAtiva] = useState(0);
     const [erro, setErro] = useState('');
     const [tentativa, setTentativa] = useState(0);
-    const [favoritos, setFavoritos] = useState([]);
     const [aviso, setAviso] = useState('');
     useEffect(() => {
         let ativo = true;
@@ -32,7 +31,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
         buscarAnuncio(id).then(dados => { if (ativo) { setAnuncio(dados); setFotoAtiva(0); } }).catch(error => { if (ativo) setErro(error.message || 'Não foi possível carregar o anúncio.'); });
         return () => { ativo = false; };
     }, [anuncioSelecionado, tentativa]);
-    function favoritar(id) { setFavoritos(atuais => atuais.includes(id) ? atuais.filter(item => item !== id) : [...atuais, id]); }
+    const estaFavoritado = id => favoritos.includes(String(id));
     function demonstrar(acao) { setAviso(acao + ': funcionalidade em demonstração, ainda sem integração.'); }
     async function compartilhar() {
         try {
@@ -48,7 +47,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
     return <div className="flex-1 bg-[#FAF8FF] text-[#191C30]">
         <nav aria-label="Caminho de navegação" className="bg-white px-[5%] py-4 text-xs text-[#724BC2]"><ol className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-2"><li><button type="button" onClick={() => onNavegar('home')} className="flex items-center gap-1 hover:underline"><Home size={12} />Início</button></li><li aria-hidden="true">›</li><li>{anuncio.categoria}</li><li aria-hidden="true">›</li><li aria-current="page" className="font-semibold text-[#191C30]">{anuncio.nome}</li></ol></nav>
         <div className="mx-auto w-[90%] max-w-[1280px] py-7 sm:py-9">
-            <div className="mb-4 flex items-center justify-between gap-4"><button type="button" onClick={() => onNavegar('home')} className="flex items-center gap-1 rounded-full bg-white px-4 py-2 text-xs hover:text-[#724BC2]"><ArrowLeft size={14} />Voltar aos anúncios</button><div className="flex gap-2"><button type="button" onClick={compartilhar} aria-label="Compartilhar anúncio" className="rounded-full bg-white p-2.5 text-gray-500"><Share2 size={17} /></button><button type="button" onClick={() => favoritar(anuncio.id)} aria-label={favoritos.includes(anuncio.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'} aria-pressed={favoritos.includes(anuncio.id)} className="rounded-full bg-white p-2.5 text-red-500"><Heart size={17} fill={favoritos.includes(anuncio.id) ? 'currentColor' : 'none'} /></button></div></div>
+            <div className="mb-4 flex items-center justify-between gap-4"><button type="button" onClick={() => onNavegar('home')} className="flex items-center gap-1 rounded-full bg-white px-4 py-2 text-xs hover:text-[#724BC2]"><ArrowLeft size={14} />Voltar aos anúncios</button><div className="flex gap-2"><button type="button" onClick={compartilhar} aria-label="Compartilhar anúncio" className="rounded-full bg-white p-2.5 text-gray-500"><Share2 size={17} /></button><button type="button" onClick={() => onFavoritar(anuncio.id)} aria-label={estaFavoritado(anuncio.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'} aria-pressed={estaFavoritado(anuncio.id)} className="rounded-full bg-white p-2.5 text-red-500"><Heart size={17} fill={estaFavoritado(anuncio.id) ? 'currentColor' : 'none'} /></button></div></div>
             {aviso && <div role="status" className="mb-4 flex items-center justify-between gap-4 rounded-xl border border-purple-100 bg-white px-4 py-3 text-sm text-[#724BC2]"><span>{aviso}</span><button type="button" onClick={() => setAviso('')} aria-label="Fechar aviso" className="px-2 text-lg">×</button></div>}
             <div className="grid items-start gap-6 lg:grid-cols-[1.43fr_1fr]">
                 <div className="min-w-0 space-y-6">
@@ -77,7 +76,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                 </div>
             </div>
             <section className="my-7 rounded-[26px] bg-white p-6 shadow-sm sm:p-8"><h2 className="mb-6 text-base font-semibold">Descrição detalhada</h2><p className="whitespace-pre-line text-sm leading-relaxed text-[#3E4A3D]">{anuncio.descricao}</p></section>
-            <section className="pb-2 pt-3"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold">Outros anúncios em destaque deste vendedor</h2><button type="button" onClick={() => demonstrar('Todos os anúncios do vendedor')} className="flex items-center gap-1 text-xs font-medium text-[#724BC2] hover:underline">Ver todos os itens de {anuncio.vendedor?.nome?.split(' ')[0] || 'anunciante'}<ArrowRight size={14} /></button></div><div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">{anuncio.outrosAnuncios.map(item => <CardAnuncioRelacionado key={item.id} anuncio={item} favoritado={favoritos.includes(item.id)} onFavoritar={() => favoritar(item.id)} onAbrir={() => onAbrirAnuncio(item)} />)}</div></section>
+            <section className="pb-2 pt-3"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold">Outros anúncios em destaque deste vendedor</h2><button type="button" onClick={() => demonstrar('Todos os anúncios do vendedor')} className="flex items-center gap-1 text-xs font-medium text-[#724BC2] hover:underline">Ver todos os itens de {anuncio.vendedor?.nome?.split(' ')[0] || 'anunciante'}<ArrowRight size={14} /></button></div><div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">{anuncio.outrosAnuncios.map(item => <CardAnuncioRelacionado key={item.id} anuncio={item} favoritado={estaFavoritado(item.id)} onFavoritar={() => onFavoritar(item.id)} onAbrir={() => onAbrirAnuncio(item)} />)}</div></section>
         </div>
     </div>;
 }

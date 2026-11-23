@@ -34,6 +34,14 @@ export default function App() {
         if (sessaoFoiEncerrada()) return null
         try { return JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null") } catch { return null }
     })
+    const [categoriaHome, setCategoriaHome] = useState("tudo")
+    const [favoritos, setFavoritos] = useState([])
+    function favoritar(id) {
+        const chave = String(id)
+        setFavoritos(atuais => atuais.includes(chave)
+            ? atuais.filter(item => item !== chave)
+            : [...atuais, chave])
+    }
     const [anuncioSelecionado, setAnuncioSelecionado] = useState(null)
     const [anuncioConversa, setAnuncioConversa] = useState(null)
     const [mensagemDenunciada, setMensagemDenunciada] = useState(null)
@@ -142,11 +150,13 @@ export default function App() {
 
             <main className="flex flex-1 flex-col">
                 {sessaoExpirada ? <SessaoEncerrada encerrando={encerrandoSessao} onEntrar={pedirLogin} /> : <>
-                {telaAtiva === "home" && <Home onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
+                {telaAtiva === "home" && <Home onAbrirAnuncio={abrirAnuncio} favoritos={favoritos} categoria={categoriaHome} onSelecionarCategoria={setCategoriaHome} />}
                 {telaAtiva === "detalhesAnuncio" && (
                     <DetalhesAnuncio
                         key={`${anuncioSelecionado?.id}-${anuncioSelecionado?.nome}`}
                         anuncioSelecionado={anuncioSelecionado}
+                        favoritos={favoritos}
+                        onFavoritar={favoritar}
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
                         onConversar={abrirChat}

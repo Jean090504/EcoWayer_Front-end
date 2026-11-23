@@ -6,6 +6,23 @@
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+    .home-entrada {
+        animation: home-entrada 320ms ease-out;
+    }
+}
+
+@keyframes home-entrada {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* esconde a barra de rolagem mas mantém a funcionalidade de rolar */
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
@@ -13,4 +30,30 @@
 .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .banner-entrada {
+        animation: banner-entrada 420ms ease-in-out both;
+    }
+
+    .banner-saida {
+        animation: banner-saida 420ms ease-in-out both;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .banner-saida {
+        display: none;
+    }
+}
+
+@keyframes banner-entrada {
+    from { transform: translateX(var(--banner-deslocamento)); }
+    to { transform: translateX(0); }
+}
+
+@keyframes banner-saida {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-1 * var(--banner-deslocamento))); }
 }

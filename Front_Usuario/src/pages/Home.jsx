@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { buscarAnuncios } from "../services/userService.js";
 
 
-export default function Home({ onAbrirAnuncio }) {
+export default function Home({ onAbrirAnuncio, favoritos, categoria, onSelecionarCategoria }) {
     const [anuncios, setAnuncios] = useState([]);
     const [erro, setErro] = useState("");
 
@@ -36,15 +36,29 @@ export default function Home({ onAbrirAnuncio }) {
         };
     }, []);
 
+    const categoriasPorId = new Map();
+    for (const anuncio of anuncios) {
+        if (anuncio.id_categoria != null && anuncio.categoria) {
+            categoriasPorId.set(String(anuncio.id_categoria), anuncio.categoria);
+        }
+    }
+    const categorias = Array.from(categoriasPorId, ([id, nome]) => ({ id, nome }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    const filtrados = anuncios.filter(anuncio => {
+        if (categoria === "tudo") return true;
+        if (categoria === "favoritos") return favoritos.includes(String(anuncio.id));
+        return String(anuncio.id_categoria) === categoria;
+    });
+
     return (
         // espaçamento vertical cresce e diminui junto com a tela
         <main className="flex flex-1 w-full flex-col items-center py-[clamp(1.5rem,3vw,2.5rem)]">
 
             {/* 90% da tela, mas nunca passa de 1600px (evita esticar demais em monitor ultrawide) */}
-            <div className="flex w-[90%] max-w-[1600px] flex-col items-center gap-[clamp(1.5rem,3vw,2.5rem)]">
+            <div className="home-entrada flex w-[90%] max-w-[1600px] flex-col items-center gap-[clamp(1.5rem,3vw,2.5rem)]">
 
                 {/* chama as categorias */}
-                <Categorias />
+                <Categorias categorias={categorias} selecionada={categoria} onSelecionar={onSelecionarCategoria} />
 
                 {/* Banner */}
                 <div className="w-full min-w-0">
@@ -53,7 +67,13 @@ export default function Home({ onAbrirAnuncio }) {
 
                 {erro && <p role="alert" className="w-full rounded-xl bg-red-50 p-4 text-red-600">{erro}</p>}
                 <div className="w-full min-w-0">
-                    <DestaquesCategorias anuncios={anuncios} onAbrirAnuncio={onAbrirAnuncio} />
+                    {categoria !== "tudo" && !erro && filtrados.length === 0 ? (
+                        <p role="status" className="rounded-xl bg-gray-50 p-4 text-gray-600">
+                            {categoria === "favoritos" ? "Nenhum anúncio favoritado para exibir." : "Nenhum anúncio nesta categoria."}
+                        </p>
+                    ) : (
+                        <DestaquesCategorias key={categoria} anuncios={filtrados} onAbrirAnuncio={onAbrirAnuncio} />
+                    )}
                 </div>
             </div>
         </main>
