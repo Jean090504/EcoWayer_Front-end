@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Camera, UserRound } from "lucide-react";
 import { uploadFoto, validarFoto } from "../../../services/cloudinaryService.js";
 import { buscarGenerosCadastro } from "../../../services/userService.js";
 import { requisitosSenha, validarSenha } from "../../../services/passwordValidation.js";
@@ -203,9 +204,11 @@ export default function CreateAccount({
     const [erro, setErro] = useState("");                                       // Mensagem acima do botão
     const [enviando, setEnviando] = useState(false);                            // true enquanto envia o SMS (trava o botão)
     const enviandoRef = useRef(false);
+    const inputFoto = useRef(null);
     const [foto, setFoto] = useState(null);
+    const [erroFoto, setErroFoto] = useState("");
     const [previaFoto, setPreviaFoto] = useState("");
-    const [fotoUrl, setFotoUrl] = useState("");
+    const [fotoUrl, setFotoUrl] = useState(dadosIniciais?.foto_url || "");
     const [enviandoFoto, setEnviandoFoto] = useState(false);
     useEffect(() => {
         if (previaFoto) return () => URL.revokeObjectURL(previaFoto);
@@ -251,10 +254,17 @@ export default function CreateAccount({
             setFoto(arquivo);
             setPreviaFoto(URL.createObjectURL(arquivo));
             setFotoUrl("");
-            setErro("");
+            setErroFoto("");
         } catch (error) {
-            setErro(error.message);
+            setErroFoto(error.message);
         }
+    }
+
+    function removerFoto() {
+        setFoto(null);
+        setPreviaFoto("");
+        setFotoUrl("");
+        setErroFoto("");
     }
 
     async function handleSubmit(event) {
@@ -339,15 +349,28 @@ export default function CreateAccount({
                     autoComplete="off"
                 >
 
-                    <div className="flex items-center gap-3">
-                        {previaFoto && <img src={previaFoto} alt="Prévia da foto de perfil" className="h-14 w-14 rounded-full object-cover" />}
-                        <div className="min-w-0">
-                            <label htmlFor="foto-cadastro" className={labelClass}>Foto de perfil (opcional)</label>
-                            <input id="foto-cadastro" type="file" accept="image/jpeg,image/png,image/webp" onChange={selecionarFoto} disabled={enviando} className="block w-full text-xs" />
-                            <p className="mt-1 text-xs text-gray-500">JPG, PNG ou WebP, até 5 MB.</p>
-                            {foto && <button type="button" disabled={enviando} onClick={() => { setFoto(null); setPreviaFoto(""); setFotoUrl(""); setErro(""); }} className="mt-1 text-xs text-[#7548C8] underline">Remover foto</button>}
+                    <section aria-labelledby="titulo-foto-cadastro" className="flex items-start gap-4 rounded-2xl border border-[#E9DEF9] bg-[#FAF7FF] p-4 sm:p-5">
+                        <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-full bg-[#EDE4FA] text-[#724BC2] ring-2 ring-white sm:size-20">
+                            {previaFoto || fotoUrl
+                                ? <img src={previaFoto || fotoUrl} alt="Prévia da foto de perfil" className="size-full object-cover" />
+                                : <UserRound size={30} aria-hidden="true" />}
                         </div>
-                    </div>
+                        <div className="min-w-0 flex-1">
+                            <h3 id="titulo-foto-cadastro" className="text-sm font-bold text-[#191C30]">
+                                Foto de perfil <span className="font-normal text-gray-600">· opcional</span>
+                            </h3>
+                            <p id="formatos-foto-cadastro" className="mt-1 text-xs text-gray-600">JPG, PNG ou WebP, até 5 MB.</p>
+                            <input ref={inputFoto} type="file" accept="image/jpeg,image/png,image/webp" onChange={selecionarFoto} disabled={enviando} hidden />
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                                <button type="button" onClick={() => inputFoto.current?.click()} disabled={enviando} aria-describedby="formatos-foto-cadastro" className="inline-flex items-center gap-1.5 rounded-full bg-[#724BC2] px-4 py-2 text-xs font-semibold text-white hover:bg-[#5D3BA3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#724BC2] disabled:opacity-60">
+                                    <Camera size={15} aria-hidden="true" />
+                                    {previaFoto || fotoUrl ? "Trocar foto" : "Adicionar foto"}
+                                </button>
+                                {(previaFoto || fotoUrl) && <button type="button" disabled={enviando} onClick={removerFoto} className="rounded-full px-2 py-2 text-xs font-semibold text-[#603A9F] hover:underline disabled:opacity-60">Remover foto</button>}
+                            </div>
+                            {erroFoto && <p role="alert" className="mt-2 text-xs text-red-700">{erroFoto}</p>}
+                        </div>
+                    </section>
 
                     {/* Nome */}
                     <Campo
