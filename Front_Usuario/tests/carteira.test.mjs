@@ -5,8 +5,13 @@ const sessao = new URL('../src/services/sessionService.js', import.meta.url).hre
 const apiSource = (await readFile(new URL('../src/services/api.js', import.meta.url), 'utf8'))
     .replace('import.meta.env.VITE_API_URL', 'undefined').replace("'./sessionService.js'", JSON.stringify(sessao))
 const apiUrl = `data:text/javascript;base64,${Buffer.from(apiSource).toString('base64')}`
+const cloudinarySource = (await readFile(new URL('../src/services/cloudinaryService.js', import.meta.url), 'utf8'))
+    .replace('import.meta.env.VITE_CLOUDINARY_CLOUD_NAME', '"teste-cloud"')
+    .replace('import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET', '"teste-preset"')
+const cloudinaryUrl = `data:text/javascript;base64,${Buffer.from(cloudinarySource).toString('base64')}`
 const serviceSource = (await readFile(new URL('../src/services/userService.js', import.meta.url), 'utf8'))
     .replace("'./api.js'", JSON.stringify(apiUrl)).replace("'./sessionService.js'", JSON.stringify(sessao))
+    .replace("'./cloudinaryService.js'", JSON.stringify(cloudinaryUrl))
 const { listarEntregasUsuario, listarVouchersUsuario, listarRecompensas } = await import(`data:text/javascript;base64,${Buffer.from(serviceSource).toString('base64')}`)
 beforeEach(() => {
     globalThis.sessionStorage = { getItem: () => null }

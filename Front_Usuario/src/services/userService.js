@@ -1,4 +1,5 @@
 import { apiFetch, urlImagem } from './api.js'
+import { uploadFoto, validarFoto } from './cloudinaryService.js'
 import { registrarNovaSessao, limparSessaoLocal } from './sessionService.js'
 
 const resposta = (dados, chave) => dados?.response?.[chave] ?? dados?.[chave] ?? dados
@@ -181,11 +182,18 @@ async function salvarAnuncioComFotos(dados, idUsuario, idAnuncio) {
         unidade: dados.unidade,
         status: 'ativo'
     }
-    const body = new FormData()
-    Object.entries(payload).forEach(([chave, valor]) => body.append(chave, String(valor)))
-    if (idAnuncio) body.append('fotos_mantidas', JSON.stringify(dados.fotosMantidas || []))
-    dados.fotos.forEach(foto => body.append('fotos', foto))
-    const retorno = await apiFetch(idAnuncio ? `/anuncio/${idAnuncio}/publicar` : '/anuncio/publicar', { method: idAnuncio ? 'PUT' : 'POST', body })
+    const mantidas = idAnuncio ? dados.fotosMantidas || [] : []
+    const fotos = dados.fotos || []
+    if (mantidas.length + fotos.length < 1 || mantidas.length + fotos.length > 6) {
+        throw new Error('Envie de 1 a 6 fotos para o anúncio.')
+    }
+    fotos.forEach(validarFoto)
+    payload.fotos = await Promise.all(fotos.map(uploadFoto))
+    if (idAnuncio) payload.fotos_mantidas = mantidas
+    const retorno = await apiFetch(idAnuncio ? `/anuncio/${idAnuncio}/publicar` : '/anuncio/publicar', {
+        method: idAnuncio ? 'PUT' : 'POST',
+        body: JSON.stringify(payload)
+    })
     return resposta(retorno, 'anuncio')
 }
 
