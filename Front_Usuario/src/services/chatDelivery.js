@@ -1,13 +1,6 @@
-// O POST confirmado nunca volta a ser tratado como uma mensagem não enviada.
-export async function enviarComAtualizacao({ enviar, confirmar, atualizar }) {
-    const mensagem = await enviar()
-    confirmar(mensagem)
-    try {
-        await atualizar()
-        return { enviada: true }
-    } catch (erroAtualizacao) {
-        return { enviada: true, erroAtualizacao }
-    }
+export function registrarMensagemEnviada(mensagens, mensagem) {
+    if (!mensagem?.id || mensagens.some(item => String(item.id) === String(mensagem.id))) return mensagens
+    return [...mensagens, mensagem]
 }
 
 export const INTERVALO_CONVERSAS = 30000

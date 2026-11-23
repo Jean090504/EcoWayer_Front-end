@@ -67,6 +67,20 @@ export async function listarEntregasUsuario() {
     }
 }
 
+export async function buscarNivelDoador(idUsuario) {
+    const [perfil, catalogo] = await Promise.all([
+        apiFetch(`/usuario/${encodeURIComponent(idUsuario)}`),
+        apiFetch('/nivel_impacto')
+    ])
+    const atual = resposta(perfil, 'usuario')?.nivel_impacto
+    if (!atual) return null
+    const niveis = resposta(catalogo, 'nivel_impacto')
+    const proximo = niveis
+        .filter(nivel => Number(nivel.numero) > Number(atual.numero))
+        .sort((a, b) => Number(a.numero) - Number(b.numero))[0]
+    return { atual, proximo }
+}
+
 export async function listarInsignias() {
     try {
         const dados = await apiFetch('/insignia')
@@ -85,6 +99,19 @@ export async function listarInsigniasUsuario() {
         if (erro.status === 404) return []
         throw erro
     }
+}
+
+export async function consultarSaldoResgate() {
+    const dados = await apiFetch('/voucher/saldo')
+    return resposta(dados, 'saldo')
+}
+
+export async function resgatarRecompensa(id, solicitacao, pontosConfirmados) {
+    const dados = await apiFetch('/voucher/resgatar', {
+        method: 'POST',
+        body: JSON.stringify({ id_voucher_catalogo: Number(id), solicitacao, pontos_confirmados: Number(pontosConfirmados) })
+    })
+    return dados.response
 }
 
 export async function listarRecompensas() {
@@ -199,6 +226,10 @@ async function salvarAnuncioComFotos(dados, idUsuario, idAnuncio) {
 
 export const publicarAnuncio = (dados, idUsuario) => salvarAnuncioComFotos(dados, idUsuario)
 export const atualizarAnuncio = (id, dados, idUsuario) => salvarAnuncioComFotos(dados, idUsuario, id)
+
+export async function apagarAnuncio(id) {
+    await apiFetch(`/anuncio/${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
 
 export async function buscarOpcoesAnuncio() {
     const dados = await apiFetch('/anuncio/opcoes')

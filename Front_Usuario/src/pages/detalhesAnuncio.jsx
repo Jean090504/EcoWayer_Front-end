@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, Archive, Heart, Home, MessageSquare, RefreshCw, Share2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, Archive, Heart, Home, LockKeyhole, MessageSquare, RefreshCw, Share2 } from 'lucide-react';
 import { buscarAnuncio } from '../services/userService.js';
 import CardAnunciante from '../components/cards/detalhesAnuncio/cardAnunciante.jsx';
 import CardAnuncioRelacionado from '../components/cards/detalhesAnuncio/cardAnuncioRelacionado.jsx';
@@ -18,12 +18,21 @@ function textoPreco(anuncio) {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onConversar, onDenunciar, favoritos, onFavoritar }) {
+export default function DetalhesAnuncio({ anuncioSelecionado, usuarioId, onNavegar, onAbrirAnuncio, onConversar, onDenunciar, favoritos, onFavoritar }) {
     const [anuncio, setAnuncio] = useState(null);
     const [fotoAtiva, setFotoAtiva] = useState(0);
     const [erro, setErro] = useState('');
     const [tentativa, setTentativa] = useState(0);
     const [aviso, setAviso] = useState('');
+    const avisoChat = useRef(null);
+
+    function conversar() {
+        if (usuarioId != null && anuncio.id_usuario != null && String(usuarioId) === String(anuncio.id_usuario)) {
+            avisoChat.current.showModal();
+            return;
+        }
+        onConversar(anuncio);
+    }
     useEffect(() => {
         let ativo = true;
         const id = anuncioSelecionado?.id;
@@ -45,6 +54,23 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
     if (erro) return <section role="alert" className="mx-auto w-[90%] py-12"><p>{erro}</p><button type="button" className="mt-4 text-[#724BC2]" onClick={() => { setErro(''); setTentativa(valor => valor + 1); }}>Tentar novamente</button></section>;
     if (!anuncio) return <section role="status" className="mx-auto w-[90%] py-12 text-gray-500">Carregando anúncio...</section>;
     return <div className="flex-1 bg-[#FAF8FF] text-[#191C30]">
+        <dialog
+            ref={avisoChat}
+            aria-labelledby="titulo-aviso-chat-anuncio"
+            aria-describedby="texto-aviso-chat-anuncio"
+            className="m-auto w-[90vw] max-w-sm rounded-[26px] bg-white p-6 text-center text-[#191C30] shadow-xl backdrop:bg-black/45"
+        >
+            <span className="mx-auto mb-4 grid size-12 place-items-center rounded-full bg-[#F1EBFC] text-[#724BC2]">
+                <LockKeyhole size={22} aria-hidden="true" />
+            </span>
+            <h2 id="titulo-aviso-chat-anuncio" className="text-lg font-bold">Este anúncio é seu</h2>
+            <p id="texto-aviso-chat-anuncio" className="mt-2 text-sm text-gray-600">Você pode iniciar conversas apenas em anúncios de outros usuários.</p>
+            <form method="dialog" className="mt-5">
+                <button type="submit" autoFocus className="rounded-full bg-[#724BC2] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#603ca8]">
+                    Entendi
+                </button>
+            </form>
+        </dialog>
         <nav aria-label="Caminho de navegação" className="bg-white px-[5%] py-4 text-xs text-[#724BC2]"><ol className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-2"><li><button type="button" onClick={() => onNavegar('home')} className="flex items-center gap-1 hover:underline"><Home size={12} />Início</button></li><li aria-hidden="true">›</li><li>{anuncio.categoria}</li><li aria-hidden="true">›</li><li aria-current="page" className="font-semibold text-[#191C30]">{anuncio.nome}</li></ol></nav>
         <div className="mx-auto w-[90%] max-w-[1280px] py-7 sm:py-9">
             <div className="mb-4 flex items-center justify-between gap-4"><button type="button" onClick={() => onNavegar('home')} className="flex items-center gap-1 rounded-full bg-white px-4 py-2 text-xs hover:text-[#724BC2]"><ArrowLeft size={14} />Voltar aos anúncios</button><div className="flex gap-2"><button type="button" onClick={compartilhar} aria-label="Compartilhar anúncio" className="rounded-full bg-white p-2.5 text-gray-500"><Share2 size={17} /></button><button type="button" onClick={() => onFavoritar(anuncio.id)} aria-label={estaFavoritado(anuncio.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'} aria-pressed={estaFavoritado(anuncio.id)} className="rounded-full bg-white p-2.5 text-red-500"><Heart size={17} fill={estaFavoritado(anuncio.id) ? 'currentColor' : 'none'} /></button></div></div>
@@ -65,7 +91,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                         <p className="my-5 text-[30px] font-bold leading-tight tracking-tight text-[#4CAF50] sm:text-[34px]">{textoPreco(anuncio)}</p>
                         {anuncio.troca?.trim() && <p className="mb-5 flex items-start gap-2 text-xs leading-relaxed"><RefreshCw size={23} aria-hidden="true" className="shrink-0 rounded-full bg-[#724BC2] p-1 text-white" />{anuncio.troca}</p>}
                         {anuncio.status === 'ativo' ? (
-                            <button type="button" onClick={() => onConversar(anuncio)} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#724BC2] px-4 py-3 text-sm font-semibold text-white hover:bg-[#603ca8]"><MessageSquare size={16} />Conversar com anunciante</button>
+                            <button type="button" onClick={conversar} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#724BC2] px-4 py-3 text-sm font-semibold text-white hover:bg-[#603ca8]"><MessageSquare size={16} />Conversar com anunciante</button>
                         ) : (
                             <p className="rounded-2xl bg-[#F3F4F6] px-4 py-3 text-center text-sm font-medium text-gray-600">
                                 {anuncio.status === 'negociado' ? 'Este anúncio já foi negociado.' : 'Este anúncio está indisponível para novas conversas.'}

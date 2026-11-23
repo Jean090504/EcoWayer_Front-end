@@ -4,6 +4,10 @@ const RAW_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replac
 const API_URL = RAW_URL.replace(/\/meraki\/ecowayer\/user$/, "")
 const API_BASE_URL = `${API_URL}/meraki/ecowayer/user`
 
+export function abrirEventosMensagens() {
+    return new EventSource(`${API_BASE_URL}/mensagens/eventos`, { withCredentials: true })
+}
+
 export const urlImagem = valor => valor?.startsWith('/uploads/') ? `${API_URL}${valor}` : valor
 
 export async function apiFetch(endpoint, options = {}) {

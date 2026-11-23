@@ -155,6 +155,7 @@ export default function App() {
                     <DetalhesAnuncio
                         key={`${anuncioSelecionado?.id}-${anuncioSelecionado?.nome}`}
                         anuncioSelecionado={anuncioSelecionado}
+                        usuarioId={usuario?.id}
                         favoritos={favoritos}
                         onFavoritar={favoritar}
                         onNavegar={navegar}
@@ -166,7 +167,7 @@ export default function App() {
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onDenunciarMensagem={denunciarMensagem} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
-                {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
+                {telaAtiva === "minhaCarteira" && <MinhaCarteira onNavegar={navegar} />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "notificacoes" && <Notificacoes />}

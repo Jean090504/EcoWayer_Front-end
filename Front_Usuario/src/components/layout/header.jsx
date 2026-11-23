@@ -328,7 +328,7 @@ export default function Header({
                                 <span className={`whitespace-nowrap ${TEXTO_SM} font-semibold text-black`}>{usuario.nome}</span>
                                 <ChevronDown size={16} aria-hidden="true" className={`text-gray-500 transition-transform ${menuPerfil ? 'rotate-180' : ''}`} />
                             </button>
-                            {menuPerfil && <nav id="menu-perfil" aria-label="Opções do perfil" className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-lg">
+                            {menuPerfil && <nav id="menu-perfil" aria-label="Opções do perfil" className="menu-perfil-entrada absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-lg">
                                 {OPCOES_PERFIL.map(({ tela, texto, Icone }) => (
                                     <div key={tela} className="border-b border-gray-100 pb-1 mb-1">
                                         <button
