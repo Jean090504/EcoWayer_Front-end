@@ -2,6 +2,7 @@ export { default as Home } from './Home.jsx'
 export { default as ConfiguracoesPerfil } from './ConfiguracoesPerfil.jsx'
 export { default as AvaliacaoAnuncio } from './AvaliacaoAnuncio.jsx'
 export { default as DetalhesAnuncio } from './detalhesAnuncio.jsx'
+export { default as DenunciarAnuncio } from "./DenunciarAnuncio"
 export { default as MinhaCarteira } from './MinhaCarteira.jsx'
 export { default as PontosBeneficios } from './PontosBeneficios.jsx'
 export { default as Insignias } from './Insignias.jsx'

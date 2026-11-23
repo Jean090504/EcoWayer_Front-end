@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { validarFoto } from "../../../services/cloudinaryService.js"
-import TituloSecao from "../../ui/tituloSecao"
-import BotaoDenuncia from "../../ui/BotaoDenuncia"
+import { TituloSecao, BotaoDenuncia } from "../../ui"
 
 export default function CardMotivoDenuncia({ motivos, enviando, erro, onCancelar, onEnviar }) {
   const [motivo, setMotivo] = useState(null)

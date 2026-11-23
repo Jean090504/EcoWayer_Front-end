@@ -1,5 +1,5 @@
 import { useState } from "react"
-import DenunciarAnuncio from "../../pages/DenunciarAnuncio.jsx"
+import { DenunciarAnuncio } from '../../pages'
 import { denunciarAnuncio } from "../../services/denunciaService.js"
 
 export default function FluxoDenunciarAnuncio({ anuncio, onNavegar, onDenunciaEnviada }) {
