@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from "react";
-import { buscarOpcoesAnuncio } from "../../../services/userService.js";
+import { buscarOpcoesAnuncio, formatarQuantidade } from "../../../services/userService.js";
 import {
     ImagePlus,
     Camera,
@@ -281,7 +281,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar,
         categoria: String(dadosIniciais?.categoria || ""),
         condicao: String(dadosIniciais?.condicao || ""),
         preco: dadosIniciais?.preco ? Number(dadosIniciais.preco).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "",
-        peso: String(dadosIniciais?.peso || "").replace(".", ","),
+        peso: formatarQuantidade(dadosIniciais?.peso),
         unidade: dadosIniciais?.unidade || "kg",
         descricao: dadosIniciais?.descricao || ""
     });

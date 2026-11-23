@@ -78,13 +78,50 @@ export default function ChamadoIndividual({ aoVoltar, alerta }) {
             </div>
             <div className="mt-6"><h3 className="text-sm font-bold uppercase tracking-wide text-slate-400">Descrição do anúncio</h3><p className="mt-2 min-h-24 rounded-lg bg-[#f7f8fa] p-4 text-base leading-relaxed text-slate-700">{anuncio.descricao || "Sem descrição cadastrada."}</p></div>
             {temDenuncia && <div className="mt-5 rounded-lg border border-amber-100 bg-amber-50 p-4"><h3 className="flex items-center gap-2 text-base font-bold text-amber-800"><ShieldAlert size={20} /> Denúncia recebida{denuncia.tipo_denuncia?.tipo ? ` · ${denuncia.tipo_denuncia.tipo}` : ""}</h3><p className="mt-2 text-base text-slate-700">{denuncia.descricao || alerta.motivo}</p>{denuncia.denunciante?.nome && <p className="mt-2 text-sm text-slate-500">Enviada por {denuncia.denunciante.nome}</p>}</div>}
+            {denuncia?.imagens?.length > 0 && (
+              <section className="mt-5">
+                <h3 className="text-sm font-bold text-slate-700">Fotos anexadas à denúncia</h3>
+                <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {denuncia.imagens.map((imagem, indice) => (
+                    <li key={imagem.id}>
+                      {/^https?:\/\//i.test(imagem.url) && (
+                        <a href={imagem.url} target="_blank" rel="noreferrer" className="block rounded-lg focus-visible:outline-2">
+                          <img
+                            src={imagem.url}
+                            alt={`Evidência ${indice + 1} da denúncia`}
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                            className="aspect-square w-full rounded-lg bg-slate-100 object-contain"
+                          />
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
             <div className="mt-5 grid gap-3 sm:grid-cols-3"><Dado label="Condição">{anuncio.condicao_item?.nome || "—"}</Dado><Dado label="Modalidade">{anuncio.modalidade?.nome || "—"}</Dado><Dado label="Pontos ecológicos" destaque>+{anuncio.categoria?.pontos ?? 0} pontos</Dado></div>
-          </> : <div className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-7 sm:p-9"><div className="flex max-w-2xl items-start gap-4"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700"><TriangleAlert size={22} /></div><div><h2 className="text-lg font-bold text-slate-800">Não há anúncio vinculado</h2><p className="mt-2 text-sm leading-6 text-slate-600">Este alerta foi recebido sem um anúncio associado. Confira o motivo e os dados disponíveis antes de registrar uma decisão.</p></div></div></div>}
+          </> : !temDenuncia && <div className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-7 sm:p-9"><div className="flex max-w-2xl items-start gap-4"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700"><TriangleAlert size={22} /></div><div><h2 className="text-lg font-bold text-slate-800">Não há anúncio vinculado</h2><p className="mt-2 text-sm leading-6 text-slate-600">Este alerta foi recebido sem um anúncio associado. Confira o motivo e os dados disponíveis antes de registrar uma decisão.</p></div></div></div>}
+          {!anuncio && temDenuncia && (
+            <section className="mt-5 rounded-xl border border-amber-100 bg-amber-50 p-4">
+              <h3 className="font-bold text-amber-800">Denúncia recebida{denuncia.tipo_denuncia?.tipo ? ` · ${denuncia.tipo_denuncia.tipo}` : ""}</h3>
+              <p className="mt-2 whitespace-pre-wrap break-words text-slate-700">{denuncia.descricao || alerta.motivo}</p>
+              {denuncia.denunciante?.nome && <p className="mt-2 text-sm text-slate-500">Enviada por {denuncia.denunciante.nome}</p>}
+              {alerta.mensagem?.map(mensagem => (
+                <blockquote key={mensagem.id} className="mt-3 whitespace-pre-wrap break-words rounded-lg bg-white p-3 text-slate-700">{mensagem.texto}</blockquote>
+              ))}
+              {denuncia.imagens?.filter(imagem => /^https:\/\/res\.cloudinary\.com\//i.test(imagem.url)).map((imagem, indice) => (
+                <a key={imagem.id} href={imagem.url} target="_blank" rel="noreferrer" className="mt-3 inline-block">
+                  <img src={imagem.url} alt={`Evidência ${indice + 1} da denúncia`} loading="lazy" referrerPolicy="no-referrer" className="h-24 w-24 rounded-lg object-contain" />
+                </a>
+              ))}
+            </section>
+          )}
         </main>
 
         <aside className="space-y-5">
           <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_8px_30px_rgba(31,41,55,0.05)] sm:p-6">
-            <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-slate-400"><UserRound size={17} className="text-[#7350B9]" /> Dados do vendedor</h2>
+            <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-slate-400"><UserRound size={17} className="text-[#7350B9]" /> {anuncio ? "Dados do vendedor" : "Usuário denunciado"}</h2>
             <div className="mt-5 flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-green-100 text-base font-bold text-[#7350B9]">{(vendedor?.nome || "?").slice(0, 2).toUpperCase()}</div><div className="min-w-0"><p className="truncate text-base font-bold text-slate-800">{vendedor?.nome || "Não informado"}</p></div></div>
             <div className="mt-5 border-t pt-4 text-base text-slate-600"><p>Categoria do item: <strong className="float-right text-slate-800">{anuncio?.categoria?.nome || "—"}</strong></p><p className="mt-3">Condição: <strong className="float-right text-slate-800">{anuncio?.condicao_item?.nome || "—"}</strong></p></div>
             <button type="button" onClick={() => setPerfilAberto(!perfilAberto)} className="mt-5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-bold text-slate-600 transition hover:border-purple-200 hover:bg-purple-50 hover:text-[#7350B9]">{perfilAberto ? "Ocultar dados do usuário" : "Ver perfil completo do usuário"}</button>

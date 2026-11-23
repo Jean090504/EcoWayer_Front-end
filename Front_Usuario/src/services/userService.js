@@ -105,6 +105,15 @@ export async function listarVouchersUsuario() {
     }
 }
 
+export function formatarQuantidade(quantidade) {
+    const texto = String(quantidade ?? '')
+    const decimal = texto.match(/^(\d+)[.,](\d+)$/)
+    if (!decimal) return texto
+
+    const fracao = decimal[2].replace(/0+$/, '')
+    return fracao ? `${decimal[1]},${fracao}` : decimal[1]
+}
+
 export async function buscarAnuncio(id) {
     const dados = await apiFetch(`/anuncio/${id}`)
     const anuncio = resposta(dados, 'anuncio')
@@ -116,7 +125,11 @@ export async function buscarAnuncio(id) {
         categoria: anuncio?.categoria || 'Anúncio',
         subcategoria: anuncio?.subcategoria || '',
         publicado: anuncio?.data_publicacao || '',
-        peso: anuncio?.quantidade && anuncio?.unidade ? `${anuncio.quantidade} ${anuncio.unidade}` : anuncio?.peso || anuncio?.peso_kg ? `${anuncio.peso || anuncio.peso_kg} kg` : 'Não informado',
+        peso: anuncio?.quantidade && anuncio?.unidade
+            ? `${formatarQuantidade(anuncio.quantidade)} ${anuncio.unidade}`
+            : anuncio?.peso || anuncio?.peso_kg
+                ? `${formatarQuantidade(anuncio.peso || anuncio.peso_kg)} kg`
+                : 'Não informado',
         quantidade: anuncio?.quantidade || '',
         estado: anuncio?.estado || anuncio?.status || 'Ativo',
         conservacao: anuncio?.conservacao || '',
