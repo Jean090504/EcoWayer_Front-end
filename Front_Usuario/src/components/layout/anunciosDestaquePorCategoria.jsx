@@ -6,9 +6,42 @@ const MODALIDADES = [
     { id: 3, titulo: "Mais recentes em Doação" }
 ]
 
+function modalidadeDoAnuncio(anuncio) {
+    const id = Number(
+        anuncio.id_modalidade ??
+        anuncio.modalidade_id ??
+        anuncio.idModalidade
+    )
+    if (Number.isFinite(id) && id > 0) return id
+
+    const nome = String(anuncio.modalidade_nome || anuncio.modalidade || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+
+    if (nome === "doacao") return 3
+    if (nome === "troca") return 2
+    if (nome === "venda") return 1
+    return null
+}
+
 function formatarPreco(anuncio) {
-    if (!anuncio.preco || Number(anuncio.preco) === 0) return "Doação / troca"
-    return Number(anuncio.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+    const modalidade = modalidadeDoAnuncio(anuncio)
+
+    if (modalidade === 3) return "Doação"
+    if (modalidade === 2) return "Troca"
+
+    const preco = Number(anuncio.preco)
+    if (
+        anuncio.preco == null ||
+        String(anuncio.preco).trim() === "" ||
+        !Number.isFinite(preco) ||
+        preco <= 0
+    ) {
+        return anuncio.label_preco || "A combinar"
+    }
+
+    return preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
 
 function CardAnuncio({ anuncio, onAbrir }) {

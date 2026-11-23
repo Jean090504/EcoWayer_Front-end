@@ -18,16 +18,46 @@ function tempoDecorrido(valor) {
     return `Publicado em ${formatarDataPublicacao(valor)}`
 }
 
+function modalidadeDoAnuncio(anuncio) {
+    const id = Number(
+        anuncio.id_modalidade ??
+        anuncio.modalidade_id ??
+        anuncio.idModalidade
+    )
+    if (Number.isFinite(id) && id > 0) return id
+
+    const nome = String(anuncio.modalidade_nome || anuncio.modalidade || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+
+    if (nome === 'doacao') return 3
+    if (nome === 'troca') return 2
+    if (nome === 'venda') return 1
+    return null
+}
+
 function textoPreco(anuncio) {
-    const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-    if (modalidade === 'doacao') return 'Grátis (Doação)'
-    if (modalidade === 'troca') return 'Troca'
+    const modalidade = modalidadeDoAnuncio(anuncio)
+
+    if (modalidade === 3) return 'Grátis (Doação)'
+    if (modalidade === 2) return 'Troca'
+
     const preco = Number(anuncio.preco)
-    if (anuncio.preco == null || String(anuncio.preco).trim() === '' || !Number.isFinite(preco) || preco <= 0) return 'Preço não informado'
+    if (
+        anuncio.preco == null ||
+        String(anuncio.preco).trim() === '' ||
+        !Number.isFinite(preco) ||
+        preco <= 0
+    ) return 'Preço não informado'
+
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
 export default function CardPrecoAnuncio({ anuncio, onConversar, onContraproposta }) {
+    const modalidade = modalidadeDoAnuncio(anuncio)
+    const ehDoacao = modalidade === 3
+
     return (
         <section className="rounded-[26px] bg-white p-6 px-9 shadow-sm">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[10px]">
@@ -37,16 +67,7 @@ export default function CardPrecoAnuncio({ anuncio, onConversar, onContrapropost
                 <span className="text-[#6E7B6C]">{tempoDecorrido(anuncio.publicado)}</span>
             </div>
 
-            <h1 className="text-[22.5px] font-bold leading-[1.15] text-[#191C30]">{anuncio.nome}</h1>
-
-            <p className="mb-6 mt-4 flex flex-wrap items-baseline gap-2">
-                <span className="text-[27.5px] font-bold leading-none text-[#4CAF50]">
-                    {textoPreco(anuncio)}
-                </span>
-                {anuncio.peso && anuncio.peso !== 'Não informado' && (
-                    <span className="text-sm text-[#191C30]">/ lote total ({anuncio.peso})</span>
-                )}
-            </p>
+            <h1 className="text-[22.5px] font-bold leading-[1.15] text-[#191C30] mb-6 mt-4 ">{anuncio.nome}</h1>
 
             {anuncio.troca?.trim() && (
                 <p className="mb-7 flex items-center gap-3 px-2 text-xs leading-relaxed">
@@ -63,13 +84,17 @@ export default function CardPrecoAnuncio({ anuncio, onConversar, onContrapropost
                 >
                     <MessageSquare size={16} />Conversar com anunciante
                 </button>
-                <button
-                    type="button"
-                    onClick={() => onContraproposta(anuncio)}
-                    className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#4CAF50] bg-white px-4 py-3 text-sm font-semibold text-[#4CAF50] hover:bg-[#4CAF50]/10"
-                >
-                    Fazer contraproposta
-                </button>
+
+                {/* Doação não tem contraproposta — esconde o botão */}
+                {!ehDoacao && (
+                    <button
+                        type="button"
+                        onClick={() => onContraproposta(anuncio)}
+                        className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#4CAF50] bg-white px-4 py-3 text-sm font-semibold text-[#4CAF50] hover:bg-[#4CAF50]/10"
+                    >
+                        Fazer contraproposta
+                    </button>
+                )}
             </div>
         </section>
     )

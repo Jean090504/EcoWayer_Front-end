@@ -56,5 +56,5 @@ export default function Home({ onAbrirAnuncio }) {
                 </div>
             </div>
         </main>
-    );
+    )
 }
