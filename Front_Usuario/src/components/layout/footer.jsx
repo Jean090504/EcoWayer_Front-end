@@ -4,8 +4,7 @@ export default function Footer() {
 
             {/* Parte superior do footer */}
             <div 
-                className="mx-auto px-6 pt-14 pb-8"
-                style={{ width: "clamp(1280px, 87.5vw, 1680px)" }}
+                className="mx-auto w-full max-w-[1680px] px-[clamp(16px,5vw,78px)] pt-14 pb-8"
             >
 
                 {/* Colunas de informações */}

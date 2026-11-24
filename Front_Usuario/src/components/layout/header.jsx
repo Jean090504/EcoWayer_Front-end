@@ -1,20 +1,15 @@
 import { useEffect, useRef, useState } from "react"
 import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, UserPen, Award, Medal, Settings, LogOut } from "lucide-react"
-
 import { ItemNavegacao, Botao } from '../ui'
-
 import perfil from "../../assets/icons/icones/foto.png"
 
 // ---------------------------------------------------------------------------
 //                              Constantes
 // ---------------------------------------------------------------------------
 const IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades"
-
 const TEXTO_XS = "text-[length:clamp(11px,0.82vw,12px)]"
 const TEXTO_SM = "text-[length:clamp(12px,0.92vw,14px)]"
-
-const ICONE_NAV =
-    "h-[clamp(17px,1.32vw,20px)] w-[clamp(17px,1.32vw,20px)]"
+const ICONE_NAV = "h-[clamp(17px,1.32vw,20px)] w-[clamp(17px,1.32vw,20px)]"
 
 // Espaçamentos
 const GAP_GRUPOS = "gap-[clamp(10px,1.1vw,18px)]"
