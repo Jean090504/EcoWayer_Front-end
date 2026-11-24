@@ -4,21 +4,13 @@ import { abrirEventosMensagens, urlImagem } from '../services/api.js'
 import { criarConversa, enviarMensagem, listarConversas, listarMensagens, marcarConversaLida } from '../services/chatService.js'
 import { registrarMensagemEnviada, INTERVALO_CONVERSAS, INTERVALO_MENSAGENS } from '../services/chatDelivery.js'
 import { conversaDaPessoa, conversaDoAnuncio, conversaInicial } from '../services/chatSelection.js'
+import { dia, horario } from '../services/chatHorario.js'
 
 const AVISO_ANUNCIO_INATIVO = 'Este anúncio não está mais ativo. Abra um anúncio ativo para iniciar uma conversa.'
 
 const nomeContato = (conversa, id) => Number(conversa.id_anunciante) === Number(id) ? conversa.interessado : conversa.anunciante
 const fotoContato = (conversa, id) => Number(conversa.id_anunciante) === Number(id) ? conversa.foto_interessado : conversa.foto_anunciante
 const iniciais = nome => (nome || 'Anunciante').split(' ').filter(Boolean).slice(0, 2).map(parte => parte[0]).join('')
-const horario = valor => {
-    if (!valor) return ''
-    const data = new Date(valor.replace(' ', 'T'))
-    return Number.isNaN(data.getTime()) ? '' : data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-}
-const dia = valor => {
-    const data = new Date((valor || '').replace(' ', 'T'))
-    return Number.isNaN(data.getTime()) ? '' : data.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })
-}
 
 function AvatarContato({ nome, foto }) {
     const url = urlImagem(foto)
