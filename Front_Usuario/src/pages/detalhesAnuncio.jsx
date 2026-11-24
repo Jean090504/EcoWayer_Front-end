@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, Heart, Home, Share2 } from 'lucide-react'
 
-import { CardAnunciante, CardPrecoAnuncio, CardEspecificacoesMaterial, CardDescricaoDetalhada, CardOutrosAnunciosVendedor } from '../components/cards/detalhesAnuncio'
+import { CardAnunciante, CardPrecoAnuncio, CardInformacoesMaterial, CardDescricaoDetalhada, CardOutrosAnunciosVendedor } from '../components/cards/detalhesAnuncio'
 import { buscarAnuncio } from '../services/userService.js'
 
 function textoPreco(anuncio) {
@@ -171,7 +171,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                             </div>
                         )}
                         
-                        <CardEspecificacoesMaterial anuncio = {anuncio} />
+                        <CardInformacoesMaterial anuncio = {anuncio} />
                     </div>
 
                     <div className="flex min-w-0 flex-col gap-10">
