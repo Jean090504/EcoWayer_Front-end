@@ -1,196 +1,163 @@
-import { useState } from "react"
-import { CheckCheck, Settings } from "lucide-react"
+﻿import { useEffect, useState } from 'react'
+import { Bell, CheckCheck, Trash2 } from 'lucide-react'
+import { atualizarLeitura, excluirNotificacao, listarNotificacoes } from '../services/notificacoesService.js'
 
-import { CardNotificacoes, ABAS, abaDoTipo, CardCarteiraEcologica, CardDicaSeguranca, CardEcoPonto } from '../components/cards/notificacoes'
-
-const RESUMO_NOTIFICACOES = {
-    novas: 3,
-}
-
-const NOTIFICACOES = [
-    {
-        id: 1,
-        tipo: "moderacao",
-        tempo: "Há 45 minutos",
-        titulo: "Anúncio removido por infração às diretrizes ambientais",
-        descricao:
-            'O anúncio "Tambores de Óleo Usado sem Rótulo 200L" #ECO-77412 foi retirado da plataforma temporariamente. Identificamos que o material foi classificado incorretamente como resíduo reciclável comum em vez de resíduo industrial de classe I, necessitando de Certificado de Destinação Final (CDF) e operador homologado.',
-    },
-    {
-        id: 2,
-        tipo: "proposta",
-        dados: {
-            nome: "Carla Silveira",
-            foto: "/carla-silveira.jpg",
-            retirada: "Amanhã - 14:00 • Caminhão Baú Pequeno",
-        },
-        tempo: "Há 2 horas",
-        titulo: "Nova proposta recebida para o seu anúncio",
-        descricao:
-            'Carla Silveira (Cooperativa ReciclaMais) enviou uma contraproposta de permuta no seu anúncio "Lote Garrafas Vidro Âmbar": ofereceu 150kg de PET prensado + agendamento de retirada em doca própria para amanhã às 14h.',
-    },
-    {
-        id: 3,
-        tipo: "ecocreditos",
-        assunto: "+120 pts",
-        dados: { co2: 42 },
-        tempo: "Ontem às 17:30",
-        titulo: "Você recebeu +120 EcoCréditos!",
-        descricao:
-            "Parabéns! Sua transação de 80kg de papelão ondulado com o operador Marcos Albuquerque foi confirmada com sucesso em um EcoPonto autorizado. Seus créditos ecológicos já foram consolidados no seu balanço.",
-    },
-    {
-        id: 4,
-        tipo: "desempenho",
-        tempo: "Há 1 dia",
-        titulo: "Seu anúncio está ganhando destaque",
-        descricao:
-            'O anúncio "Paletes de Madeira PBR" atingiu mais de 50 visualizações e 6 usuários salvaram nos favoritos nas últimas 24 horas. Aproveite o momento de alta procura de cooperativas industriais para fechar negócio.',
-    },
-    {
-        id: 5,
-        tipo: "conta",
-        tempo: "Há 3 dias",
-        titulo: "Selo de Vendedor ESG Nível 1 Concedido",
-        descricao:
-            "Você completou 5 transações com destinação 100% rastreada e auditoria aprovada. Seu perfil agora exibe a insígnia de comerciante confiável com maior visibilidade no feed geral de compradores.",
-    }
+const FILTROS = [
+    { id: 'todas', nome: 'Todas' },
+    { id: 'naoLidas', nome: 'Não lidas', lida: false },
+    { id: 'lidas', nome: 'Lidas', lida: true }
 ]
 
-const CARTEIRA_TESTE = {
-    tituloCarteira: "Sua Carteira Ecológica",
-    carteiraAtiva: true,
-    saldoEcoCreditos: 480,
-    co2Compensado: 192,
-    percentualMeta: 70,
-    tituloMeta: "Meta Mensal ESG",
-    ecocreditosRestantes: 70,
-    insigniaMeta: "Ouro",
-    textoBotaoResgate: "Resgatar benefícios",
+const NOMES_TIPO = {
+    mensagem: 'Mensagem',
+    pontos: 'Pontos',
+    proposta: 'Proposta',
+    denuncia: 'Denúncia',
+    sistema: 'Sistema'
 }
 
-const ECOPONTO_TESTE = {
-    nome: "EcoPonto Central Lapa",
-    distancia: "3.0",
-    horarioFuncionamento: "18",
+const formatoData = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+
+function formatarData(valor) {
+    if (!valor) return 'Data indisponível'
+    const iso = valor.replace(' ', 'T')
+    const data = new Date(/(?:Z|[+-]\d{2}:?\d{2})$/i.test(iso) ? iso : iso + 'Z')
+    return Number.isNaN(data.getTime()) ? 'Data indisponível' : formatoData.format(data)
 }
 
 export default function Notificacoes() {
-    const [aba, setAba] = useState("todas")
+    const [itens, setItens] = useState(null)
+    const [filtro, setFiltro] = useState(FILTROS[0])
+    const [tipo, setTipo] = useState('')
+    const [erro, setErro] = useState('')
+    const [tentativa, setTentativa] = useState(0)
+    const [ocupado, setOcupado] = useState(false)
 
-    function totalDaAba(valor) {
-        if (valor === "todas") return NOTIFICACOES.length
-        return NOTIFICACOES.filter((n) => abaDoTipo(n.tipo) === valor).length
+    useEffect(() => {
+        let ativo = true
+        listarNotificacoes()
+            .then(lista => { if (ativo) setItens(lista) })
+            .catch(falha => { if (ativo) setErro(falha.message) })
+        return () => { ativo = false }
+    }, [tentativa])
+
+    const lista = itens ?? []
+    const naoLidas = lista.filter(item => !item.lida)
+    const tipos = [...new Set(lista.map(item => item.tipo))]
+    const tipoAtivo = tipos.includes(tipo) ? tipo : ''
+    const visiveis = lista.filter(item => (filtro.lida === undefined || filtro.lida === item.lida)
+        && (!tipoAtivo || tipoAtivo === item.tipo))
+
+    async function executar(acao) {
+        setOcupado(true)
+        setErro('')
+        try {
+            await acao()
+        } catch (falha) {
+            setErro(falha.message)
+        } finally {
+            setOcupado(false)
+        }
     }
 
-    const visiveis = NOTIFICACOES.filter(
-        (n) => aba === "todas" || abaDoTipo(n.tipo) === aba
-    )
+    async function marcar(item, lida) {
+        await atualizarLeitura(item.id, lida)
+        setItens(atuais => atuais.map(atual => atual.id === item.id ? { ...atual, lida } : atual))
+    }
 
-    function tratarAcao(notificacao, acao) {
-        console.log(notificacao.id, acao)
+    async function marcarTodas() {
+        let falhas = 0
+        for (const item of naoLidas) {
+            try { await marcar(item, true) } catch { falhas++ }
+        }
+        if (falhas) throw new Error('Algumas notificações não puderam ser marcadas. Tente novamente.')
+    }
+
+    async function excluir(item) {
+        if (!window.confirm('Excluir esta notificação?')) return
+        await executar(async () => {
+            await excluirNotificacao(item.id)
+            setItens(atuais => atuais.filter(atual => atual.id !== item.id))
+        })
     }
 
     return (
-        <main className="flex w-full flex-1 justify-center bg-[#FAF8FF]">
-            <div className="flex w-[85%] flex-col gap-6 px-6 py-10">
+        <div className="flex flex-1 justify-center bg-[#FAF8FF]">
+            <section className="w-[90%] max-w-[1000px] py-8 sm:py-10">
+                <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold text-[#191C1E]">Notificações</h1>
+                        {itens && <p className="mt-1 text-sm text-[#724BC2]">{naoLidas.length} {naoLidas.length === 1 ? 'não lida' : 'não lidas'}</p>}
+                    </div>
+                    <button type="button" disabled={ocupado || naoLidas.length === 0} onClick={() => executar(marcarTodas)} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#724BC2] shadow-sm disabled:opacity-50">
+                        <CheckCheck size={17} aria-hidden="true" /> Marcar todas como lidas
+                    </button>
+                </header>
 
-                {/* Cabeçalho */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-[32px] font-bold text-[#191C1E]">Notificações</h1>
-                        <span className="flex items-center gap-1.5 rounded-full bg-[#F1E9FB] px-3 py-1 text-xs font-semibold text-[#6F2DBD]">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#6F2DBD]" />
-                            {RESUMO_NOTIFICACOES.novas} novas
-                        </span>
+                {erro && <div role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-700">
+                    {erro}{' '}
+                    {!itens && <button type="button" className="underline" onClick={() => { setErro(''); setTentativa(valor => valor + 1) }}>Tentar novamente</button>}
+                </div>}
+                {!itens && !erro && <p role="status">Carregando notificações...</p>}
+
+                {itens && <>
+                    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-3 shadow-sm">
+                        <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por leitura">
+                            {FILTROS.map(opcao => (
+                                <button key={opcao.id} type="button" aria-pressed={filtro.id === opcao.id} onClick={() => setFiltro(opcao)}
+                                    className={`rounded-full px-4 py-2 text-sm font-semibold ${filtro.id === opcao.id ? 'bg-[#724BC2] text-white' : 'text-[#191C1E] hover:bg-gray-100'}`}>
+                                    {opcao.nome}
+                                </button>
+                            ))}
+                        </div>
+                        {tipos.length > 0 && <select aria-label="Filtrar por tipo" value={tipoAtivo} onChange={evento => setTipo(evento.target.value)}
+                            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
+                            <option value="">Todos os tipos</option>
+                            {tipos.map(valor => <option key={valor} value={valor}>{NOMES_TIPO[valor] || valor}</option>)}
+                        </select>}
                     </div>
 
-                    <div className="flex gap-3">
-                        <button className="flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#191C1E] shadow-sm">
-                            <CheckCheck size={14} className="text-[#4CAF50]" />
-                            Marcar todas como lidas
-                        </button>
-                        <button className="flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#191C1E] shadow-sm">
-                            <Settings size={14} />
-                            Preferências
-                        </button>
-                    </div>
-                </div>
+                    {visiveis.length === 0 && <p role="status" className="rounded-2xl bg-white p-6 text-sm text-gray-600 shadow-sm">
+                        {lista.length === 0 ? 'Você ainda não tem notificações.' : 'Nenhuma notificação corresponde ao filtro.'}
+                    </p>}
 
-                {/* Abas */}
-                <div className="flex flex-wrap gap-2 rounded-2xl bg-white p-2 shadow-sm">
-                    {ABAS.map((a) => (
-                        <button
-                            key={a.value}
-                            onClick={() => setAba(a.value)}
-                            className={`flex cursor-pointer items-center gap-2 rounded-full px-5 py-2 text-xs font-semibold transition ${aba === a.value
-                                    ? "bg-[#724BC2] text-white"
-                                    : "text-[#191C1E] hover:bg-gray-100"
-                                }`}
-                        >
-                            {a.label}
-                            <span
-                                className={`rounded-full px-2 py-0.5 text-[10px] ${aba === a.value ? "bg-white/25" : "bg-gray-100"
-                                    }`}
-                            >
-                                {totalDaAba(a.value)}
-                            </span>
-                        </button>
-                    ))}
-                </div>
-
-                {/* Lista e a barra lateral */}
-                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1fr_390px]">
-
-                    <section className="flex flex-col gap-6">
-                        {visiveis.map((n) => (
-                            <CardNotificacoes
-                                key={n.id}
-                                tipo={n.tipo}
-                                dados={n.dados}
-                                assunto={n.assunto}
-                                tempo={n.tempo}
-                                titulo={n.titulo}
-                                descricao={n.descricao}
-                                onAcao={(acao) => tratarAcao(n, acao)}
-                            />
+                    <ul className="space-y-3">
+                        {visiveis.map(item => (
+                            <li key={item.id} className="flex gap-3 rounded-2xl bg-white p-4 shadow-sm sm:gap-4 sm:p-5">
+                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F1E9FB] text-[#724BC2]">
+                                    <Bell size={19} aria-hidden="true" />
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                        <h2 className="text-sm font-bold text-[#191C1E]">{NOMES_TIPO[item.tipo] || item.tipo}</h2>
+                                        <span className={`rounded-full px-2 py-0.5 text-xs ${item.lida ? 'bg-gray-100 text-gray-600' : 'bg-[#F1E9FB] font-semibold text-[#724BC2]'}`}>
+                                            {item.lida ? 'Lida' : 'Não lida'}
+                                        </span>
+                                        <span className="text-xs text-gray-600">{formatarData(item.data_criacao)}</span>
+                                    </div>
+                                    <p className="mt-2 whitespace-pre-wrap break-words text-sm text-[#191C1E]">{item.texto}</p>
+                                    <details className="mt-2 text-xs text-gray-600">
+                                        <summary className="cursor-pointer">Detalhes</summary>
+                                        <dl className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                                            <div><dt className="inline font-semibold">Notificação </dt><dd className="inline">#{item.id}</dd></div>
+                                            <div><dt className="inline font-semibold">Usuário </dt><dd className="inline">#{item.id_usuario}</dd></div>
+                                            <div><dt className="inline font-semibold">Tipo </dt><dd className="inline">{item.tipo}</dd></div>
+                                        </dl>
+                                    </details>
+                                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold">
+                                        <button type="button" disabled={ocupado} onClick={() => executar(() => marcar(item, !item.lida))} className="text-[#724BC2] hover:underline disabled:opacity-50">
+                                            {item.lida ? 'Marcar como não lida' : 'Marcar como lida'}
+                                        </button>
+                                        <button type="button" disabled={ocupado} onClick={() => excluir(item)} className="inline-flex items-center gap-1 text-red-700 hover:underline disabled:opacity-50">
+                                            <Trash2 size={14} aria-hidden="true" /> Excluir
+                                        </button>
+                                    </div>
+                                </div>
+                            </li>
                         ))}
-
-                        {visiveis.length === 0 && (
-                            <p className="rounded-2xl bg-white p-6 text-sm text-gray-600 shadow-sm">
-                                Nenhuma notificação nesta aba.
-                            </p>
-                        )}
-                    </section>
-
-                    {/* Barra lateral */}
-                    <aside className="flex flex-col gap-6">
-
-                        {/* Carteira ecológica */}
-                        <CardCarteiraEcologica
-                            tituloCarteira={CARTEIRA_TESTE.tituloCarteira}
-                            carteiraAtiva={CARTEIRA_TESTE.carteiraAtiva}
-                            saldoEcoCreditos={CARTEIRA_TESTE.saldoEcoCreditos}
-                            co2Compensado={CARTEIRA_TESTE.co2Compensado}
-                            percentualMeta={CARTEIRA_TESTE.percentualMeta}
-                            tituloMeta={CARTEIRA_TESTE.tituloMeta}
-                            ecocreditosRestantes={CARTEIRA_TESTE.ecocreditosRestantes}
-                            insigniaMeta={CARTEIRA_TESTE.insigniaMeta}
-                            textoBotaoResgate={CARTEIRA_TESTE.textoBotaoResgate}
-                        />
-
-                        {/* Dicas de segurança */}
-                        <CardDicaSeguranca />
-
-                        {/* EcoPonto próximo */}
-                        <CardEcoPonto
-                            nome = {ECOPONTO_TESTE.nome}
-                            distancia = {ECOPONTO_TESTE.distancia}
-                            horarioFuncionamento = {ECOPONTO_TESTE.horarioFuncionamento}
-                        />
-                    </aside>
-                </div>
-            </div>
-        </main>
+                    </ul>
+                </>}
+            </section>
+        </div>
     )
 }

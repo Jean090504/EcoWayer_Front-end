@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, useState } from "react";
-import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, Award, Medal, Settings, LogOut } from "lucide-react";
+import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, Bell, Award, Medal, Settings, LogOut } from "lucide-react";
 import ItemNavegacao from "../ui/itemNavegacao.jsx";
 import BotaoHeader from "../ui/botao.jsx";
 import perfil from "../../assets/icons/icones/foto.png";
@@ -22,6 +22,7 @@ const GAP_NAV = "gap-[clamp(10px,1.15vw,18px)]";
 const GAP_ITEM = "gap-[clamp(7px,0.7vw,11px)]";
 
 const OPCOES_PERFIL = [
+    { tela: "notificacoes", texto: "Notificações", Icone: Bell },
     { tela: "insignias", texto: "Insígnias", Icone: Award },
     { tela: "pontosBeneficios", texto: "Pontos e Benefícios", Icone: Medal },
     { tela: "configuracoesPerfil", texto: "Configurações", Icone: Settings },
