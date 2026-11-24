@@ -12,9 +12,22 @@ const cloudinaryUrl = `data:text/javascript;base64,${Buffer.from(cloudinarySourc
 const serviceSource = (await readFile(new URL('../src/services/userService.js', import.meta.url), 'utf8'))
     .replace("'./api.js'", JSON.stringify(apiUrl)).replace("'./sessionService.js'", JSON.stringify(sessao))
     .replace("'./cloudinaryService.js'", JSON.stringify(cloudinaryUrl))
-const { listarEntregasUsuario, listarVouchersUsuario, listarRecompensas } = await import(`data:text/javascript;base64,${Buffer.from(serviceSource).toString('base64')}`)
+const { buscarNivelDoador, listarEntregasUsuario, listarVouchersUsuario, listarRecompensas } = await import(`data:text/javascript;base64,${Buffer.from(serviceSource).toString('base64')}`)
 beforeEach(() => {
     globalThis.sessionStorage = { getItem: () => null }
+})
+
+test('a carteira usa o nível inicial sem atividade e preserva o nível cadastrado com atividade', async () => {
+    const semente = { numero: 1, nome: 'Semente' }
+    const broto = { numero: 2, nome: 'Broto' }
+    const floresta = { numero: 4, nome: 'Floresta' }
+    globalThis.fetch = async url => Response.json({
+        response: url.endsWith('/nivel_impacto')
+            ? { nivel_impacto: [floresta, broto, semente] }
+            : { usuario: { nivel_impacto: floresta } }
+    })
+    assert.deepEqual(await buscarNivelDoador(1, { semAtividade: true }), { atual: semente, proximo: broto })
+    assert.deepEqual(await buscarNivelDoador(1), { atual: floresta, proximo: undefined })
 })
 for (const listar of [listarEntregasUsuario, listarVouchersUsuario, listarRecompensas]) {
     test(`${listar.name}: HTTP 404 com mensagem do backend representa lista vazia`, async () => {

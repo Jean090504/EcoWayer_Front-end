@@ -67,17 +67,17 @@ export async function listarEntregasUsuario() {
     }
 }
 
-export async function buscarNivelDoador(idUsuario) {
+export async function buscarNivelDoador(idUsuario, { semAtividade = false } = {}) {
     const [perfil, catalogo] = await Promise.all([
         apiFetch(`/usuario/${encodeURIComponent(idUsuario)}`),
         apiFetch('/nivel_impacto')
     ])
-    const atual = resposta(perfil, 'usuario')?.nivel_impacto
-    if (!atual) return null
     const niveis = resposta(catalogo, 'nivel_impacto')
-    const proximo = niveis
-        .filter(nivel => Number(nivel.numero) > Number(atual.numero))
-        .sort((a, b) => Number(a.numero) - Number(b.numero))[0]
+        .slice().sort((a, b) => Number(a.numero) - Number(b.numero))
+    const nivelCadastrado = resposta(perfil, 'usuario')?.nivel_impacto
+    const atual = semAtividade ? niveis[0] : nivelCadastrado
+    if (!atual) return null
+    const proximo = niveis.find(nivel => Number(nivel.numero) > Number(atual.numero))
     return { atual, proximo }
 }
 

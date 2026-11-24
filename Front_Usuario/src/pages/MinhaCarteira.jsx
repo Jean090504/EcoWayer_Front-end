@@ -29,7 +29,12 @@ export default function MinhaCarteira({ onNavegar }) {
         const usuario = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null")
         const registros = await buscarPontosUsuario(usuario?.id)
         const resumo = resumirPontos(registros)
-        const resultados = await Promise.allSettled([listarEntregasUsuario(), listarVouchersUsuario(), listarRecompensas(), buscarNivelDoador(usuario?.id), consultarSaldoResgate()])
+        const entregasUsuario = listarEntregasUsuario()
+        const nivelUsuario = entregasUsuario.then(
+          entregas => buscarNivelDoador(usuario?.id, { semAtividade: registros.length === 0 && entregas.length === 0 }),
+          () => buscarNivelDoador(usuario?.id)
+        )
+        const resultados = await Promise.allSettled([entregasUsuario, listarVouchersUsuario(), listarRecompensas(), nivelUsuario, consultarSaldoResgate()])
         if (!ativo) return
         setDados(resumo)
         if (resultados[0].status === "fulfilled") setEntregas(resultados[0].value)
