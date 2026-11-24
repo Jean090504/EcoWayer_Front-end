@@ -1,25 +1,29 @@
 import { useEffect, useState } from "react"
 
-import Header from "./components/layout/header.jsx"
-import Footer from "./components/layout/footer.jsx"
-import Login from "./components/cards/conta/cardLogin.jsx"
-import FluxoCriarConta from "./components/fluxos/fluxoCriarConta.jsx"
+import { Header, Footer } from './components/layout'
 
-import Home from "./pages/Home.jsx"
-import ConfiguracoesPerfil from "./pages/ConfiguracoesPerfil.jsx"
-import AvaliacaoAnuncio from "./pages/AvaliacaoAnuncio.jsx"
-import DetalhesAnuncio from "./pages/detalhesAnuncio.jsx";
-import MinhaCarteira from "./pages/MinhaCarteira.jsx"
-import PontosBeneficios from "./pages/PontosBeneficios.jsx"
-import Insignias from "./pages/Insignias.jsx"
-import CriarNovoAnuncio from "./pages/criarNovoAnuncio.jsx"
-import TelaMeuPerfil from "./pages/meuPerfil.jsx"
-import DenunciarAnuncio from "./pages/DenunciarAnuncio.jsx"
-import Notificacoes from "./pages/Notificacoes.jsx"
-import Chat from "./pages/Chat.jsx"
-import EditarAnuncio from "./pages/editarAnuncio.jsx"
-import ConfirmacaoAnuncioAlterado from "./components/cards/editarAnuncio/cardMenssagemDeAnuncioAlterado.jsx"
-import SessaoEncerrada from "./pages/SessaoEncerrada.jsx"
+import Login from "./components/cards/conta/cardLogin.jsx"
+
+import { FluxoCriarConta, FluxoDenunciarAnuncio } from './components/fluxos'
+import DenunciarAnuncio from './pages/DenunciarAnuncio.jsx'
+
+import {
+    Home,
+    ConfiguracoesPerfil,
+    AvaliacaoAnuncio,
+    DetalhesAnuncio,
+    MinhaCarteira,
+    PontosBeneficios,
+    Insignias,
+    CriarNovoAnuncio,
+    TelaMeuPerfil,
+    Notificacoes,
+    Chat,
+    EditarAnuncio,
+    ConfirmacaoAnuncioAlterado,
+    SessaoEncerrada
+} from './pages'
+
 import { logoutUsuario } from "./services/userService.js"
 import { EVENTO_SESSAO_EXPIRADA, sessaoFoiEncerrada } from "./services/sessionService.js"
 
@@ -34,14 +38,6 @@ export default function App() {
         if (sessaoFoiEncerrada()) return null
         try { return JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null") } catch { return null }
     })
-    const [categoriaHome, setCategoriaHome] = useState("tudo")
-    const [favoritos, setFavoritos] = useState([])
-    function favoritar(id) {
-        const chave = String(id)
-        setFavoritos(atuais => atuais.includes(chave)
-            ? atuais.filter(item => item !== chave)
-            : [...atuais, chave])
-    }
     const [anuncioSelecionado, setAnuncioSelecionado] = useState(null)
     const [anuncioConversa, setAnuncioConversa] = useState(null)
     const [mensagemDenunciada, setMensagemDenunciada] = useState(null)
@@ -52,6 +48,7 @@ export default function App() {
     const [anuncioAlterado, setAnuncioAlterado] = useState(false)
     const [sessaoExpirada, setSessaoExpirada] = useState(sessaoFoiEncerrada)
     const [encerrandoSessao, setEncerrandoSessao] = useState(false)
+    const [avisoDetalhes, setAvisoDetalhes] = useState('')
 
     useEffect(() => {
         let ativo = true
@@ -110,6 +107,7 @@ export default function App() {
     }
 
     function abrirAnuncio(anuncio) {
+        setAvisoDetalhes('') // NOVO: limpa o aviso ao abrir outro anúncio
         setAnuncioSelecionado(anuncio)
         setTelaAtiva("detalhesAnuncio")
         window.scrollTo(0, 0)
@@ -137,6 +135,24 @@ export default function App() {
         setAnuncioAlterado(true)
     }
 
+    // NOVO
+    function abrirDenuncia() {
+        if (!usuario) { pedirLogin(); return } // precisa estar logado para denunciar
+        setAvisoDetalhes('')
+        navegar("denunciarAnuncio")
+    }
+
+    // NOVO
+    function voltarParaAnuncio() {
+        navegar("detalhesAnuncio")
+    }
+
+    // NOVO
+    function denunciaEnviada() {
+        setAvisoDetalhes('Denúncia enviada. Obrigado por ajudar a manter a comunidade segura!')
+        navegar("detalhesAnuncio")
+    }
+
     return (
         <div data-tema={tema} className="ecowayer-app flex min-h-screen flex-col">
             <Header
@@ -150,34 +166,38 @@ export default function App() {
 
             <main className="flex flex-1 flex-col">
                 {sessaoExpirada ? <SessaoEncerrada encerrando={encerrandoSessao} onEntrar={pedirLogin} /> : <>
-                {telaAtiva === "home" && <Home onAbrirAnuncio={abrirAnuncio} favoritos={favoritos} categoria={categoriaHome} onSelecionarCategoria={setCategoriaHome} />}
+                {telaAtiva === "home" && <Home onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "detalhesAnuncio" && (
                     <DetalhesAnuncio
                         key={`${anuncioSelecionado?.id}-${anuncioSelecionado?.nome}`}
                         anuncioSelecionado={anuncioSelecionado}
-                        usuarioId={usuario?.id}
-                        favoritos={favoritos}
-                        onFavoritar={favoritar}
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
                         onConversar={abrirChat}
-                        onDenunciar={() => usuario ? navegar("denunciarAnuncio") : pedirLogin()}
+                        onDenunciar={abrirDenuncia}      // NOVO
+                        avisoInicial={avisoDetalhes}     // NOVO
                     />
                 )}
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onDenunciarMensagem={denunciarMensagem} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
-                {telaAtiva === "minhaCarteira" && <MinhaCarteira onNavegar={navegar} />}
+                {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "notificacoes" && <Notificacoes />}
                 {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} />}
                 {telaAtiva === "configuracoesPerfil" && <ConfiguracoesPerfil tema={tema} onAlterarTema={alterarTema} usuario={usuario} onAtualizarUsuario={setUsuario} onNavegar={navegar} />}
                 {telaAtiva === "editarAnuncio" && <EditarAnuncio key={anuncioSelecionado?.id} anuncioId={anuncioSelecionado?.id} onNavegar={navegar} onSalvo={concluirEdicao} />}
+                {telaAtiva === "denunciarAnuncio" && (   // NOVO
+                    <FluxoDenunciarAnuncio
+                        anuncio={anuncioSelecionado}
+                        onNavegar={voltarParaAnuncio}
+                        onDenunciaEnviada={denunciaEnviada}
+                    />
+                )}
                 {telaAtiva === "denunciarMensagem" && mensagemDenunciada && (
                     <DenunciarAnuncio mensagem={mensagemDenunciada} onNavegar={navegar} />
                 )}
-                {telaAtiva === "denunciarAnuncio" && <DenunciarAnuncio anuncioId={anuncioSelecionado?.id} onNavegar={navegar} />}
                 </>}
             </main>
 
