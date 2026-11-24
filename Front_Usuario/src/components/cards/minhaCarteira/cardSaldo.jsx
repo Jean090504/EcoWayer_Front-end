@@ -7,8 +7,8 @@ export default function CardSaldo({ saldo, valorReais, onResgatar, onTransferir 
 
   return (
     <CardBase
-      titulo="Pontos Registrados"
-      valor={saldo}
+      titulo="Saldo disponível"
+      valor={saldo ?? "—"}
       destaque={
         <span className="inline-flex items-center gap-1 bg-[#4CAF50] text-white text-[11px] font-semibold rounded-full px-2 py-0.5">
           <BadgeCheck size={12} />

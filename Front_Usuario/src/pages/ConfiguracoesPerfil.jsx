@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from "react"
-import { AlertTriangle, Save, UserRound } from "lucide-react"
-
-import { uploadFoto, validarFoto } from "../services/cloudinaryService.js"
-import { buscarPerfil, atualizarPerfil } from "../services/userService.js"
+import { useEffect, useRef, useState } from "react";
+import { uploadFoto, validarFoto } from "../services/cloudinaryService.js";
+import { AlertTriangle, Save, UserRound } from "lucide-react";
+import { buscarPerfil, atualizarPerfil } from "../services/userService.js";
+import { urlImagem } from "../services/api.js";
 
 const UFS = "AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ");
 const estados = { AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas", BA: "Bahia", CE: "Ceará", DF: "Distrito Federal", ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão", MT: "Mato Grosso", MS: "Mato Grosso do Sul", MG: "Minas Gerais", PA: "Pará", PB: "Paraíba", PR: "Paraná", PE: "Pernambuco", PI: "Piauí", RJ: "Rio de Janeiro", RN: "Rio Grande do Norte", RS: "Rio Grande do Sul", RO: "Rondônia", RR: "Roraima", SC: "Santa Catarina", SP: "São Paulo", SE: "Sergipe", TO: "Tocantins" };
 function formulario(dados) {
-    return { email: dados.email || "", confirmar_email: dados.email || "", telefone: dados.telefone || "", endereco: { ...(dados.enderecos?.[0] || {}) }, senha_atual: "", senha: "", confirmar_senha: "", foto_url: dados.imagem || "" };
+    return { email: dados.email || "", confirmar_email: dados.email || "", telefone: dados.telefone || "", endereco: { ...(dados.enderecos?.[0] || {}) }, senha_atual: "", senha: "", confirmar_senha: "" };
 }
 const campo = "mt-1 w-full rounded-lg border border-transparent bg-[#F8F7FD] px-4 py-3 text-sm text-[#444] outline-none focus:border-[#724BC2] disabled:text-gray-500";
 function Campo({ titulo, ...props }) {
@@ -21,6 +21,7 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
     const salvandoRef = useRef(false);
     const [arquivoFoto, setArquivoFoto] = useState(null);
     const [previaFoto, setPreviaFoto] = useState("");
+    const [fotoEnviada, setFotoEnviada] = useState("");
     const [enviandoFoto, setEnviandoFoto] = useState(false);
     useEffect(() => () => { if (previaFoto) URL.revokeObjectURL(previaFoto); }, [previaFoto]);
     function selecionarFoto(event) {
@@ -29,7 +30,7 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
         if (!arquivo) return;
         try {
             validarFoto(arquivo);
-            setArquivoFoto(arquivo); setPreviaFoto(URL.createObjectURL(arquivo)); setFotoErro(false); setErro(""); setMensagem("");
+            setArquivoFoto(arquivo); setPreviaFoto(URL.createObjectURL(arquivo)); setFotoEnviada(""); setFotoErro(false); setErro(""); setMensagem("");
         } catch (error) { setErro(error.message); }
     }
     const [nome, setNome] = useState("");
@@ -52,19 +53,19 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
         salvandoRef.current = true;
         setErro(""); setMensagem(""); setSalvando(true);
         try {
-            let fotoUrl = form.foto_url;
-            if (arquivoFoto) {
+            let fotoUrl = fotoEnviada;
+            if (arquivoFoto && !fotoUrl) {
                 setEnviandoFoto(true);
                 try { fotoUrl = await uploadFoto(arquivoFoto); }
                 finally { setEnviandoFoto(false); }
-                setForm(atual => ({ ...atual, foto_url: fotoUrl }));
-                setArquivoFoto(null); setPreviaFoto("");
+                setFotoEnviada(fotoUrl);
             }
-            const atualizado = await atualizarPerfil(usuario.id, { ...form, nome: nome.trim(), foto_url: fotoUrl });
+            const atualizado = await atualizarPerfil(usuario.id, { ...form, nome: nome.trim(), foto_url: fotoUrl || undefined });
             const sessao = { ...usuario, nome: atualizado.nome || nome.trim(), email: atualizado.email, foto: atualizado.imagem };
             sessionStorage.setItem("ecowayer_usuario", JSON.stringify(sessao));
             onAtualizarUsuario(sessao);
             setPerfil(atualizado); setNome(atualizado.nome || nome.trim()); setForm(formulario(atualizado)); setFotoErro(false);
+            setArquivoFoto(null); setPreviaFoto(""); setFotoEnviada("");
             setMensagem("Alterações salvas com sucesso.");
         } catch (error) { setErro(error.message); }
         finally { setSalvando(false); salvandoRef.current = false; }
@@ -75,7 +76,7 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
         const valor = e.target.value;
         setForm(atual => ({ ...atual, endereco: { ...atual.endereco, [chave]: valor, ...(chave === "sigla" ? { estado: estados[valor] || "" } : {}) } }));
     };
-    const foto = previaFoto || form?.foto_url || usuario?.foto;
+    const foto = previaFoto || urlImagem(perfil?.imagem || usuario?.foto);
     if (!usuario?.id) return <p className="p-10">Faça login para editar seu perfil.</p>;
     if (!perfil) return <p role={erro ? "alert" : "status"} className="p-10">{erro || "Carregando seus dados..."}</p>;
     return <div data-tema={tema} className="configuracoes-perfil min-h-screen bg-[#F8F7FE] px-4 py-8 sm:px-8 lg:py-12">
@@ -89,7 +90,7 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
                     </div>
                 </div>
                 <input ref={arquivoRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={selecionarFoto} aria-label="Selecionar foto de perfil" className="hidden" disabled={salvando} />
-                {arquivoFoto && <p role="status" className="mb-5 text-sm text-[#724BC2]">{arquivoFoto.name} — a foto será enviada ao salvar. <button type="button" disabled={salvando} onClick={() => { setArquivoFoto(null); setPreviaFoto(""); setFotoErro(false); }} className="underline">Cancelar foto</button></p>}
+                {arquivoFoto && <p role="status" className="mb-5 text-sm text-[#724BC2]">{arquivoFoto.name} <button type="button" disabled={salvando} onClick={() => { setArquivoFoto(null); setPreviaFoto(""); setFotoEnviada(""); setFotoErro(false); }} className="underline">Cancelar foto</button></p>}
                 <p className="mb-5 text-xs text-gray-500">Foto em JPG, PNG ou WebP, até 5 MB.</p>
                 <div className="grid gap-7 md:grid-cols-2 md:gap-10">
                     <div className="space-y-5">

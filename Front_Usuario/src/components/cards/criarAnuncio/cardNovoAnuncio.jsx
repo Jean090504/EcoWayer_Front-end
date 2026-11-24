@@ -10,6 +10,7 @@ import {
     HandHeart,
     ChevronDown,
     ArrowRight,
+    Trash2,
     X
 } from "lucide-react";
 
@@ -252,7 +253,7 @@ function SlotFoto({ numero, foto, principal, onRemover }) {
 //                       CARD DE CRIAR ANÚNCIO
 // ===================================================================
 
-export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar, dadosIniciais, editando = false }) {
+export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar, onApagar, dadosIniciais, editando = false }) {
 
     // ---------------------------------------------------------------
     //                            Estados
@@ -695,6 +696,18 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar,
                     >
                         Cancelar
                     </button>
+
+                    {editando && onApagar && (
+                        <button
+                            type="button"
+                            onClick={onApagar}
+                            disabled={enviando}
+                            className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+                        >
+                            <Trash2 size={16} aria-hidden="true" />
+                            Apagar anúncio
+                        </button>
+                    )}
 
                     {!editando && (<button
                         type="button"

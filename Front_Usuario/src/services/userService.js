@@ -1,4 +1,5 @@
 import { apiFetch, urlImagem } from './api.js'
+import { uploadFoto, validarFoto } from './cloudinaryService.js'
 import { registrarNovaSessao, limparSessaoLocal } from './sessionService.js'
 
 const resposta = (dados, chave) => dados?.response?.[chave] ?? dados?.[chave] ?? dados
@@ -28,7 +29,8 @@ export async function criarUsuario(dados) {
         email: dados.email,
         telefone: dados.telefone,
         senha: dados.senha,
-        id_genero: Number(dados.id_genero)
+        id_genero: Number(dados.id_genero),
+        foto_url: dados.foto_url
     }
     const retorno = await apiFetch('/usuario', { method: 'POST', body: JSON.stringify(payload) })
     return resposta(retorno, 'usuario')
@@ -65,6 +67,20 @@ export async function listarEntregasUsuario() {
     }
 }
 
+export async function buscarNivelDoador(idUsuario) {
+    const [perfil, catalogo] = await Promise.all([
+        apiFetch(`/usuario/${encodeURIComponent(idUsuario)}`),
+        apiFetch('/nivel_impacto')
+    ])
+    const atual = resposta(perfil, 'usuario')?.nivel_impacto
+    if (!atual) return null
+    const niveis = resposta(catalogo, 'nivel_impacto')
+    const proximo = niveis
+        .filter(nivel => Number(nivel.numero) > Number(atual.numero))
+        .sort((a, b) => Number(a.numero) - Number(b.numero))[0]
+    return { atual, proximo }
+}
+
 export async function listarInsignias() {
     try {
         const dados = await apiFetch('/insignia')
@@ -83,6 +99,19 @@ export async function listarInsigniasUsuario() {
         if (erro.status === 404) return []
         throw erro
     }
+}
+
+export async function consultarSaldoResgate() {
+    const dados = await apiFetch('/voucher/saldo')
+    return resposta(dados, 'saldo')
+}
+
+export async function resgatarRecompensa(id, solicitacao, pontosConfirmados) {
+    const dados = await apiFetch('/voucher/resgatar', {
+        method: 'POST',
+        body: JSON.stringify({ id_voucher_catalogo: Number(id), solicitacao, pontos_confirmados: Number(pontosConfirmados) })
+    })
+    return dados.response
 }
 
 export async function listarRecompensas() {
@@ -180,16 +209,27 @@ async function salvarAnuncioComFotos(dados, idUsuario, idAnuncio) {
         unidade: dados.unidade,
         status: 'ativo'
     }
-    const body = new FormData()
-    Object.entries(payload).forEach(([chave, valor]) => body.append(chave, String(valor)))
-    if (idAnuncio) body.append('fotos_mantidas', JSON.stringify(dados.fotosMantidas || []))
-    dados.fotos.forEach(foto => body.append('fotos', foto))
-    const retorno = await apiFetch(idAnuncio ? `/anuncio/${idAnuncio}/publicar` : '/anuncio/publicar', { method: idAnuncio ? 'PUT' : 'POST', body })
+    const mantidas = idAnuncio ? dados.fotosMantidas || [] : []
+    const fotos = dados.fotos || []
+    if (mantidas.length + fotos.length < 1 || mantidas.length + fotos.length > 6) {
+        throw new Error('Envie de 1 a 6 fotos para o anúncio.')
+    }
+    fotos.forEach(validarFoto)
+    payload.fotos = await Promise.all(fotos.map(uploadFoto))
+    if (idAnuncio) payload.fotos_mantidas = mantidas
+    const retorno = await apiFetch(idAnuncio ? `/anuncio/${idAnuncio}/publicar` : '/anuncio/publicar', {
+        method: idAnuncio ? 'PUT' : 'POST',
+        body: JSON.stringify(payload)
+    })
     return resposta(retorno, 'anuncio')
 }
 
 export const publicarAnuncio = (dados, idUsuario) => salvarAnuncioComFotos(dados, idUsuario)
 export const atualizarAnuncio = (id, dados, idUsuario) => salvarAnuncioComFotos(dados, idUsuario, id)
+
+export async function apagarAnuncio(id) {
+    await apiFetch(`/anuncio/${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
 
 export async function buscarOpcoesAnuncio() {
     const dados = await apiFetch('/anuncio/opcoes')

@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Camera, UserRound } from "lucide-react";
+import { uploadFoto, validarFoto } from "../../../services/cloudinaryService.js";
 import { buscarGenerosCadastro } from "../../../services/userService.js";
 import { requisitosSenha, validarSenha } from "../../../services/passwordValidation.js";
 
@@ -201,6 +203,16 @@ export default function CreateAccount({
     const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
     const [erro, setErro] = useState("");                                       // Mensagem acima do botão
     const [enviando, setEnviando] = useState(false);                            // true enquanto envia o SMS (trava o botão)
+    const enviandoRef = useRef(false);
+    const inputFoto = useRef(null);
+    const [foto, setFoto] = useState(null);
+    const [erroFoto, setErroFoto] = useState("");
+    const [previaFoto, setPreviaFoto] = useState("");
+    const [fotoUrl, setFotoUrl] = useState(dadosIniciais?.foto_url || "");
+    const [enviandoFoto, setEnviandoFoto] = useState(false);
+    useEffect(() => {
+        if (previaFoto) return () => URL.revokeObjectURL(previaFoto);
+    }, [previaFoto]);
     const [aceitouTermos, setAceitouTermos] = useState(Boolean(dadosIniciais)); // Ao voltar da verificação, os termos já foram aceitos
     const [formulario, setFormulario] = useState(                               // Ao voltar da verificação, começa com os dados de antes
         dadosIniciais ?? {
@@ -233,8 +245,31 @@ export default function CreateAccount({
     }
 
     // Clique em "Criar conta"
+    function selecionarFoto(event) {
+        const arquivo = event.target.files?.[0];
+        event.target.value = "";
+        if (!arquivo) return;
+        try {
+            validarFoto(arquivo);
+            setFoto(arquivo);
+            setPreviaFoto(URL.createObjectURL(arquivo));
+            setFotoUrl("");
+            setErroFoto("");
+        } catch (error) {
+            setErroFoto(error.message);
+        }
+    }
+
+    function removerFoto() {
+        setFoto(null);
+        setPreviaFoto("");
+        setFotoUrl("");
+        setErroFoto("");
+    }
+
     async function handleSubmit(event) {
         event.preventDefault();
+        if (enviandoRef.current) return;
         setErro("");
 
         if (!formulario.id_genero) { setErro("Selecione seu gênero para continuar."); return; }
@@ -261,13 +296,22 @@ export default function CreateAccount({
 
         // 4. Manda os dados pro fluxo (ele envia o SMS e abre a verificação).
         //    Se der erro, a mensagem aparece aqui mesmo.
+        enviandoRef.current = true;
         setEnviando(true);
 
         try {
-            await onContinuarVerificacao({ ...formulario });
+            let url = fotoUrl;
+            if (foto && !url) {
+                setEnviandoFoto(true);
+                try { url = await uploadFoto(foto); }
+                finally { setEnviandoFoto(false); }
+                setFotoUrl(url);
+            }
+            await onContinuarVerificacao({ ...formulario, foto_url: url || undefined });
         } catch (err) {
-            setErro(err.message || "Não foi possível enviar o código.");
+            setErro(err.message || "Não foi possível criar a conta.");
         } finally {
+            enviandoRef.current = false;
             setEnviando(false);
         }
     }
@@ -286,6 +330,7 @@ export default function CreateAccount({
                 <button
                     type="button"
                     onClick={onClose}
+                    disabled={enviando}
                     aria-label="Fechar"
                     className="absolute right-[13px] top-[11px] text-[16px] font-light leading-none text-[#FF4545] hover:text-red-700"
                 >
@@ -303,6 +348,29 @@ export default function CreateAccount({
                     onSubmit={handleSubmit}
                     autoComplete="off"
                 >
+
+                    <section aria-labelledby="titulo-foto-cadastro" className="flex items-start gap-4 rounded-2xl border border-[#E9DEF9] bg-[#FAF7FF] p-4 sm:p-5">
+                        <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-full bg-[#EDE4FA] text-[#724BC2] ring-2 ring-white sm:size-20">
+                            {previaFoto || fotoUrl
+                                ? <img src={previaFoto || fotoUrl} alt="Prévia da foto de perfil" className="size-full object-cover" />
+                                : <UserRound size={30} aria-hidden="true" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <h3 id="titulo-foto-cadastro" className="text-sm font-bold text-[#191C30]">
+                                Foto de perfil <span className="font-normal text-gray-600">· opcional</span>
+                            </h3>
+                            <p id="formatos-foto-cadastro" className="mt-1 text-xs text-gray-600">JPG, PNG ou WebP, até 5 MB.</p>
+                            <input ref={inputFoto} type="file" accept="image/jpeg,image/png,image/webp" onChange={selecionarFoto} disabled={enviando} hidden />
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                                <button type="button" onClick={() => inputFoto.current?.click()} disabled={enviando} aria-describedby="formatos-foto-cadastro" className="inline-flex items-center gap-1.5 rounded-full bg-[#724BC2] px-4 py-2 text-xs font-semibold text-white hover:bg-[#5D3BA3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#724BC2] disabled:opacity-60">
+                                    <Camera size={15} aria-hidden="true" />
+                                    {previaFoto || fotoUrl ? "Trocar foto" : "Adicionar foto"}
+                                </button>
+                                {(previaFoto || fotoUrl) && <button type="button" disabled={enviando} onClick={removerFoto} className="rounded-full px-2 py-2 text-xs font-semibold text-[#603A9F] hover:underline disabled:opacity-60">Remover foto</button>}
+                            </div>
+                            {erroFoto && <p role="alert" className="mt-2 text-xs text-red-700">{erroFoto}</p>}
+                        </div>
+                    </section>
 
                     {/* Nome */}
                     <Campo
@@ -442,7 +510,7 @@ export default function CreateAccount({
                             disabled={enviando}
                             className="mx-auto flex h-[35px] w-full items-center justify-center rounded-[12px] bg-[#7548C8] text-[16px] font-bold text-white transition hover:bg-[#6539B8] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 sm:w-[calc(100%-72px)]"
                         >
-                            {enviando ? "Enviando código..." : "Criar conta"}
+                            {enviandoFoto ? "Enviando foto..." : enviando ? "Criando conta..." : "Criar conta"}
                         </button>
                     </div>
 

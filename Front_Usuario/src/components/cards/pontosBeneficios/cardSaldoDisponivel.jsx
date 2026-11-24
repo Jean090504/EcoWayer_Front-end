@@ -1,6 +1,6 @@
 import { Leaf } from "lucide-react"
 
-export default function CardSaldoDisponivel({ saldo, porcentagem, nivelAtual, descartes, resgates, onGanharPontos,}) {
+export default function CardSaldoDisponivel({ saldo, descartes, resgates, onGanharPontos,}) {
   return (
     <div className="flex w-full flex-row items-center justify-between rounded-3xl bg-white p-10">
       <div className="flex flex-col">
@@ -10,22 +10,10 @@ export default function CardSaldoDisponivel({ saldo, porcentagem, nivelAtual, de
         </span>
 
         <p className="mt-4 text-[44px] font-extrabold leading-none text-[#191C1E]">
-          {saldo.toLocaleString("pt-BR")}{" "}
+          {saldo == null ? "—" : saldo.toLocaleString("pt-BR")}{" "}
           <span className="text-[25px] font-bold text-[#4CAF50]">EcoPontos</span>
         </p>
 
-        <p className="mt-6 text-[15px] font-semibold text-[#4CAF50]">{porcentagem}% concluído</p>
-
-        <div className="mt-1 h-2 w-40 rounded-full bg-[#E8EAF6]">
-          <div
-            className="h-2 rounded-full bg-[#4CAF50]"
-            style={{ width: `${porcentagem}%` }}
-          />
-        </div>
-
-        <p className="mt-2 text-[14px] font-semibold text-[#3E4A3D]">
-          Nível Atual: {nivelAtual.toLocaleString("pt-BR")} pts
-        </p>
       </div>
 
       <div className="flex flex-col items-center gap-5">

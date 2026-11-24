@@ -2,14 +2,19 @@ import { useEffect, useMemo, useState } from "react"
 import { buscarPontosUsuario, resumirPontos } from "../services/pontosService"
 import { CircleHelp } from "lucide-react"
 
-import { Botao } from '../components/ui'
+import Botao from "../components/ui/botao"
+import CardSaldo from "../components/cards/minhaCarteira/cardSaldo"
+import CardAcumulo from "../components/cards/minhaCarteira/cardAcumulo"
+import CardResgates from "../components/cards/minhaCarteira/cardResgates"
+import CardHistorico from "../components/cards/minhaCarteira/cardHistorico"
+import CardStatusDoador from "../components/cards/minhaCarteira/cardStatusDoador"
+import CardRecompensas from "../components/cards/minhaCarteira/cardRecompensas"
+import { buscarNivelDoador, consultarSaldoResgate, listarEntregasUsuario, listarRecompensas, listarVouchersUsuario } from "../services/userService"
 
-import { CardSaldo, CardAcumulo, CardResgates, CardHistorico, CardStatusDoador, CardRecompensas } from '../components/cards/minhaCarteira'
-
-import { listarEntregasUsuario, listarRecompensas, listarVouchersUsuario } from "../services/userService"
-
-export default function MinhaCarteira() {
+export default function MinhaCarteira({ onNavegar }) {
   const [dados, setDados] = useState(null)
+  const [saldoResgate, setSaldoResgate] = useState(null)
+  const [nivelDoador, setNivelDoador] = useState(null)
   const [entregas, setEntregas] = useState([])
   const [vouchers, setVouchers] = useState([])
   const [recompensas, setRecompensas] = useState([])
@@ -24,12 +29,14 @@ export default function MinhaCarteira() {
         const usuario = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null")
         const registros = await buscarPontosUsuario(usuario?.id)
         const resumo = resumirPontos(registros)
-        const resultados = await Promise.allSettled([listarEntregasUsuario(), listarVouchersUsuario(), listarRecompensas()])
+        const resultados = await Promise.allSettled([listarEntregasUsuario(), listarVouchersUsuario(), listarRecompensas(), buscarNivelDoador(usuario?.id), consultarSaldoResgate()])
         if (!ativo) return
         setDados(resumo)
         if (resultados[0].status === "fulfilled") setEntregas(resultados[0].value)
         if (resultados[1].status === "fulfilled") setVouchers(resultados[1].value)
         if (resultados[2].status === "fulfilled") setRecompensas(resultados[2].value.filter((item) => item.ativo !== 0))
+        setNivelDoador(resultados[3].status === "fulfilled" ? resultados[3].value : null)
+        setSaldoResgate(resultados[4].status === "fulfilled" ? resultados[4].value : null)
         if (resultados.some((item) => item.status === "rejected")) setErro("Alguns dados da carteira não puderam ser carregados.")
       } catch (error) {
         if (ativo) setErro(error.message)
@@ -71,9 +78,9 @@ export default function MinhaCarteira() {
         {/* 3 cards de resumo: mesma largura e mesma altura */}
         <div className="grid grid-cols-3 items-stretch gap-6">
           <CardSaldo
-            saldo={saldo}
+            saldo={saldoResgate}
             valorReais={null}
-            onResgatar={() => setAviso("O resgate de pontos ainda não está disponível.")}
+            onResgatar={() => onNavegar("pontosBeneficios")}
             onTransferir={() => setAviso("A transferência de pontos ainda não está disponível.")}
           />
           <CardAcumulo total={saldo} pontosMes={pontosMes} />
@@ -90,14 +97,8 @@ export default function MinhaCarteira() {
             </div>
 
             <div className="flex flex-col gap-6">
-                <CardStatusDoador
-                nivel={3}
-                nomeNivel="Guardião Circular"
-                proximaMeta="Mestre Regenerativo"
-                pontosAtuais={saldo}
-                pontosMeta={Math.max(1, saldo)}
-                />
-                <CardRecompensas recompensas={recompensasFormatadas} />
+                <CardStatusDoador atual={nivelDoador?.atual} proximo={nivelDoador?.proximo} />
+                <CardRecompensas recompensas={recompensasFormatadas} onResgatar={() => onNavegar("pontosBeneficios")} />
             </div>
         </div>
         </>}

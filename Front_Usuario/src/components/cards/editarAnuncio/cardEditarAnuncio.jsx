@@ -1,5 +1,5 @@
 import FormularioAnuncio from "../criarAnuncio/cardNovoAnuncio.jsx";
 
-export default function CardEditarAnuncio({ dadosIniciais, onSalvar, onCancelar }) {
-    return <FormularioAnuncio editando dadosIniciais={dadosIniciais} onPublicar={onSalvar} onCancelar={onCancelar} />;
+export default function CardEditarAnuncio({ dadosIniciais, onSalvar, onCancelar, onApagar }) {
+    return <FormularioAnuncio editando dadosIniciais={dadosIniciais} onPublicar={onSalvar} onCancelar={onCancelar} onApagar={onApagar} />;
 }
