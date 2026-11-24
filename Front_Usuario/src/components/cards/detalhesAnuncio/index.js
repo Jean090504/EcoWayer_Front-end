@@ -1,6 +1,6 @@
 export { default as CardAnunciante } from './cardAnunciante.jsx'
 export { default as CardPrecoAnuncio } from './cardPrecoAnuncio.jsx'
-export { default as CardEspecificacoesMaterial } from './cardEspecificacoesMaterial.jsx'
+export { default as CardInformacoesMaterial } from './cardInformacoesMaterial.jsx'
 export { default as CardDescricaoDetalhada } from './cardDescricaoDetalhada.jsx'
 export { default as CardOutrosAnunciosVendedor } from './cardOutrosAnunciosVendedor.jsx'
 export { default as CardAnuncioRelacionado } from './cardAnuncioRelacionado.jsx'
