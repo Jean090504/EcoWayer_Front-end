@@ -6,6 +6,7 @@ import Login from "./components/cards/conta/cardLogin.jsx"
 
 import { FluxoCriarConta, FluxoDenunciarAnuncio } from './components/fluxos'
 import DenunciarAnuncio from './pages/DenunciarAnuncio.jsx'
+import AnunciosVendedor from './pages/AnunciosVendedor.jsx'
 
 import {
     Home,
@@ -43,6 +44,8 @@ export default function App() {
         try { return JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null") } catch { return null }
     })
     const [anuncioSelecionado, setAnuncioSelecionado] = useState(null)
+    const [anuncioOrigemVendedor, setAnuncioOrigemVendedor] = useState(null)
+    const [veioDaListaVendedor, setVeioDaListaVendedor] = useState(false)
     const [anuncioConversa, setAnuncioConversa] = useState(null)
     const [mensagemDenunciada, setMensagemDenunciada] = useState(null)
     const [telaAtiva, setTelaAtiva] = useState("home")
@@ -110,7 +113,17 @@ export default function App() {
         setEncerrandoSessao(false)
     }
 
-    function abrirAnuncio(anuncio) {
+    function favoritar(id) {
+        setFavoritos(atuais => atuais.includes(id) ? atuais.filter(item => item !== id) : [...atuais, id])
+    }
+
+    function abrirAnunciosVendedor(anuncio) {
+        setAnuncioOrigemVendedor(anuncio)
+        navegar("anunciosVendedor")
+    }
+
+    function abrirAnuncio(anuncio, daListaVendedor = false) {
+        setVeioDaListaVendedor(daListaVendedor === true)
         setAvisoDetalhes('') // NOVO: limpa o aviso ao abrir outro anúncio
         setAnuncioSelecionado(anuncio)
         setTelaAtiva("detalhesAnuncio")
@@ -184,10 +197,23 @@ export default function App() {
                         key={`${anuncioSelecionado?.id}-${anuncioSelecionado?.nome}`}
                         anuncioSelecionado={anuncioSelecionado}
                         onNavegar={navegar}
-                        onAbrirAnuncio={abrirAnuncio}
+                        onAbrirAnuncio={anuncio => abrirAnuncio(anuncio, veioDaListaVendedor)}
                         onConversar={abrirChat}
+                        onVerAnunciosVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : abrirAnunciosVendedor}
+                        onVoltarAoVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : undefined}
+                        favoritos={favoritos}
+                        favoritar={favoritar}
                         onDenunciar={abrirDenuncia}      // NOVO
                         avisoInicial={avisoDetalhes}     // NOVO
+                    />
+                )}
+                {telaAtiva === "anunciosVendedor" && anuncioOrigemVendedor && (
+                    <AnunciosVendedor
+                        anuncio={anuncioOrigemVendedor}
+                        onVoltar={() => abrirAnuncio(anuncioOrigemVendedor)}
+                        onAbrirAnuncio={anuncio => abrirAnuncio(anuncio, true)}
+                        favoritos={favoritos}
+                        favoritar={favoritar}
                     />
                 )}
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}

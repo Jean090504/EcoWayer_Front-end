@@ -1,6 +1,15 @@
-import { Heart, MapPin, Star } from 'lucide-react'
+import { Heart, ImageOff } from 'lucide-react'
+import { useState } from 'react'
 
 export default function CardAnuncioRelacionado({ anuncio, favoritado, onFavoritar, onAbrir }) {
+    const [fotoComErro, setFotoComErro] = useState(null)
+    const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    const preco = Number(anuncio.preco)
+    let textoPreco = 'Preço não informado'
+    if (modalidade === 'doacao') textoPreco = 'Doação'
+    else if (modalidade === 'troca') textoPreco = 'Troca'
+    else if (Number.isFinite(preco) && preco > 0) textoPreco = preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
     return (
         <article className="relative overflow-hidden rounded-[24px] bg-white p-2 shadow-sm transition hover:shadow-md">
             <button
@@ -9,22 +18,17 @@ export default function CardAnuncioRelacionado({ anuncio, favoritado, onFavorita
                 aria-label={'Ver anúncio: ' + anuncio.nome}
                 className="block w-full text-left"
             >
-                <img
+                {anuncio.imagem && anuncio.imagem !== fotoComErro ? <img
                     src={anuncio.imagem}
                     alt={anuncio.nome}
                     loading="lazy"
+                    onError={() => setFotoComErro(anuncio.imagem)}
                     className="aspect-[1.15] w-full rounded-[18px] object-cover"
-                />
+                /> : <div className="flex aspect-[1.15] items-center justify-center rounded-[18px] bg-gray-100 text-gray-400"><ImageOff size={24} aria-label="Foto indisponível" /></div>}
                 <div className="px-1 py-3">
                     <h3 className="text-base font-semibold">{anuncio.nome}</h3>
-                    <p className="mt-1 text-lg font-bold text-[#4CAF50]">{anuncio.preco}</p>
-                    <div className="mt-2 flex items-center gap-1 text-[11px] text-gray-500">
-                        <Star size={12} fill="currentColor" className="text-amber-500" />
-                        {anuncio.avaliacao}
-                        <span>·</span>
-                        <MapPin size={12} />
-                        {anuncio.distancia}
-                    </div>
+                    <p className="mt-1 text-lg font-bold text-[#4CAF50]">{textoPreco}</p>
+                    {anuncio.categoria && <p className="mt-2 text-xs text-gray-500">{anuncio.categoria}</p>}
                 </div>
             </button>
             <button

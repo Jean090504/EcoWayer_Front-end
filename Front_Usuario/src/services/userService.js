@@ -47,6 +47,14 @@ export async function buscarAnuncios() {
         .sort((a, b) => Number(b.id) - Number(a.id))
 }
 
+export async function buscarOutrosAnunciosVendedor(anuncio) {
+    const idVendedor = Number(anuncio.id_usuario ?? anuncio.vendedor?.id)
+    if (!Number.isSafeInteger(idVendedor) || idVendedor <= 0) throw new Error('Vendedor não encontrado.')
+    const anuncios = await buscarAnuncios()
+    return anuncios.filter(item => Number(item.id_usuario) === idVendedor
+        && Number(item.id) !== Number(anuncio.id) && item.status === 'ativo')
+}
+
 export async function listarPontosUsuario() {
     try {
         const dados = await apiFetch('/pontos')

@@ -13,12 +13,11 @@ function textoPreco(anuncio) {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
-export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onConversar, onDenunciar, avisoInicial = '' }) {
+export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onVerAnunciosVendedor, onVoltarAoVendedor, favoritos, favoritar, onConversar, onDenunciar, avisoInicial = '' }) {
     const [anuncio, setAnuncio] = useState(null)
     const [fotoAtiva, setFotoAtiva] = useState(0)
     const [erro, setErro] = useState('')
     const [tentativa, setTentativa] = useState(0)
-    const [favoritos, setFavoritos] = useState([])
     const [aviso, setAviso] = useState(avisoInicial)
 
     useEffect(() => {
@@ -40,10 +39,6 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
             })
         return () => { ativo = false }
     }, [anuncioSelecionado, tentativa])
-
-    function favoritar(id) {
-        setFavoritos(atuais => atuais.includes(id) ? atuais.filter(item => item !== id) : [...atuais, id])
-    }
 
     function demonstrar(acao) {
         setAviso(acao + ': funcionalidade em demonstração, ainda sem integração.')
@@ -119,10 +114,10 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                 <div className="mb-4 flex items-center justify-between gap-4">
                     <button
                         type="button"
-                        onClick={() => onNavegar('home')}
+                        onClick={onVoltarAoVendedor || (() => onNavegar('home'))}
                         className="flex items-center gap-1 rounded-full bg-white px-4 py-2 text-xs hover:text-[#724BC2]"
                     >
-                        <ArrowLeft size={14} />Voltar aos anúncios
+                        <ArrowLeft size={14} />{onVoltarAoVendedor ? 'Voltar aos anúncios do vendedor' : 'Voltar aos anúncios'}
                     </button>
                     <div className="flex gap-2">
                         <button type="button" onClick={compartilhar} aria-label="Compartilhar anúncio" className="rounded-full bg-white p-2.5 text-gray-500">
@@ -189,7 +184,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                 <CardOutrosAnunciosVendedor
                     anuncio = {anuncio}
                     favoritos = {favoritos}
-                    demonstrar = {demonstrar}
+                    onVerTodos = {() => onVerAnunciosVendedor(anuncio)}
                     favoritar = {favoritar}
                     onAbrirAnuncio = {onAbrirAnuncio}
                 />
