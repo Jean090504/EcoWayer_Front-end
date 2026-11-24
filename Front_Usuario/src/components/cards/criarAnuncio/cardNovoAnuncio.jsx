@@ -261,6 +261,9 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar,
 
     const [categorias, setCategorias] = useState([]);
     const [condicoes, setCondicoes] = useState([]);
+    const [erroOpcoes, setErroOpcoes] = useState("");
+    const [tentativaOpcoes, setTentativaOpcoes] = useState(0);
+    const [carregandoOpcoes, setCarregandoOpcoes] = useState(true);
     useEffect(() => {
         let ativo = true;
         buscarOpcoesAnuncio().then(opcoes => {
@@ -268,9 +271,13 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar,
             const opcao = item => ({ valor: String(item.id), rotulo: item.nome });
             setCategorias(opcoes.categorias.map(opcao));
             setCondicoes(opcoes.condicoes.map(opcao));
-        }).catch(error => { if (ativo) setErro(error.message); });
+        }).catch(error => {
+            if (ativo) setErroOpcoes(error.message);
+        }).finally(() => {
+            if (ativo) setCarregandoOpcoes(false);
+        });
         return () => { ativo = false; };
-    }, []);
+    }, [tentativaOpcoes]);
     const [fotos, setFotos] = useState(() => dadosIniciais?.fotosExistentes || []);
     const [arrastando, setArrastando] = useState(false);
     const [modalidade, setModalidade] = useState(dadosIniciais?.modalidade || "venda");
@@ -582,7 +589,7 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar,
                                 value={formulario.categoria}
                                 onChange={atualizarCampo}
                                 opcoes={categorias}
-                                placeholder="Selecione a categoria"
+                                placeholder={carregandoOpcoes ? "Carregando categorias..." : "Selecione a categoria"}
                             />
                         </div>
 
@@ -595,10 +602,27 @@ export default function CriarAnuncio({ onPublicar, onSalvarRascunho, onCancelar,
                                 value={formulario.condicao}
                                 onChange={atualizarCampo}
                                 opcoes={condicoes}
-                                placeholder="Selecione a condição"
+                                placeholder={carregandoOpcoes ? "Carregando condições..." : "Selecione a condição"}
                             />
                         </div>
                     </div>
+
+                    {erroOpcoes && (
+                        <div className="text-sm text-red-700" role="alert">
+                            <p>Não foi possível carregar as categorias e condições. {erroOpcoes}</p>
+                            <button
+                                type="button"
+                                className="mt-1 underline"
+                                onClick={() => {
+                                    setErroOpcoes("");
+                                    setCarregandoOpcoes(true);
+                                    setTentativaOpcoes(tentativa => tentativa + 1);
+                                }}
+                            >
+                                Tentar novamente
+                            </button>
+                        </div>
+                    )}
 
                     {/* Preço e volume / peso */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
