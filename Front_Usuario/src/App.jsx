@@ -28,10 +28,25 @@ import {
 import { logoutUsuario } from "./services/userService.js"
 import { EVENTO_SESSAO_EXPIRADA, sessaoFoiEncerrada } from "./services/sessionService.js"
 
+const CHAVE_FAVORITOS = "ecowayer_favoritos"
+
 export default function App() {
 
     const [categoria, setCategoria] = useState("tudo")
-    const [favoritos, setFavoritos] = useState([])
+    const [favoritos, setFavoritos] = useState(() => {
+        try {
+            const salvos = JSON.parse(localStorage.getItem(CHAVE_FAVORITOS) || "[]")
+            return Array.isArray(salvos) ? salvos.map(String) : []
+        } catch {
+            return []
+        }
+    })
+
+    useEffect(() => {
+        try { localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify(favoritos)) } catch {
+            // A lista continua disponível durante a navegação se o armazenamento estiver bloqueado.
+        }
+    }, [favoritos])
 
     const [tema, setTema] = useState(() => localStorage.getItem("ecowayer_tema") === "escuro" ? "escuro" : "claro")
     function alterarTema(valor) {
@@ -114,7 +129,8 @@ export default function App() {
     }
 
     function favoritar(id) {
-        setFavoritos(atuais => atuais.includes(id) ? atuais.filter(item => item !== id) : [...atuais, id])
+        const chave = String(id)
+        setFavoritos(atuais => atuais.includes(chave) ? atuais.filter(item => item !== chave) : [...atuais, chave])
     }
 
     function abrirAnunciosVendedor(anuncio) {
@@ -190,6 +206,7 @@ export default function App() {
                         categoria={categoria}
                         onSelecionarCategoria={setCategoria}
                         favoritos={favoritos}
+                        favoritar={favoritar}
                     />
                 )}
                 {telaAtiva === "detalhesAnuncio" && (

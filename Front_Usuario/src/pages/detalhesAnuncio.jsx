@@ -82,7 +82,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
         return <section role="status" className="mx-auto w-[90%] py-12 text-gray-500">Carregando anúncio...</section>
     }
 
-    const favoritado = favoritos.includes(anuncio.id)
+    const favoritado = favoritos.includes(String(anuncio.id))
 
     return (
         <div className="flex-1 bg-[#FAF8FF] text-[#191C30]">

@@ -60,7 +60,7 @@ export default function CardOutrosAnunciosVendedor({
                     <CardAnuncioRelacionado
                         key = {item.id}
                         anuncio = {item}
-                        favoritado = {favoritos.includes(item.id)}
+                        favoritado = {favoritos.includes(String(item.id))}
                         onFavoritar = {() => favoritar(item.id)}
                         onAbrir = {() => onAbrirAnuncio(item)}
                     />

@@ -4,7 +4,7 @@ import { Categorias, Banner, DestaquesCategorias } from '../components/layout'
 
 import { buscarAnuncios } from "../services/userService.js"
 
-export default function Home({ onAbrirAnuncio, favoritos = [], categoria = "tudo", onSelecionarCategoria }) {
+export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, categoria = "tudo", onSelecionarCategoria }) {
     const [anuncios, setAnuncios] = useState([]);
     const [erro, setErro] = useState("");
 
@@ -71,7 +71,14 @@ export default function Home({ onAbrirAnuncio, favoritos = [], categoria = "tudo
                             {categoria === "favoritos" ? "Nenhum anúncio favoritado para exibir." : "Nenhum anúncio nesta categoria."}
                         </p>
                     ) : (
-                        <DestaquesCategorias key={categoria} anuncios={filtrados} onAbrirAnuncio={onAbrirAnuncio} />
+                        <DestaquesCategorias
+                            key={categoria}
+                            anuncios={filtrados}
+                            onAbrirAnuncio={onAbrirAnuncio}
+                            favoritos={favoritos}
+                            onFavoritar={favoritar}
+                            mostrarFavoritos={categoria === "favoritos"}
+                        />
                     )}
                 </div>
             </div>
