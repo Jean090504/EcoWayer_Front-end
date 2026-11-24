@@ -1,4 +1,5 @@
 import { BadgeCheck, Check, Star } from 'lucide-react'
+import { useState } from 'react'
 
 function Estatistica({ valor, rotulo, className = '' }) {
     return (
@@ -10,6 +11,7 @@ function Estatistica({ valor, rotulo, className = '' }) {
 }
 
 export default function CardAnunciante({ vendedor, onDenunciar, onVerPerfil }) {
+    const [fotoComErro, setFotoComErro] = useState(null)
     if (!vendedor) return null
 
     const avaliacao = Number(vendedor.avaliacao ?? vendedor.nota)
@@ -30,8 +32,8 @@ export default function CardAnunciante({ vendedor, onDenunciar, onVerPerfil }) {
 
             <div className="mt-6 flex items-center gap-4">
                 <div className="relative shrink-0 cursor-pointer" onClick={() => onVerPerfil(vendedor)}>
-                    {vendedor.foto ? (
-                        <img src={vendedor.foto} alt={vendedor.nome} className="h-16 w-16 rounded-full border-2 border-[#4CAF50] object-cover" />
+                    {vendedor.foto && vendedor.foto !== fotoComErro ? (
+                        <img src={vendedor.foto} onError={() => setFotoComErro(vendedor.foto)} alt={vendedor.nome} className="h-16 w-16 rounded-full border-2 border-[#4CAF50] object-cover" />
                     ) : (
                         <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#4CAF50] bg-[#F1EBFF] text-xl font-bold text-[#724BC2]">
                             {vendedor.nome?.[0]?.toUpperCase() || '?'}
