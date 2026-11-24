@@ -28,6 +28,10 @@ import { logoutUsuario } from "./services/userService.js"
 import { EVENTO_SESSAO_EXPIRADA, sessaoFoiEncerrada } from "./services/sessionService.js"
 
 export default function App() {
+
+    const [categoria, setCategoria] = useState("tudo")
+    const [favoritos, setFavoritos] = useState([])
+
     const [tema, setTema] = useState(() => localStorage.getItem("ecowayer_tema") === "escuro" ? "escuro" : "claro")
     function alterarTema(valor) {
         const novoTema = valor === "escuro" ? "escuro" : "claro"
@@ -166,7 +170,15 @@ export default function App() {
 
             <main className="flex flex-1 flex-col">
                 {sessaoExpirada ? <SessaoEncerrada encerrando={encerrandoSessao} onEntrar={pedirLogin} /> : <>
-                {telaAtiva === "home" && <Home onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
+                {telaAtiva === "home" && (
+                    <Home
+                        onNavegar={navegar}
+                        onAbrirAnuncio={abrirAnuncio}
+                        categoria={categoria}
+                        onSelecionarCategoria={setCategoria}
+                        favoritos={favoritos}
+                    />
+                )}
                 {telaAtiva === "detalhesAnuncio" && (
                     <DetalhesAnuncio
                         key={`${anuncioSelecionado?.id}-${anuncioSelecionado?.nome}`}

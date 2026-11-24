@@ -4,7 +4,7 @@ import { Categorias, Banner, DestaquesCategorias } from '../components/layout'
 
 import { buscarAnuncios } from "../services/userService.js"
 
-export default function Home({ onAbrirAnuncio, favoritos, categoria, onSelecionarCategoria }) {
+export default function Home({ onAbrirAnuncio, favoritos = [], categoria = "tudo", onSelecionarCategoria }) {
     const [anuncios, setAnuncios] = useState([]);
     const [erro, setErro] = useState("");
 
