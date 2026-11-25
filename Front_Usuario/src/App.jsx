@@ -129,9 +129,12 @@ export default function App() {
     }
 
     function favoritar(id) {
+        if (!usuario) return
         const chave = String(id)
         setFavoritos(atuais => atuais.includes(chave) ? atuais.filter(item => item !== chave) : [...atuais, chave])
     }
+
+    const favoritarAutenticado = usuario ? favoritar : undefined
 
     function abrirAnunciosVendedor(anuncio) {
         setAnuncioOrigemVendedor(anuncio)
@@ -206,7 +209,7 @@ export default function App() {
                         categoria={categoria}
                         onSelecionarCategoria={setCategoria}
                         favoritos={favoritos}
-                        favoritar={favoritar}
+                        favoritar={favoritarAutenticado}
                     />
                 )}
                 {telaAtiva === "detalhesAnuncio" && (
@@ -219,7 +222,7 @@ export default function App() {
                         onVerAnunciosVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : abrirAnunciosVendedor}
                         onVoltarAoVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : undefined}
                         favoritos={favoritos}
-                        favoritar={favoritar}
+                        favoritar={favoritarAutenticado}
                         onDenunciar={abrirDenuncia}      // NOVO
                         avisoInicial={avisoDetalhes}     // NOVO
                     />
@@ -230,7 +233,7 @@ export default function App() {
                         onVoltar={() => abrirAnuncio(anuncioOrigemVendedor)}
                         onAbrirAnuncio={anuncio => abrirAnuncio(anuncio, true)}
                         favoritos={favoritos}
-                        favoritar={favoritar}
+                        favoritar={favoritarAutenticado}
                     />
                 )}
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
@@ -241,7 +244,7 @@ export default function App() {
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "notificacoes" && <Notificacoes />}
                 {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} />}
-                {telaAtiva === "configuracoesPerfil" && <ConfiguracoesPerfil tema={tema} onAlterarTema={alterarTema} usuario={usuario} onAtualizarUsuario={setUsuario} onNavegar={navegar} />}
+                {telaAtiva === "configuracoesPerfil" && <ConfiguracoesPerfil tema={tema} onAlterarTema={alterarTema} usuario={usuario} onAtualizarUsuario={setUsuario} onNavegar={navegar} onContaDesativada={sair} />}
                 {telaAtiva === "editarAnuncio" && <EditarAnuncio key={anuncioSelecionado?.id} anuncioId={anuncioSelecionado?.id} onNavegar={navegar} onSalvo={concluirEdicao} />}
                 {telaAtiva === "denunciarAnuncio" && (   // NOVO
                     <FluxoDenunciarAnuncio

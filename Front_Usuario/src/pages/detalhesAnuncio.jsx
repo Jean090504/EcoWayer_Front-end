@@ -136,7 +136,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                         <button type="button" onClick={compartilhar} aria-label="Compartilhar anúncio" className="rounded-full bg-white p-2.5 text-gray-500">
                             <Share2 size={17} />
                         </button>
-                        <button
+                        {favoritar && <button
                             type="button"
                             onClick={() => favoritar(anuncio.id)}
                             aria-label={favoritado ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
@@ -144,7 +144,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                             className="rounded-full bg-white p-2.5 text-red-500"
                         >
                             <Heart size={17} fill={favoritado ? 'currentColor' : 'none'} />
-                        </button>
+                        </button>}
                     </div>
                 </div>
 

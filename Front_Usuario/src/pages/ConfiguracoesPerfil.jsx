@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { uploadFoto, validarFoto } from "../services/cloudinaryService.js";
-import { AlertTriangle, Save, UserRound } from "lucide-react";
-import { buscarPerfil, atualizarPerfil } from "../services/userService.js";
+import { AlertTriangle, Save, UserRound, X } from "lucide-react";
+import { buscarPerfil, atualizarPerfil, desativarConta } from "../services/userService.js";
 import { urlImagem } from "../services/api.js";
 
 const UFS = "AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ");
@@ -14,7 +14,7 @@ function Campo({ titulo, ...props }) {
     return <label className="block text-sm font-semibold text-[#303640]">{titulo}<input className={campo} {...props} /></label>;
 }
 
-export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNavegar, tema = "claro", onAlterarTema }) {
+export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNavegar, onContaDesativada, tema = "claro", onAlterarTema }) {
     const [perfil, setPerfil] = useState(null);
     const [form, setForm] = useState(null);
     const arquivoRef = useRef(null);
@@ -38,6 +38,8 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
     const [mensagem, setMensagem] = useState("");
     const [salvando, setSalvando] = useState(false);
     const [fotoErro, setFotoErro] = useState(false);
+    const [confirmarDesativacao, setConfirmarDesativacao] = useState(false);
+    const [desativando, setDesativando] = useState(false);
     useEffect(() => {
         let ativo = true;
         if (!usuario?.id) return;
@@ -69,6 +71,14 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
             setMensagem("Altera√ß√µes salvas com sucesso.");
         } catch (error) { setErro(error.message); }
         finally { setSalvando(false); salvandoRef.current = false; }
+    }
+    async function confirmarDesativarConta() {
+        if (desativando) return;
+        setDesativando(true); setErro("");
+        try {
+            await desativarConta(usuario.id);
+            onContaDesativada?.();
+        } catch (error) { setErro(error.message); setDesativando(false); }
     }
     const endereco = form?.endereco || {};
     const alterar = chave => e => setForm(atual => ({ ...atual, [chave]: e.target.value }));
@@ -123,9 +133,10 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
                 <section className="rounded-2xl bg-white p-6"><h2 className="mb-6 text-base font-bold text-[#303640]">Tema do Site</h2><fieldset className="space-y-4"><legend className="sr-only">Selecione o tema</legend>{[["claro", "Tema Claro"], ["escuro", "Tema Escuro"]].map(([valor, label]) => <label key={valor} className="flex cursor-pointer items-center justify-between rounded-xl bg-[#F8F7FD] px-4 py-3 text-sm text-[#724BC2]">{label}<input type="radio" name="tema" value={valor} checked={tema === valor} onChange={() => onAlterarTema(valor)} className="h-5 w-5 accent-[#724BC2]" /></label>)}</fieldset><p className="mt-4 text-xs text-gray-500">Sua prefer√™ncia √© aplicada ao site e salva neste navegador.</p></section>
                 <div className="flex flex-col gap-5">
                     <details className="rounded-2xl bg-white p-5"><summary className="cursor-pointer rounded-xl bg-[#F8F7FD] p-4 text-sm font-semibold text-[#724BC2]">Termos e condi√ß√µes de uso da plataforma</summary><p className="p-4 text-sm text-gray-600">Os termos de uso ainda n√£o foram disponibilizados nesta tela.</p></details>
-                    <section className="rounded-2xl bg-white p-5"><div className="flex flex-col gap-5 rounded-xl bg-red-50 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="flex items-center gap-2 text-sm font-bold text-red-500"><AlertTriangle size={18} />Excluir conta definitivamente</h2><p className="mt-2 max-w-md text-xs leading-relaxed text-red-400">Para encerrar sua conta, entre em contato com o suporte. A exclus√£o por esta tela ainda n√£o est√° dispon√≠vel.</p></div><button type="button" disabled className="shrink-0 rounded-lg bg-red-400 px-5 py-2.5 text-sm text-white opacity-60">Excluir Conta</button></div></section>
+                    <section className="rounded-2xl bg-white p-5"><div className="flex flex-col gap-5 rounded-xl bg-red-50 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="flex items-center gap-2 text-sm font-bold text-red-500"><AlertTriangle size={18} />Desativar conta</h2><p className="mt-2 max-w-md text-xs leading-relaxed text-red-400">Sua conta sera desativada. Para reativa-la, entre em contato com o suporte.</p></div><button type="button" onClick={() => setConfirmarDesativacao(true)} className="shrink-0 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white">Desativar Conta</button></div></section>
                 </div>
             </div>
         </div>
+        {confirmarDesativacao && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><section role="dialog" aria-modal="true" aria-labelledby="titulo-desativar-conta" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"><div className="flex items-start justify-between gap-4"><div><h2 id="titulo-desativar-conta" className="text-lg font-bold text-gray-900">Desativar sua conta?</h2><p className="mt-3 text-sm leading-relaxed text-gray-600">VocÍ ser· desconectado e n„o poder· entrar enquanto a conta estiver desativada. Para reativ·-la, entre em contato com o suporte.</p></div><button type="button" aria-label="Fechar" disabled={desativando} onClick={() => setConfirmarDesativacao(false)} className="rounded-full p-1 text-gray-500"><X size={20} /></button></div><div className="mt-6 flex justify-end gap-3"><button type="button" disabled={desativando} onClick={() => setConfirmarDesativacao(false)} className="rounded-lg px-4 py-2 text-sm text-gray-600">Cancelar</button><button type="button" disabled={desativando} onClick={confirmarDesativarConta} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{desativando ? "Desativando..." : "Confirmar desativaÁ„o"}</button></div></section></div>}
     </div>;
 }

@@ -61,7 +61,7 @@ export default function CardOutrosAnunciosVendedor({
                         key = {item.id}
                         anuncio = {item}
                         favoritado = {favoritos.includes(String(item.id))}
-                        onFavoritar = {() => favoritar(item.id)}
+                        onFavoritar = {favoritar ? () => favoritar(item.id) : undefined}
                         onAbrir = {() => onAbrirAnuncio(item)}
                     />
                 ))}

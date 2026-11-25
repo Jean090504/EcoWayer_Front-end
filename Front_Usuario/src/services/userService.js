@@ -211,6 +211,10 @@ export async function atualizarPerfil(id, perfil) {
     return resposta(dados, 'usuario')
 }
 
+export async function desativarConta(id) {
+    return apiFetch(`/usuario/${id}`, { method: 'DELETE' })
+}
+
 async function salvarAnuncioComFotos(dados, idUsuario, idAnuncio) {
     const opcoes = await buscarOpcoesAnuncio()
     const normalizar = valor => String(valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
