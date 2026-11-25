@@ -1,4 +1,4 @@
-import { lerToken } from './sessionService.js';
+import { encerrarSeAtual, geracaoSessao } from './sessionService.js';
 const RAW_API_URL = (import.meta.env.VITE_API_URL || "http://localhost:8080").replace(/\/$/, "");
 const BASE = `${RAW_API_URL.replace("/meraki/ecowayer/admin", "")}/meraki/ecowayer/admin`;
 const API_URL = `${BASE}/ponto-coleta`;
@@ -13,14 +13,14 @@ const OSM_OVERPASS_SERVERS = [
   "https://overpass.private.coffee/api/interpreter",
 ];
 const osmCache = new Map();
-
-const cabecalhos = () => {
-  const token = lerToken();
-  return {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
+const fetchApi = async (url, options = {}) => {
+  const geracaoRequisicao = geracaoSessao();
+  const response = await fetch(url, { ...options, credentials: 'include' });
+  if (response.status === 401) encerrarSeAtual(geracaoRequisicao);
+  return response;
 };
+
+const cabecalhos = () => ({ "Content-Type": "application/json" });
 
 const paraNumero = (v) => (v == null || v === "" ? NaN : Number(String(v).replace(",", ".")));
 const semAcento = (t) => String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -125,7 +125,7 @@ export async function buscarCep(cep) {
 /* ---------- Leitura ---------- */
 
 export async function listarPontos() {
-  const res = await fetch(API_URL, { headers: cabecalhos(), cache: "no-store" });
+  const res = await fetchApi(API_URL, { headers: cabecalhos(), cache: "no-store" });
   if (res.status === 404) return []; // sem pontos cadastrados não é erro
   if (!res.ok) throw new Error(`Erro ${res.status} ao buscar pontos`);
   const json = await res.json();
@@ -180,7 +180,7 @@ export async function buscarPontosOpenStreetMap(termo) {
 
 // Lista todos os materiais disponíveis para escolher nos modais
 export async function listarMateriais() {
-  const res = await fetch(MATERIAL_URL, { headers: cabecalhos() });
+  const res = await fetchApi(MATERIAL_URL, { headers: cabecalhos() });
   if (!res.ok) throw new Error(`Erro ${res.status} ao buscar materiais`);
   const json = await res.json();
   const lista = json.response?.material_aceito ?? json.response?.material ?? [];
@@ -188,7 +188,7 @@ export async function listarMateriais() {
 }
 
 export async function listarCategorias() {
-  const res = await fetch(CATEGORIA_URL, { headers: cabecalhos() });
+  const res = await fetchApi(CATEGORIA_URL, { headers: cabecalhos() });
   if (!res.ok) throw new Error(`Erro ${res.status} ao buscar categorias`);
   const json = await res.json();
   return (json.response?.categoria ?? []).map((c) => ({ id: c.id, nome: c.nome }));
@@ -201,7 +201,7 @@ async function buscarIdCategoria(nome) {
 
 // Lista todos os endereços cadastrados
 export async function listarEnderecos() {
-  const res = await fetch(ENDERECO_URL, { headers: cabecalhos() });
+  const res = await fetchApi(ENDERECO_URL, { headers: cabecalhos() });
   if (!res.ok) throw new Error(`Erro ${res.status} ao buscar endereços`);
   const json = await res.json();
   return json.response?.endereco ?? [];
@@ -239,7 +239,7 @@ export async function atualizarPonto(ponto, { status, materiaisIds, coords }) {
     material_aceito: materiaisIds.map((id) => ({ id })),
   };
 
-  const res = await fetch(`${API_URL}/${ponto.id}`, {
+  const res = await fetchApi(`${API_URL}/${ponto.id}`, {
     method: "PUT",
     headers: cabecalhos(),
     body: JSON.stringify(corpo),
@@ -252,7 +252,7 @@ export async function atualizarPonto(ponto, { status, materiaisIds, coords }) {
 
 // PUT no registro de endereço (o vínculo com o ponto não muda, pois o id é o mesmo)
 export async function atualizarEndereco(id, dados) {
-  const res = await fetch(`${ENDERECO_URL}/${id}`, {
+  const res = await fetchApi(`${ENDERECO_URL}/${id}`, {
     method: "PUT",
     headers: cabecalhos(),
     body: JSON.stringify(dados),
@@ -266,7 +266,7 @@ export async function atualizarEndereco(id, dados) {
 
 // POST /endereco -> devolve o id criado (aceita os formatos comuns de resposta)
 export async function criarEndereco(dados) {
-  const res = await fetch(ENDERECO_URL, { method: "POST", headers: cabecalhos(), body: JSON.stringify(dados) });
+  const res = await fetchApi(ENDERECO_URL, { method: "POST", headers: cabecalhos(), body: JSON.stringify(dados) });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.field ?? json.message ?? `Erro ${res.status} ao criar endereço`);
   const r = json.response;
@@ -277,19 +277,19 @@ export async function criarEndereco(dados) {
 
 // DELETE /endereco/:id (desfaz o endereço se o ponto não puder ser criado)
 export async function excluirEndereco(id) {
-  await fetch(`${ENDERECO_URL}/${id}`, { method: "DELETE", headers: cabecalhos() });
+  await fetchApi(`${ENDERECO_URL}/${id}`, { method: "DELETE", headers: cabecalhos() });
 }
 
 // POST /ponto-coleta -> devolve { id }; id nulo = o backend criou com alerta (vínculos falharam)
 export async function criarPonto(corpo) {
-  const res = await fetch(API_URL, { method: "POST", headers: cabecalhos(), body: JSON.stringify(corpo) });
+  const res = await fetchApi(API_URL, { method: "POST", headers: cabecalhos(), body: JSON.stringify(corpo) });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.field ?? json.message ?? `Erro ${res.status} ao criar ponto`);
   return { id: json.response?.id ?? null };
 }
 
 export async function excluirPonto(id) {
-  const res = await fetch(`${API_URL}/${id}`, { method: "DELETE", headers: cabecalhos() });
+  const res = await fetchApi(`${API_URL}/${id}`, { method: "DELETE", headers: cabecalhos() });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.field ?? json.message ?? `Erro ${res.status} ao excluir ponto`);
   return json;

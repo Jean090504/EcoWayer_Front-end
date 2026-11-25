@@ -37,10 +37,7 @@ export default function App() {
       body: JSON.stringify(credenciais),
     })
 
-    const token = resposta.response?.token
-    if (!token) throw new Error("A API não retornou um token de acesso.")
-
-    salvarSessao(token)
+    salvarSessao()
     setLogado(true)
   }
 
@@ -75,6 +72,7 @@ export default function App() {
           aoCancelar = {() => setMostrarCard(false)}
           aoConfirmar = {() => {
             setMostrarCard(false)
+            apiFetch("/acesso/logout", { method: "POST" }).catch(() => {})
             limparSessao()
             setLogado(false)
           }}

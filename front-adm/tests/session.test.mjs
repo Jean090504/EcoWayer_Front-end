@@ -22,46 +22,48 @@ beforeEach(() => {
     limparSessao()
 })
 
-test('token novo da sessão prevalece sobre token antigo persistido', async () => {
+test('usa cookie HttpOnly e remove tokens antigos acessíveis ao JavaScript', async () => {
     localStorage.setItem('token', 'antigo')
     sessionStorage.setItem('token', 'novo')
-    let enviado
-    globalThis.fetch = async (_url, options) => { enviado = options.headers.Authorization; return Response.json({}) }
+    let requisicao
+    globalThis.fetch = async (_url, options) => { requisicao = options; return Response.json({}) }
     await apiFetch('/categoria')
-    assert.equal(enviado, 'Bearer novo')
+    assert.equal(requisicao.headers.Authorization, undefined)
+    assert.equal(requisicao.credentials, 'include')
     assert.equal(localStorage.getItem('token'), null)
+    assert.equal(sessionStorage.getItem('token'), null)
 })
-test('sessão antiga persistida é migrada sem manter dois tokens', () => {
+test('não reutiliza token legado persistido', () => {
     localStorage.setItem('token', 'legado')
-    assert.equal(lerToken(), 'legado')
-    assert.equal(sessionStorage.getItem('token'), 'legado')
+    assert.equal(lerToken(), null)
+    assert.equal(sessionStorage.getItem('token'), null)
     assert.equal(localStorage.getItem('token'), null)
 })
 test('401 atrasado não apaga o token nem encerra um login novo', async () => {
-    salvarSessao('anterior')
+    salvarSessao()
     let resolver
     globalThis.fetch = () => new Promise(resolve => { resolver = resolve })
     const antiga = apiFetch('/categoria')
-    salvarSessao('nova-sessao')
+    salvarSessao()
     resolver(Response.json({}, { status: 401 }))
     await assert.rejects(antiga)
-    assert.equal(lerToken(), 'nova-sessao')
+    assert.equal(lerToken(), '1')
     assert.equal(expiracoes, 0)
 })
 test('401 atual encerra a sessão e notifica a aplicação', async () => {
-    salvarSessao('atual')
+    salvarSessao()
     globalThis.fetch = async () => Response.json({}, { status: 401 })
     await assert.rejects(apiFetch('/categoria'))
     assert.equal(lerToken(), null)
     assert.equal(expiracoes, 1)
 })
 test('erro de senha no login não encerra sessão existente', async () => {
-    salvarSessao('atual')
+    salvarSessao()
     globalThis.fetch = async (_url, options) => {
         assert.equal(options.headers.Authorization, undefined)
         return Response.json({}, { status: 401 })
     }
     await assert.rejects(apiFetch('/acesso/login', { method: 'POST' }))
-    assert.equal(lerToken(), 'atual')
+    assert.equal(lerToken(), '1')
     assert.equal(expiracoes, 0)
 })
