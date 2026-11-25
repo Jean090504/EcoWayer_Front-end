@@ -13,8 +13,8 @@ const acoesChamado = [
 ]
 
 const acoesUsuario = [
-  { codigo: "ativo", statusUsuario: true, rotulo: "Aprovar usuário", estilo: "bg-[#65BA69] hover:bg-[#51a856]" },
-  { codigo: "desativado", statusUsuario: true, rotulo: "Desativar usuário temporariamente", estilo: "bg-[#E43E42] hover:bg-[#d12e32]" },
+  { codigo: "USUARIO_APROVADO", statusUsuario: "ativo", rotulo: "Aprovar usuário", estilo: "bg-[#65BA69] hover:bg-[#51a856]" },
+  { codigo: "USUARIO_DESATIVADO_TEMPORARIAMENTE", statusUsuario: "desativado", rotulo: "Desativar usuário temporariamente", estilo: "bg-[#E43E42] hover:bg-[#d12e32]" },
 ]
 
 function ImagemAnuncio({ imagem, nome }) {
@@ -64,15 +64,20 @@ export default function ChamadoIndividual({ aoVoltar, alerta }) {
   async function decidir(acao) {
     setSalvando(true)
     setErro("")
+    let statusSalvo = false
     try {
       if (acao.statusUsuario) {
-        const status = await atualizarStatusUsuario(alerta.usuario.id, acao.codigo)
+        const status = await atualizarStatusUsuario(alerta.usuario.id, acao.statusUsuario)
         setStatusAtualizado(status)
-      } else {
-        await atualizarAlerta(alerta.id, { motivo: alerta.motivo, status: "RESOLVIDO", acao: acao.codigo })
-        aoVoltar()
+        statusSalvo = true
       }
-    } catch (e) { setErro(e.message || "Não foi possível salvar a decisão.") }
+      await atualizarAlerta(alerta.id, { motivo: alerta.motivo, status: "RESOLVIDO", acao: acao.codigo })
+      aoVoltar()
+    } catch (e) {
+      setErro(statusSalvo
+        ? "O status do usuário foi atualizado, mas o chamado ainda está pendente. Confirme a mesma ação novamente para concluir."
+        : e.message || "Não foi possível salvar a decisão.")
+    }
     finally { setSalvando(false); setConfirmacao(null) }
   }
 

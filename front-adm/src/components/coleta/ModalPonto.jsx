@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import StatusBadge from "./StatusBadge.jsx";
 import TagMaterial from "./TagMaterial.jsx";
 import {
-  listarMateriais, atualizarPonto, atualizarEndereco, geocodificar, excluirPonto,
+  listarMateriais, atualizarPonto, atualizarEndereco, geocodificar, excluirPonto, temCoordenadasValidas,
 } from "../../services/pontoColetaService.js";
 
 const STATUS = [
@@ -36,6 +36,8 @@ export default function ModalPonto({ ponto, onClose, onSaved, onDeleted }) {
   const [status, setStatus] = useState(ponto?.status);
   const [selecionados, setSelecionados] = useState([]);
   const [todosMateriais, setTodosMateriais] = useState([]);
+  const [carregandoMateriais, setCarregandoMateriais] = useState(false);
+  const [erroMateriais, setErroMateriais] = useState(null);
   const [formEndereco, setFormEndereco] = useState({});
   const [salvando, setSalvando] = useState(false);
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
@@ -53,7 +55,7 @@ export default function ModalPonto({ ponto, onClose, onSaved, onDeleted }) {
 
   if (!ponto) return null;
 
-  async function iniciarEdicao() {
+  function iniciarEdicao() {
     setErro(null);
     setConfirmandoExclusao(false);
     setStatus(ponto.status);
@@ -61,10 +63,18 @@ export default function ModalPonto({ ponto, onClose, onSaved, onDeleted }) {
     const end = ponto.enderecoObj ?? {};
     setFormEndereco(Object.fromEntries(CAMPOS_ENDERECO.map((c) => [c.chave, end[c.chave] ?? ""])));
     setEditando(true);
+    carregarMateriais();
+  }
+
+  async function carregarMateriais() {
+    setCarregandoMateriais(true);
+    setErroMateriais(null);
     try {
       setTodosMateriais(await listarMateriais());
     } catch (e) {
-      setErro(e.message);
+      setErroMateriais(e.message);
+    } finally {
+      setCarregandoMateriais(false);
     }
   }
 
@@ -93,9 +103,11 @@ export default function ModalPonto({ ponto, onClose, onSaved, onDeleted }) {
 
       // Se o endereço mudou, descobre as novas coordenadas ANTES de gravar qualquer coisa
       let coords = null;
+      if (mudouEndereco || !temCoordenadasValidas(ponto)) {
+        coords = await geocodificar({ ...end, ...formEndereco, estado: formEndereco.sigla || formEndereco.estado });
+        if (!temCoordenadasValidas(coords)) throw new Error("Não encontrei coordenadas para esse endereço. Confira os dados.");
+      }
       if (mudouEndereco) {
-        coords = await geocodificar({ ...end, ...formEndereco });
-        if (!coords) throw new Error("Não encontrei coordenadas para esse endereço. Confira os dados.");
         await atualizarEndereco(end.id, { ...end, ...formEndereco });
       }
 
@@ -211,7 +223,18 @@ export default function ModalPonto({ ponto, onClose, onSaved, onDeleted }) {
                     </button>
                   );
                 })}
-                {todosMateriais.length === 0 && !erro && <span className="text-xs text-gray-400">Carregando...</span>}
+                {carregandoMateriais && <span role="status" className="text-xs text-gray-500">Carregando materiais…</span>}
+                {erroMateriais && (
+                  <div className="w-full space-y-2">
+                    {ponto.materiais.length > 0 && todosMateriais.length === 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {ponto.materiais.map((nome) => <TagMaterial key={nome} nome={nome} />)}
+                      </div>
+                    )}
+                    <p role="alert" className="text-xs text-red-600">{erroMateriais}</p>
+                    <button type="button" onClick={carregarMateriais} disabled={ocupado} className="text-xs font-semibold text-purple-700">Tentar carregar materiais novamente</button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex flex-wrap gap-1">
@@ -222,7 +245,7 @@ export default function ModalPonto({ ponto, onClose, onSaved, onDeleted }) {
 
           <Campo rotulo="Coordenadas">
             <span className="text-xs text-gray-500">
-              {Number.isFinite(ponto.lat) ? `${ponto.lat}, ${ponto.lng}` : "Não informadas"}
+              {temCoordenadasValidas(ponto) ? `${ponto.lat}, ${ponto.lng}` : "Não localizadas"}
             </span>
           </Campo>
 
