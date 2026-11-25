@@ -22,6 +22,7 @@ const GAP_NAV = "gap-[clamp(10px,1.15vw,18px)]";
 const GAP_ITEM = "gap-[clamp(7px,0.7vw,11px)]";
 
 const OPCOES_PERFIL = [
+    { tela: "pedidos", texto: "Compras e vendas", Icone: Wallet },
     { tela: "notificacoes", texto: "Notificações", Icone: Bell },
     { tela: "insignias", texto: "Insígnias", Icone: Award },
     { tela: "pontosBeneficios", texto: "Pontos e Benefícios", Icone: Medal },

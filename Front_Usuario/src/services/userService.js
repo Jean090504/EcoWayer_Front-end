@@ -20,6 +20,19 @@ export async function loginUsuario(email, senha) {
     return autenticacao.usuario
 }
 
+export async function loginGoogle(credential) {
+    const dados = await apiFetch('/usuario/login/google', {
+        method: 'POST',
+        body: JSON.stringify({ credential })
+    })
+    const autenticacao = dados.response || dados
+    if (!autenticacao.usuario) throw new Error('A API não retornou os dados de autenticação Google.')
+    registrarNovaSessao()
+    if (autenticacao.token) sessionStorage.setItem('ecowayer_token', autenticacao.token)
+    sessionStorage.setItem('ecowayer_usuario', JSON.stringify(autenticacao.usuario))
+    return autenticacao.usuario
+}
+
 export async function criarUsuario(dados) {
     if (!Number.isSafeInteger(Number(dados.id_genero)) || Number(dados.id_genero) <= 0) throw new Error('Selecione seu gênero para continuar.')
     const payload = {

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { loginUsuario } from "../../../services/userService.js";
+import { loginGoogle, loginUsuario } from "../../../services/userService.js";
 
 // Estilo padrão dos campos de entrada
 const inputClass = "h-[48px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[48px] pr-[10px] text-[14px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
@@ -26,8 +26,18 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exig
     const [erro, setErro] = useState("");
 
     // Login com Google
-    function handleGoogleSuccess() {
-        setErro("Login com Google ainda não está disponível no backend.");
+    async function handleGoogleSuccess({ credential }) {
+        setErro("");
+        if (!credential) {
+            setErro("O Google não retornou uma credencial válida.");
+            return;
+        }
+        try {
+            const usuario = await loginGoogle(credential);
+            onLoginSuccess?.(usuario);
+        } catch (error) {
+            setErro(error.message || "Não foi possível entrar com o Google.");
+        }
     }
 
     // Botão "Entrar" (e-mail e senha)

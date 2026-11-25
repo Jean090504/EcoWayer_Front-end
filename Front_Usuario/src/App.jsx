@@ -7,6 +7,7 @@ import Login from "./components/cards/conta/cardLogin.jsx"
 import { FluxoCriarConta, FluxoDenunciarAnuncio } from './components/fluxos'
 import DenunciarAnuncio from './pages/DenunciarAnuncio.jsx'
 import AnunciosVendedor from './pages/AnunciosVendedor.jsx'
+import MeusPedidos from './pages/MeusPedidos.jsx'
 
 import {
     Home,
@@ -63,7 +64,7 @@ export default function App() {
     const [veioDaListaVendedor, setVeioDaListaVendedor] = useState(false)
     const [anuncioConversa, setAnuncioConversa] = useState(null)
     const [mensagemDenunciada, setMensagemDenunciada] = useState(null)
-    const [telaAtiva, setTelaAtiva] = useState("home")
+    const [telaAtiva, setTelaAtiva] = useState(() => new URLSearchParams(window.location.search).get('tela') === 'pedidos' ? 'pedidos' : 'home')
     const [abrirLogin, setAbrirLogin] = useState(false)
     const [abrirCadastro, setAbrirCadastro] = useState(false)
     const [cadastroConcluido, setCadastroConcluido] = useState(null)
@@ -237,6 +238,7 @@ export default function App() {
                 {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onDenunciarMensagem={denunciarMensagem} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
+                {telaAtiva === "pedidos" && <MeusPedidos key={usuario?.id || 'visitante'} usuario={usuario} onEntrar={pedirLogin} onNavegar={navegar} />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "notificacoes" && <Notificacoes />}
