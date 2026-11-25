@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { uploadFoto, validarFoto } from "../services/cloudinaryService.js";
 import { AlertTriangle, Save, UserRound, X } from "lucide-react";
-import { buscarPerfil, atualizarPerfil, desativarConta } from "../services/userService.js";
+import { buscarPerfil, atualizarPerfil, desativarConta, buscarCep } from "../services/userService.js";
 import { urlImagem } from "../services/api.js";
 
 const UFS = "AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ");
@@ -38,6 +38,8 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
     const [mensagem, setMensagem] = useState("");
     const [salvando, setSalvando] = useState(false);
     const [fotoErro, setFotoErro] = useState(false);
+    const [buscandoCep, setBuscandoCep] = useState(false);
+    const [erroCep, setErroCep] = useState("");
     const [confirmarDesativacao, setConfirmarDesativacao] = useState(false);
     const [desativando, setDesativando] = useState(false);
     useEffect(() => {
@@ -86,6 +88,14 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
         const valor = e.target.value;
         setForm(atual => ({ ...atual, endereco: { ...atual.endereco, [chave]: valor, ...(chave === "sigla" ? { estado: estados[valor] || "" } : {}) } }));
     };
+    async function preencherEnderecoPorCep() {
+        setErroCep(""); setBuscandoCep(true);
+        try {
+            const dadosEndereco = await buscarCep(endereco.cep);
+            setForm(atual => ({ ...atual, endereco: { ...atual.endereco, ...dadosEndereco } }));
+        } catch (error) { setErroCep(error.message); }
+        finally { setBuscandoCep(false); }
+    }
     const foto = previaFoto || urlImagem(perfil?.imagem || usuario?.foto);
     if (!usuario?.id) return <p className="p-10">Fa√ßa login para editar seu perfil.</p>;
     if (!perfil) return <p role={erro ? "alert" : "status"} className="p-10">{erro || "Carregando seus dados..."}</p>;
@@ -107,7 +117,8 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
                         <Campo titulo="Nome Completo" name="nome" autoComplete="name" value={nome} onChange={e => setNome(e.target.value)} minLength={2} maxLength={255} required />
                         <fieldset><legend className="mb-2 text-sm font-semibold text-[#303640]">Localiza√ß√£o</legend>
                             <div className="grid grid-cols-[100px_1fr] gap-3"><label className="text-sm">UF<select className={campo} value={endereco.sigla || ""} onChange={alterarEndereco("sigla")}><option value="">UF</option>{UFS.map(uf => <option key={uf}>{uf}</option>)}</select></label><Campo titulo="Cidade" maxLength={100} value={endereco.cidade || ""} onChange={alterarEndereco("cidade")} /></div>
-                            <div className="mt-3 grid grid-cols-2 gap-3"><Campo titulo="CEP" autoComplete="postal-code" maxLength={9} value={endereco.cep || ""} onChange={alterarEndereco("cep")} /><Campo titulo="Bairro" maxLength={100} value={endereco.bairro || ""} onChange={alterarEndereco("bairro")} /></div>
+                            <div className="mt-3 grid grid-cols-2 gap-3"><label className="block text-sm font-semibold text-[#303640]">CEP<div className="mt-1 flex gap-2"><input className={campo} autoComplete="postal-code" inputMode="numeric" maxLength={9} value={endereco.cep || ""} onChange={alterarEndereco("cep")} /><button type="button" onClick={preencherEnderecoPorCep} disabled={buscandoCep || String(endereco.cep || "").replace(/\D/g, "").length !== 8} className="shrink-0 rounded-lg bg-[#724BC2] px-3 text-xs font-semibold text-white disabled:opacity-50">{buscandoCep ? "Buscando..." : "Buscar CEP"}</button></div></label><Campo titulo="Bairro" maxLength={100} value={endereco.bairro || ""} onChange={alterarEndereco("bairro")} /></div>
+                            {erroCep && <p role="alert" className="mt-2 text-xs text-red-600">{erroCep}</p>}
                             <div className="mt-3 grid grid-cols-[1fr_100px] gap-3"><Campo titulo="Rua" autoComplete="address-line1" maxLength={100} value={endereco.rua || ""} onChange={alterarEndereco("rua")} /><Campo titulo="N√∫mero" maxLength={10} value={endereco.numero || ""} onChange={alterarEndereco("numero")} /></div>
                             <div className="mt-3"><Campo titulo="Complemento" autoComplete="address-line2" maxLength={50} value={endereco.complemento || ""} onChange={alterarEndereco("complemento")} /></div>
                         </fieldset>
@@ -137,6 +148,6 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
                 </div>
             </div>
         </div>
-        {confirmarDesativacao && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><section role="dialog" aria-modal="true" aria-labelledby="titulo-desativar-conta" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"><div className="flex items-start justify-between gap-4"><div><h2 id="titulo-desativar-conta" className="text-lg font-bold text-gray-900">Desativar sua conta?</h2><p className="mt-3 text-sm leading-relaxed text-gray-600">VocÍ ser· desconectado e n„o poder· entrar enquanto a conta estiver desativada. Para reativ·-la, entre em contato com o suporte.</p></div><button type="button" aria-label="Fechar" disabled={desativando} onClick={() => setConfirmarDesativacao(false)} className="rounded-full p-1 text-gray-500"><X size={20} /></button></div><div className="mt-6 flex justify-end gap-3"><button type="button" disabled={desativando} onClick={() => setConfirmarDesativacao(false)} className="rounded-lg px-4 py-2 text-sm text-gray-600">Cancelar</button><button type="button" disabled={desativando} onClick={confirmarDesativarConta} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{desativando ? "Desativando..." : "Confirmar desativaÁ„o"}</button></div></section></div>}
+        {confirmarDesativacao && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"><section role="dialog" aria-modal="true" aria-labelledby="titulo-desativar-conta" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"><div className="flex items-start justify-between gap-4"><div><h2 id="titulo-desativar-conta" className="text-lg font-bold text-gray-900">Desativar sua conta?</h2><p className="mt-3 text-sm leading-relaxed text-gray-600">Voc√™ ser√° desconectado e n√£o poder√° entrar enquanto a conta estiver desativada. Para reativ√°-la, entre em contato com o suporte.</p></div><button type="button" aria-label="Fechar" disabled={desativando} onClick={() => setConfirmarDesativacao(false)} className="rounded-full p-1 text-gray-500"><X size={20} /></button></div><div className="mt-6 flex justify-end gap-3"><button type="button" disabled={desativando} onClick={() => setConfirmarDesativacao(false)} className="rounded-lg px-4 py-2 text-sm text-gray-600">Cancelar</button><button type="button" disabled={desativando} onClick={confirmarDesativarConta} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{desativando ? "Desativando..." : "Confirmar desativa√ß√£o"}</button></div></section></div>}
     </div>;
 }
