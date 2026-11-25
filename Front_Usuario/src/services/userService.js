@@ -176,6 +176,18 @@ export async function buscarAnuncio(id) {
     }
 }
 
+export async function iniciarPagamentoTeste(idAnuncio) {
+    const dados = await apiFetch('/pagamento/teste/preferencia', {
+        method: 'POST',
+        body: JSON.stringify({ id_anuncio: Number(idAnuncio) })
+    })
+    const url = dados?.response?.init_point
+    if (!/^https:\/\/(?:www\.)?mercadopago\.com\.br\//.test(url || '')) {
+        throw new Error('O Mercado Pago não retornou um checkout válido.')
+    }
+    return url
+}
+
 export async function buscarPerfil(id) {
     const dados = await apiFetch(`/usuario/${id}/perfil`)
     return resposta(dados, 'usuario')

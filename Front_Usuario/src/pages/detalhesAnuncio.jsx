@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, Heart, Home, Share2 } from 'lucide-react'
 
 import { CardAnunciante, CardPrecoAnuncio, CardInformacoesMaterial, CardDescricaoDetalhada, CardOutrosAnunciosVendedor } from '../components/cards/detalhesAnuncio'
-import { buscarAnuncio } from '../services/userService.js'
+import { buscarAnuncio, iniciarPagamentoTeste } from '../services/userService.js'
 
 function textoPreco(anuncio) {
     const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -19,6 +19,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
     const [erro, setErro] = useState('')
     const [tentativa, setTentativa] = useState(0)
     const [aviso, setAviso] = useState(avisoInicial)
+    const [pagamentoCarregando, setPagamentoCarregando] = useState(false)
 
     useEffect(() => {
         let ativo = true
@@ -47,6 +48,18 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
     function denunciar() {
         if (onDenunciar) onDenunciar(anuncio)
         else demonstrar('Denúncia de anúncio')
+    }
+
+    async function pagarTeste() {
+        if (pagamentoCarregando) return
+        setPagamentoCarregando(true)
+        setAviso('')
+        try {
+            window.location.assign(await iniciarPagamentoTeste(anuncio.id))
+        } catch (error) {
+            setAviso(error.message || 'Não foi possível iniciar o pagamento de teste.')
+            setPagamentoCarregando(false)
+        }
     }
 
     async function compartilhar() {
@@ -174,6 +187,8 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                             anuncio={anuncio}
                             onConversar={onConversar}
                             onContraproposta={() => demonstrar('Contraproposta / Agendar retirada')}
+                            onPagarTeste={pagarTeste}
+                            pagamentoCarregando={pagamentoCarregando}
                         />
                         <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={denunciar} onVerPerfil={() => onNavegar('perfil')} />
                     </div>

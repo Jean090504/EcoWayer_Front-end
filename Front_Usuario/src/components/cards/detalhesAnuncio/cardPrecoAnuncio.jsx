@@ -54,7 +54,7 @@ function textoPreco(anuncio) {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
-export default function CardPrecoAnuncio({ anuncio, onConversar, onContraproposta }) {
+export default function CardPrecoAnuncio({ anuncio, onConversar, onContraproposta, onPagarTeste, pagamentoCarregando = false }) {
     const modalidade = modalidadeDoAnuncio(anuncio)
     const ehDoacao = modalidade === 3
 
@@ -77,6 +77,17 @@ export default function CardPrecoAnuncio({ anuncio, onConversar, onContrapropost
             )}
 
             <div className="space-y-4">
+                {import.meta.env.VITE_MP_TEST_MODE === '1' && modalidade === 1 && Number(anuncio.preco) > 0 && onPagarTeste && (
+                    <button
+                        type="button"
+                        data-mp-checkout-cta="checkout-pro"
+                        onClick={onPagarTeste}
+                        disabled={pagamentoCarregando}
+                        className="flex w-full items-center justify-center rounded-full bg-[#4CAF50] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#3d9441] disabled:cursor-wait disabled:opacity-60"
+                    >
+                        {pagamentoCarregando ? 'Abrindo Mercado Pago...' : 'Testar pagamento com Mercado Pago'}
+                    </button>
+                )}
                 <button
                     type="button"
                     onClick={() => onConversar(anuncio)}
