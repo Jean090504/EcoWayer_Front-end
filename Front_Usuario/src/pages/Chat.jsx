@@ -176,6 +176,12 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
     }, [idConversa, idUsuario, sinalMensagem])
 
     useEffect(() => { fim.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }) }, [mensagens.length, mensagemPendente])
+    useEffect(() => {
+        const textarea = campo.current
+        if (!textarea) return
+        textarea.style.height = 'auto'
+        textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`
+    }, [texto])
 
     async function enviar(event) {
         event.preventDefault()
@@ -312,8 +318,8 @@ export default function Chat({ usuario, anuncio, onAbrirLogin, onNavegar, onAbri
                         <div ref={fim}/>
                     </div>
                     <form onSubmit={enviar} className="relative flex items-end gap-2 bg-white p-4">
-                        {emojis && <div className="absolute bottom-full left-4 flex gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-lg">{['😊', '👍', '♻️', '🤝', '💚'].map(emoji => <button type="button" key={emoji} aria-label={`Inserir ${emoji}`} onClick={() => { setTexto(valor => (valor + emoji).slice(0, 2000)); setEmojis(false); campo.current?.focus() }} className="p-1 text-xl">{emoji}</button>)}</div>}
-                        <div className="flex flex-1 items-end gap-2 rounded-[24px] bg-[#F3F4F6] px-4 py-2"><textarea ref={campo} rows={1} maxLength={2000} disabled={enviando} value={texto} onChange={event => setTexto(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form.requestSubmit() } }} aria-label="Mensagem" placeholder={`Digite sua mensagem para ${contato?.split(' ')[0] || 'o anunciante'}...`} className="max-h-32 min-h-8 w-full resize-y bg-transparent py-1 text-sm outline-none placeholder:text-[#73806F]"/><button type="button" disabled={enviando} onClick={() => setEmojis(valor => !valor)} aria-label="Inserir emoji" aria-expanded={emojis} className="py-1 text-[#73806F]"><Smile size={22}/></button></div>
+                        {emojis && <div className="absolute bottom-full left-4 grid max-h-48 grid-cols-8 gap-1 overflow-y-auto rounded-2xl border border-gray-100 bg-white p-3 shadow-lg">{['😊', '👍', '♻️', '🤝', '💚', '🌱', '🌿', '🌎', '🌍', '🌳', '🍃', '🌻', '🌼', '🌸', '🐝', '🐢', '🦋', '🐬', '🌊', '💧', '☀️', '🌤️', '🌈', '🪴', '🪻', '🧹', '🧴', '🫙', '📦', '🛍️', '👕', '👖', '👟', '📚', '🔋', '🪫', '🚲', '🚶', '🏡', '❤️'].map(emoji => <button type="button" key={emoji} aria-label={`Inserir ${emoji}`} onClick={() => { setTexto(valor => (valor + emoji).slice(0, 2000)); setEmojis(false); campo.current?.focus() }} className="rounded p-1 text-xl hover:bg-gray-100">{emoji}</button>)}</div>}
+                        <div className="flex flex-1 items-end gap-2 rounded-[24px] bg-[#F3F4F6] px-4 py-2"><textarea ref={campo} rows={1} maxLength={2000} disabled={enviando} value={texto} onChange={event => setTexto(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form.requestSubmit() } }} aria-label="Mensagem" placeholder={`Digite sua mensagem para ${contato?.split(' ')[0] || 'o anunciante'}...`} className="max-h-32 min-h-8 w-full resize-none overflow-y-auto bg-transparent py-1 text-sm outline-none placeholder:text-[#73806F]"/><button type="button" disabled={enviando} onClick={() => setEmojis(valor => !valor)} aria-label="Inserir emoji" aria-expanded={emojis} className="py-1 text-[#73806F]"><Smile size={22}/></button></div>
                         <button type="submit" disabled={enviando || !texto.trim()} aria-label="Enviar mensagem" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#724BC2] text-white shadow-md hover:bg-[#603ca8] disabled:cursor-not-allowed disabled:opacity-40">{enviando ? <RefreshCw size={20} className="animate-spin"/> : <Send size={21}/>}</button>
                     </form>
                 </> : <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-[#F0F0F0] p-8 text-center"><MessageSquare size={44} className="text-[#724BC2]"/><h2 className="text-xl font-semibold">Suas conversas, em um só lugar</h2><p className="max-w-xs text-sm leading-relaxed text-[#73806F]">Selecione uma conversa ou encontre um anúncio para falar com o anunciante.</p><button onClick={() => onNavegar('home')} className="rounded-full bg-[#724BC2] px-5 py-2.5 text-sm font-semibold text-white">Explorar anúncios</button></div>}
