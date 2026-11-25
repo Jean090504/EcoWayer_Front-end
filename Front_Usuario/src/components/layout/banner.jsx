@@ -100,14 +100,6 @@ export default function Banner() {
             >
                 ›
             </button>
-            <button
-                type="button"
-                onClick={() => setPausado(atual => !atual)}
-                aria-label={pausado ? "Ativar troca automática do banner" : "Pausar troca automática do banner"}
-                className="absolute right-3 bottom-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-md hover:bg-gray-50"
-            >
-                {pausado ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
-            </button>
         </section>
     )
 }

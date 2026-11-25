@@ -33,6 +33,7 @@ const CHAVE_FAVORITOS = "ecowayer_favoritos"
 export default function App() {
 
     const [categoria, setCategoria] = useState("tudo")
+    const [busca, setBusca] = useState("")
     const [favoritos, setFavoritos] = useState(() => {
         try {
             const salvos = JSON.parse(localStorage.getItem(CHAVE_FAVORITOS) || "[]")
@@ -198,6 +199,8 @@ export default function App() {
                 onAbrirNovoAnuncio={() => navegar("novoAnuncio")}
                 onNavegar={navegar}
                 onSair={sair}
+                busca={busca}
+                onBuscar={setBusca}
             />
 
             <main className="flex flex-1 flex-col">
@@ -207,6 +210,7 @@ export default function App() {
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
                         categoria={categoria}
+                        busca={busca}
                         onSelecionarCategoria={setCategoria}
                         favoritos={favoritos}
                         favoritar={favoritarAutenticado}

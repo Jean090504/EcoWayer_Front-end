@@ -1,8 +1,8 @@
-import { BadgeCheck, Banknote, Gift, Send } from "lucide-react"
+import { BadgeCheck, Banknote, Gift } from "lucide-react"
 import CardBase from "./cardBase"
 import Botao from "../../ui/botao"
 
-export default function CardSaldo({ saldo, valorReais, onResgatar, onTransferir }) {
+export default function CardSaldo({ saldo, valorReais, onResgatar }) {
   const reais = valorReais == null ? null : valorReais.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 
   return (
@@ -16,14 +16,10 @@ export default function CardSaldo({ saldo, valorReais, onResgatar, onTransferir 
         </span>
       }
       rodape={
-        <div className="flex gap-3">
-          <Botao onClick={onResgatar} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#4CAF50] py-3 text-[14px] font-semibold text-white cursor-pointer">
+        <div className="flex">
+          <Botao onClick={onResgatar} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#4CAF50] py-3 text-[14px] font-semibold text-white cursor-pointer">
             <Gift size={18} />
             Resgatar
-          </Botao>
-          <Botao onClick={onTransferir} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#724BC2] py-3 text-[14px] font-semibold text-white cursor-pointer">
-            <Send size={18} />
-            Transferir
           </Botao>
         </div>
       }

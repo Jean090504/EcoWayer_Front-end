@@ -86,7 +86,6 @@ export default function MinhaCarteira({ onNavegar }) {
             saldo={saldoResgate}
             valorReais={null}
             onResgatar={() => onNavegar("pontosBeneficios")}
-            onTransferir={() => setAviso("A transferência de pontos ainda não está disponível.")}
           />
           <CardAcumulo total={saldo} pontosMes={pontosMes} />
           <CardResgates

@@ -42,7 +42,9 @@ export default function Header({
     onAbrirCriarConta,
     onAbrirNovoAnuncio,
     onNavegar,
-    onSair
+    onSair,
+    busca = "",
+    onBuscar
 }) {
     // -----------------------------------------------------------------------
     //                         Estados: interface
@@ -200,7 +202,11 @@ export default function Header({
 
                     <input
                         type="text"
-                        placeholder="Buscar ponto de coleta, bairro..."
+                        value={busca}
+                        onChange={event => onBuscar?.(event.target.value)}
+                        onKeyDown={event => { if (event.key === "Enter") onNavegar?.("home"); }}
+                        aria-label="Buscar anúncios"
+                        placeholder="Buscar anúncios..."
                         className={`min-w-0 flex-1 ${TEXTO_SM} text-gray-700 outline-none placeholder:text-gray-400`}
                     />
 

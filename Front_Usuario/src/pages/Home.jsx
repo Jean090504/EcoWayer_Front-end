@@ -4,7 +4,7 @@ import { Categorias, Banner, DestaquesCategorias } from '../components/layout'
 
 import { buscarAnuncios } from "../services/userService.js"
 
-export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, categoria = "tudo", onSelecionarCategoria }) {
+export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, categoria = "tudo", busca = "", onSelecionarCategoria }) {
     const [anuncios, setAnuncios] = useState([]);
     const [erro, setErro] = useState("");
 
@@ -43,7 +43,11 @@ export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, catego
     }
     const categorias = Array.from(categoriasPorId, ([id, nome]) => ({ id, nome }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    const termoBusca = busca.trim().toLocaleLowerCase("pt-BR");
     const filtrados = anuncios.filter(anuncio => {
+        const correspondeBusca = !termoBusca || [anuncio.nome, anuncio.descricao, anuncio.categoria, anuncio.modalidade_nome]
+            .some(valor => String(valor || "").toLocaleLowerCase("pt-BR").includes(termoBusca));
+        if (!correspondeBusca) return false;
         if (categoria === "tudo") return true;
         if (categoria === "favoritos") return favoritos.includes(String(anuncio.id));
         return String(anuncio.id_categoria) === categoria;
