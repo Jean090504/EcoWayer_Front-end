@@ -51,6 +51,7 @@ export default function Header({
     // -----------------------------------------------------------------------
     const [mostrarFiltro, setMostrarFiltro] = useState(false);
     const [menuPerfil, setMenuPerfil] = useState(false);
+    const [confirmarSaida, setConfirmarSaida] = useState(false);
     const [fotoComErro, setFotoComErro] = useState(null);
     const perfilRef = useRef(null);
     const botaoPerfilRef = useRef(null);
@@ -351,7 +352,7 @@ export default function Header({
                                         </button>
                                     </div>
                                 ))}
-                                <button type="button" onClick={() => { setMenuPerfil(false); onSair?.(); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 focus-visible:bg-red-50"><LogOut size={18} aria-hidden="true" />Sair</button>
+                                <button type="button" onClick={() => { setMenuPerfil(false); setConfirmarSaida(true); }} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 focus-visible:bg-red-50"><LogOut size={18} aria-hidden="true" />Sair</button>
                             </nav>}
                         </div>
 
@@ -384,6 +385,7 @@ export default function Header({
                     </div>
                 )}
             </div>
+            {confirmarSaida && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" role="presentation" onMouseDown={evento => { if (evento.target === evento.currentTarget) setConfirmarSaida(false); }}><section role="dialog" aria-modal="true" aria-labelledby="confirmar-saida-titulo" className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"><h2 id="confirmar-saida-titulo" className="text-lg font-bold text-gray-900">Deseja sair da sua conta?</h2><p className="mt-2 text-sm text-gray-600">Voce precisara entrar novamente para acessar seus anuncios, mensagens e carteira.</p><div className="mt-6 flex justify-end gap-3"><button type="button" onClick={() => setConfirmarSaida(false)} className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">Continuar conectado</button><button type="button" onClick={() => { setConfirmarSaida(false); onSair?.(); }} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Sair da conta</button></div></section></div>}
         </header>
     );
 }
