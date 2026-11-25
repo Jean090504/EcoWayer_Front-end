@@ -156,6 +156,12 @@ export default function App() {
         window.scrollTo(0, 0)
     }
 
+    function abrirContraproposta(anuncio) {
+        setAnuncioConversa({ ...anuncio, tipo_interacao: "contraproposta" })
+        setTelaAtiva("chat")
+        window.scrollTo(0, 0)
+    }
+
     function denunciarMensagem(mensagem) {
         setMensagemDenunciada(mensagem)
         navegar("denunciarMensagem")
@@ -223,6 +229,7 @@ export default function App() {
                         onNavegar={navegar}
                         onAbrirAnuncio={anuncio => abrirAnuncio(anuncio, veioDaListaVendedor)}
                         onConversar={abrirChat}
+                        onContraproposta={abrirContraproposta}
                         onVerAnunciosVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : abrirAnunciosVendedor}
                         onVoltarAoVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : undefined}
                         favoritos={favoritos}
@@ -243,7 +250,7 @@ export default function App() {
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onDenunciarMensagem={denunciarMensagem} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
-                {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
+                {telaAtiva === "minhaCarteira" && <MinhaCarteira onNavegar={navegar} />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "notificacoes" && <Notificacoes />}

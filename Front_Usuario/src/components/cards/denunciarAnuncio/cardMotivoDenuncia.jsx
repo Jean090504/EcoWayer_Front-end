@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { ImagePlus, X } from "lucide-react"
 import { validarFoto } from "../../../services/cloudinaryService.js"
 import { TituloSecao, BotaoDenuncia } from "../../ui"
 
@@ -80,8 +81,7 @@ export default function CardMotivoDenuncia({ motivos, enviando, erro, onCancelar
         Anexar fotos como evidência
       </TituloSecao>
 
-      <div className="space-y-3 rounded-2xl bg-[#F8F9FB] p-4">
-        <label htmlFor="fotos-denuncia" className="block text-sm font-semibold text-[#6F2DBD]">Selecionar fotos</label>
+      <div className="space-y-4 rounded-2xl border border-purple-100 bg-linear-to-br from-[#FAF8FF] to-[#F5F8F5] p-5">
         <input
           id="fotos-denuncia"
           type="file"
@@ -90,25 +90,31 @@ export default function CardMotivoDenuncia({ motivos, enviando, erro, onCancelar
           disabled={enviando}
           onChange={adicionarFotos}
           aria-describedby="limites-fotos-denuncia"
-          className="block max-w-full text-sm"
+          className="sr-only"
         />
-        <p id="limites-fotos-denuncia" className="text-xs text-gray-600">Opcional. Até 5 fotos em JPG, PNG ou WebP, com até 5 MB cada.</p>
+        <label htmlFor="fotos-denuncia" className={`flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-purple-200 bg-white/80 px-4 py-6 text-center transition hover:border-[#6F2DBD] hover:bg-purple-50/50 ${enviando ? 'pointer-events-none opacity-60' : ''}`}>
+          <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-[#6F2DBD]"><ImagePlus size={24} aria-hidden="true" /></span>
+          <span className="text-sm font-semibold text-[#303640]">{arquivos.length ? "Adicionar mais fotos" : "Clique para escolher fotos"}</span>
+          <span className="mt-1 text-xs text-gray-500">JPG, PNG ou WebP · até 5 MB por foto</span>
+        </label>
+        <div className="flex items-center justify-between text-xs text-gray-500"><p id="limites-fotos-denuncia">Opcional. Anexe até 5 fotos como evidência.</p><span className="shrink-0 font-semibold text-[#6F2DBD]">{arquivos.length}/5</span></div>
         {erroArquivo && <p role="alert" className="text-sm text-red-700">{erroArquivo}</p>}
         {arquivos.length > 0 && (
-          <ul className="space-y-2 text-sm">
+          <ul className="grid gap-2 sm:grid-cols-2">
             {arquivos.map((arquivo, indice) => (
-              <li key={indice} className="flex flex-wrap items-center gap-3">
-                <span className="break-all">{arquivo.name}</span>
+              <li key={`${arquivo.name}-${indice}`} className="flex min-w-0 items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 text-sm shadow-sm">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-700"><ImagePlus size={18} aria-hidden="true" /></span>
+                <span className="min-w-0 flex-1"><span className="block truncate font-medium text-gray-800">{arquivo.name}</span><span className="text-xs text-gray-500">{(arquivo.size / (1024 * 1024)).toFixed(1)} MB</span></span>
                 <button
                   type="button"
                   disabled={enviando}
                   aria-label={`Remover ${arquivo.name}`}
-                  className="text-red-700 underline"
+                  className="rounded-full p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
                   onClick={() => {
                     setArquivos(arquivos.filter((_, posicao) => posicao !== indice))
                     setErroArquivo("")
                   }}
-                >Remover</button>
+                ><X size={16} aria-hidden="true" /></button>
               </li>
             ))}
           </ul>
