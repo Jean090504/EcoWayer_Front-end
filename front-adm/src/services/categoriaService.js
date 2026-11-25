@@ -9,13 +9,13 @@ export async function excluirCategoria(id) {
 }
 
 export async function listarCategorias() {
-  const dados = await apiFetch("/categoria")
+  const dados = await apiFetch("/categoria?resumo=true")
   return dados.response.categoria
 }
 
 export async function buscarCategoria(id) {
-  const lista = await listarCategorias()
-  return lista.find((c) => String(c.id) === String(id)) ?? null
+  const dados = await apiFetch(`/categoria/${encodeURIComponent(id)}`)
+  return dados.response.categoria
 }
 
 export async function criarCategoria({ nome, pontos, id_tipo_categoria, img }) {
