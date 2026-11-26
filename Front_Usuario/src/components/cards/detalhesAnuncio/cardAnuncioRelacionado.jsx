@@ -31,7 +31,7 @@ export default function CardAnuncioRelacionado({ anuncio, favoritado, onFavorita
                     {anuncio.categoria && <p className="mt-2 text-xs text-gray-500">{anuncio.categoria}</p>}
                 </div>
             </button>
-            <button
+            {onFavoritar && <button
                 type="button"
                 onClick={onFavoritar}
                 aria-label={(favoritado ? 'Desfavoritar ' : 'Favoritar ') + anuncio.nome}
@@ -39,7 +39,7 @@ export default function CardAnuncioRelacionado({ anuncio, favoritado, onFavorita
                 className="absolute right-4 top-4 rounded-full bg-white/95 p-1.5 text-gray-500"
             >
                 <Heart size={17} className={favoritado ? 'fill-red-500 text-red-500' : ''} />
-            </button>
+            </button>}
         </article>
     )
 }

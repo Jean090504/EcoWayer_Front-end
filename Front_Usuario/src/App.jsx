@@ -34,6 +34,7 @@ const CHAVE_FAVORITOS = "ecowayer_favoritos"
 export default function App() {
 
     const [categoria, setCategoria] = useState("tudo")
+    const [busca, setBusca] = useState("")
     const [favoritos, setFavoritos] = useState(() => {
         try {
             const salvos = JSON.parse(localStorage.getItem(CHAVE_FAVORITOS) || "[]")
@@ -130,9 +131,12 @@ export default function App() {
     }
 
     function favoritar(id) {
+        if (!usuario) return
         const chave = String(id)
         setFavoritos(atuais => atuais.includes(chave) ? atuais.filter(item => item !== chave) : [...atuais, chave])
     }
+
+    const favoritarAutenticado = usuario ? favoritar : undefined
 
     function abrirAnunciosVendedor(anuncio) {
         setAnuncioOrigemVendedor(anuncio)
@@ -149,6 +153,12 @@ export default function App() {
 
     function abrirChat(anuncio) {
         setAnuncioConversa(anuncio)
+        setTelaAtiva("chat")
+        window.scrollTo(0, 0)
+    }
+
+    function abrirContraproposta(anuncio) {
+        setAnuncioConversa({ ...anuncio, tipo_interacao: "contraproposta" })
         setTelaAtiva("chat")
         window.scrollTo(0, 0)
     }
@@ -196,6 +206,8 @@ export default function App() {
                 onAbrirNovoAnuncio={() => navegar("novoAnuncio")}
                 onNavegar={navegar}
                 onSair={sair}
+                busca={busca}
+                onBuscar={setBusca}
             />
 
             <main className="flex flex-1 flex-col">
@@ -205,9 +217,10 @@ export default function App() {
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
                         categoria={categoria}
+                        busca={busca}
                         onSelecionarCategoria={setCategoria}
                         favoritos={favoritos}
-                        favoritar={favoritar}
+                        favoritar={favoritarAutenticado}
                     />
                 )}
                 {telaAtiva === "detalhesAnuncio" && (
@@ -217,10 +230,11 @@ export default function App() {
                         onNavegar={navegar}
                         onAbrirAnuncio={anuncio => abrirAnuncio(anuncio, veioDaListaVendedor)}
                         onConversar={abrirChat}
+                        onContraproposta={abrirContraproposta}
                         onVerAnunciosVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : abrirAnunciosVendedor}
                         onVoltarAoVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : undefined}
                         favoritos={favoritos}
-                        favoritar={favoritar}
+                        favoritar={favoritarAutenticado}
                         onDenunciar={abrirDenuncia}      // NOVO
                         avisoInicial={avisoDetalhes}     // NOVO
                     />
@@ -231,19 +245,19 @@ export default function App() {
                         onVoltar={() => abrirAnuncio(anuncioOrigemVendedor)}
                         onAbrirAnuncio={anuncio => abrirAnuncio(anuncio, true)}
                         favoritos={favoritos}
-                        favoritar={favoritar}
+                        favoritar={favoritarAutenticado}
                     />
                 )}
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onDenunciarMensagem={denunciarMensagem} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
-                {telaAtiva === "minhaCarteira" && <MinhaCarteira />}
+                {telaAtiva === "minhaCarteira" && <MinhaCarteira onNavegar={navegar} />}
                 {telaAtiva === "pedidos" && <MeusPedidos key={usuario?.id || 'visitante'} usuario={usuario} onEntrar={pedirLogin} onNavegar={navegar} />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "notificacoes" && <Notificacoes />}
                 {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} />}
-                {telaAtiva === "configuracoesPerfil" && <ConfiguracoesPerfil tema={tema} onAlterarTema={alterarTema} usuario={usuario} onAtualizarUsuario={setUsuario} onNavegar={navegar} />}
+                {telaAtiva === "configuracoesPerfil" && <ConfiguracoesPerfil tema={tema} onAlterarTema={alterarTema} usuario={usuario} onAtualizarUsuario={setUsuario} onNavegar={navegar} onContaDesativada={sair} />}
                 {telaAtiva === "editarAnuncio" && <EditarAnuncio key={anuncioSelecionado?.id} anuncioId={anuncioSelecionado?.id} onNavegar={navegar} onSalvo={concluirEdicao} />}
                 {telaAtiva === "denunciarAnuncio" && (   // NOVO
                     <FluxoDenunciarAnuncio

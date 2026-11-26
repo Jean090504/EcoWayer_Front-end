@@ -13,7 +13,7 @@ function textoPreco(anuncio) {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
-export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onVerAnunciosVendedor, onVoltarAoVendedor, favoritos, favoritar, onConversar, onDenunciar, avisoInicial = '' }) {
+export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onVerAnunciosVendedor, onVoltarAoVendedor, favoritos, favoritar, onConversar, onContraproposta, onDenunciar, avisoInicial = '' }) {
     const [anuncio, setAnuncio] = useState(null)
     const [fotoAtiva, setFotoAtiva] = useState(0)
     const [erro, setErro] = useState('')
@@ -63,16 +63,31 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
     }
 
     async function compartilhar() {
+        const texto = `${anuncio.nome} - ${textoPreco(anuncio)} | EcoWayer`
+        const url = window.location.href
         try {
-            // Sem rotas por anúncio, compartilha os dados sem inventar uma URL.
-            const texto = anuncio.nome + ' — ' + textoPreco(anuncio) + ' | EcoWayer'
-            if (navigator.share) await navigator.share({ title: anuncio.nome, text: texto })
-            else if (navigator.clipboard) {
-                await navigator.clipboard.writeText(texto)
-                setAviso('Informações do anúncio copiadas.')
-            } else setAviso(texto)
+            if (navigator.share) {
+                await navigator.share({ title: anuncio.nome, text: texto, url })
+                return
+            }
+            const conteudo = `${texto}\n${url}`
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(conteudo)
+            } else {
+                const temporario = document.createElement('textarea')
+                temporario.value = conteudo
+                temporario.setAttribute('readonly', '')
+                temporario.style.position = 'fixed'
+                temporario.style.opacity = '0'
+                document.body.appendChild(temporario)
+                temporario.select()
+                const copiado = document.execCommand('copy')
+                temporario.remove()
+                if (!copiado) throw new Error('Falha ao copiar')
+            }
+            setAviso('Link e informacoes do anuncio copiados. Voce ja pode compartilhar.')
         } catch (error) {
-            if (error.name !== 'AbortError') setAviso('Não foi possível compartilhar. Tente novamente.')
+            if (error.name !== 'AbortError') setAviso('Nao foi possivel compartilhar nem copiar o link. Tente novamente.')
         }
     }
 
@@ -136,7 +151,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                         <button type="button" onClick={compartilhar} aria-label="Compartilhar anúncio" className="rounded-full bg-white p-2.5 text-gray-500">
                             <Share2 size={17} />
                         </button>
-                        <button
+                        {favoritar && <button
                             type="button"
                             onClick={() => favoritar(anuncio.id)}
                             aria-label={favoritado ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
@@ -144,7 +159,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                             className="rounded-full bg-white p-2.5 text-red-500"
                         >
                             <Heart size={17} fill={favoritado ? 'currentColor' : 'none'} />
-                        </button>
+                        </button>}
                     </div>
                 </div>
 
@@ -186,7 +201,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                         <CardPrecoAnuncio
                             anuncio={anuncio}
                             onConversar={onConversar}
-                            onContraproposta={() => demonstrar('Contraproposta / Agendar retirada')}
+                            onContraproposta={onContraproposta}
                             onPagarTeste={pagarTeste}
                             pagamentoCarregando={pagamentoCarregando}
                         />

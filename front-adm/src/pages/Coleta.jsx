@@ -16,6 +16,7 @@ export default function Coleta() {
   const [termo, setTermo] = useState("");
   const [materialFiltro, setMaterialFiltro] = useState("");
   const [selecionadoId, setSelecionadoId] = useState(null);
+  const [revisaoSelecao, setRevisaoSelecao] = useState(0);
   const [pontosExternos, setPontosExternos] = useState([]);
   const [pontoParaCadastrar, setPontoParaCadastrar] = useState(null);
 
@@ -29,8 +30,7 @@ export default function Coleta() {
     try {
       const dados = await listarPontos();
       setPontos(dados);
-      // mantém a seleção se o ponto ainda existe; senão seleciona o primeiro (ou nenhum)
-      setSelecionadoId((atual) => (dados.some((p) => p.id === atual) ? atual : dados[0]?.id ?? null));
+      setSelecionadoId((atual) => (dados.some((p) => p.id === atual) ? atual : null));
       setErro(null);
     } catch (e) {
       setErro(e.message);
@@ -49,7 +49,7 @@ export default function Coleta() {
       setModalId(null);
       setPontos((atual) => atual.filter((p) => p.id !== idExcluido));
       setSelecionadoId((atual) => (atual === idExcluido ? null : atual));
-      await carregar(); // reseleciona o primeiro ponto se a seleção ficou vazia
+      await carregar();
     },
     [carregar]
   );
@@ -65,6 +65,11 @@ export default function Coleta() {
   }, [termo, materialFiltro, pontos, pontosExternos]);
 
   const materiaisDisponiveis = useMemo(() => [...new Set(pontos.flatMap((ponto) => ponto.materiais))].sort((a, b) => a.localeCompare(b, "pt-BR")), [pontos]);
+
+  function selecionarPonto(id) {
+    setSelecionadoId(id);
+    setRevisaoSelecao((revisao) => revisao + 1);
+  }
 
   return (
     <div className="min-h-full bg-[#f6f7fb] pb-10">
@@ -95,13 +100,14 @@ export default function Coleta() {
         <ListaPontos
           pontos={pontosFiltrados}
           selecionadoId={selecionadoId}
-          onSelect={setSelecionadoId}
+          onSelect={selecionarPonto}
           onGerenciar={setModalId}
           onCadastrar={setPontoParaCadastrar}
         />
         <MapaPontos
           pontos={pontosFiltrados}
           selecionadoId={selecionadoId}
+          revisaoSelecao={revisaoSelecao}
           onSelect={setSelecionadoId}
           consulta={termo}
           onResultadosExternos={setPontosExternos}

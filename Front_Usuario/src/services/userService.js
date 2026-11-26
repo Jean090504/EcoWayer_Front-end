@@ -206,6 +206,16 @@ export async function buscarPerfil(id) {
     return resposta(dados, 'usuario')
 }
 
+export async function buscarCep(cep) {
+    const digitos = String(cep || '').replace(/\D/g, '')
+    if (digitos.length !== 8) throw new Error('Informe um CEP com 8 numeros.')
+    const respostaCep = await fetch(`https://viacep.com.br/ws/${digitos}/json/`)
+    if (!respostaCep.ok) throw new Error('Nao foi possivel consultar o CEP agora.')
+    const dados = await respostaCep.json()
+    if (dados.erro) throw new Error('CEP nao encontrado. Confira o numero e tente novamente.')
+    return { cep: dados.cep || digitos, rua: dados.logradouro || '', bairro: dados.bairro || '', cidade: dados.localidade || '', estado: dados.estado || '', sigla: dados.uf || '' }
+}
+
 export async function atualizarPerfil(id, perfil) {
     const dados = await apiFetch(`/usuario/${id}/perfil`, {
         method: 'PATCH',
@@ -222,6 +232,10 @@ export async function atualizarPerfil(id, perfil) {
         })
     })
     return resposta(dados, 'usuario')
+}
+
+export async function desativarConta(id) {
+    return apiFetch(`/usuario/${id}`, { method: 'DELETE' })
 }
 
 async function salvarAnuncioComFotos(dados, idUsuario, idAnuncio) {

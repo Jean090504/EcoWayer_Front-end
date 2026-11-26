@@ -5,7 +5,7 @@ import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
 import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria.jsx"
 import { listarCategorias, excluirCategoria } from "../services/categoriaService.js"
-import ModalExcluirCategoria from "../components/modal/ModalExcluirCategoria.jsx"
+import ModalExcluirCategoria from "../components/modal/modalExcluirCategoria.jsx"
 
 const URL_IMAGENS = "http://localhost:8080"
 
@@ -103,7 +103,7 @@ export default function Categorias({ aoAbrirCategoria }) {
               <CardCategoria
                 key={categoria.id}
                 titulo={categoria.nome}
-                quantidade={Array.isArray(categoria.itens) ? categoria.itens.length : 0}
+                quantidade={Number(categoria.quantidade_itens ?? categoria.itens?.length ?? 0)}
                 imagem={urlImagem(categoria.img)}
                 onClick={() => aoAbrirCategoria?.(categoria.id)}
               />
