@@ -1,4 +1,4 @@
-name: Verificar e publicar sites
+name: Verificar sites
 
 on:
   push:
@@ -26,45 +26,3 @@ jobs:
           cache-dependency-path: ${{ matrix.site }}/package-lock.json
       - run: npm ci
       - run: npm run build
-
-  publicar-usuario:
-    if: vars.AZURE_DEPLOY_ENABLED == 'true'
-    needs: verificar
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: Azure/static-web-apps-deploy@v1
-        env:
-          VITE_API_URL: ${{ vars.VITE_USER_API_URL }}
-          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
-          VITE_CLOUDINARY_CLOUD_NAME: ${{ vars.VITE_CLOUDINARY_CLOUD_NAME }}
-          VITE_CLOUDINARY_UPLOAD_PRESET: ${{ vars.VITE_CLOUDINARY_UPLOAD_PRESET }}
-          VITE_MP_TEST_MODE: '0'
-          VITE_MP_CHECKOUT_ENABLED: ${{ vars.VITE_MP_CHECKOUT_ENABLED }}
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_SWA_USUARIO_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: upload
-          app_location: Front_Usuario
-          output_location: dist
-
-  publicar-admin:
-    if: vars.AZURE_DEPLOY_ENABLED == 'true'
-    needs: verificar
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: Azure/static-web-apps-deploy@v1
-        env:
-          VITE_API_URL: ${{ vars.VITE_ADMIN_API_URL }}
-          VITE_GOOGLE_MAPS_API_KEY: ${{ vars.VITE_GOOGLE_MAPS_API_KEY }}
-          VITE_GOOGLE_MAPS_MAP_ID: ${{ vars.VITE_GOOGLE_MAPS_MAP_ID }}
-          VITE_MAPBOX_TOKEN: ${{ vars.VITE_MAPBOX_TOKEN }}
-          VITE_CLOUDINARY_CLOUD_NAME: ${{ vars.VITE_CLOUDINARY_CLOUD_NAME }}
-          VITE_CLOUDINARY_UPLOAD_PRESET: ${{ vars.VITE_CLOUDINARY_UPLOAD_PRESET }}
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_SWA_ADMIN_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: upload
-          app_location: front-adm
-          output_location: dist
