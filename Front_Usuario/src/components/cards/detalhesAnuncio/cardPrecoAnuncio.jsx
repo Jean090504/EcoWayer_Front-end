@@ -54,7 +54,7 @@ function textoPreco(anuncio) {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
-export default function CardPrecoAnuncio({ anuncio, onConversar, onContraproposta, onPagarTeste, pagamentoCarregando = false }) {
+export default function CardPrecoAnuncio({ anuncio, onConversar, onContraproposta, onPagar, pagamentoCarregando = false }) {
     const modalidade = modalidadeDoAnuncio(anuncio)
     const ehDoacao = modalidade === 1
 
@@ -79,15 +79,15 @@ export default function CardPrecoAnuncio({ anuncio, onConversar, onContrapropost
             )}
 
             <div className="space-y-4">
-                {import.meta.env.VITE_MP_TEST_MODE === '1' && modalidade === 2 && Number(anuncio.preco) > 0 && onPagarTeste && (
+                {(import.meta.env.VITE_MP_TEST_MODE === '1' || import.meta.env.VITE_MP_CHECKOUT_ENABLED === '1') && modalidade === 2 && Number(anuncio.preco) > 0 && onPagar && !anuncio.demonstracao && (
                     <button
                         type="button"
                         data-mp-checkout-cta="checkout-pro"
-                        onClick={onPagarTeste}
+                        onClick={onPagar}
                         disabled={pagamentoCarregando}
                         className="flex w-full items-center justify-center rounded-full bg-[#4CAF50] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#3d9441] disabled:cursor-wait disabled:opacity-60"
                     >
-                        {pagamentoCarregando ? 'Abrindo Mercado Pago...' : 'Testar pagamento com Mercado Pago'}
+                        {pagamentoCarregando ? 'Abrindo Mercado Pago...' : import.meta.env.VITE_MP_TEST_MODE === '1' ? 'Testar pagamento com Mercado Pago' : 'Comprar com Mercado Pago'}
                     </button>
                 )}
                 <button

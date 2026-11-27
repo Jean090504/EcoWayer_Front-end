@@ -7,7 +7,7 @@ import ModalNovoItem from "../components/modal/ModalNovoItem.jsx"
 import ModalExcluirCategoria from "../components/modal/ModalExcluirCategoria.jsx"
 import ModalExcluirItem from "../components/modal/ModalExcluirItem.jsx"
 
-const URL_IMAGENS = "http://localhost:8080"
+const URL_IMAGENS = (import.meta.env.VITE_API_URL || "http://localhost:8080").replace(/\/$/, "")
 
 function urlImagem(img) {
   if (!img) return ""

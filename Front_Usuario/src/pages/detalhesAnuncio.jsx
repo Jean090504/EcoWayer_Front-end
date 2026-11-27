@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, Heart, Home, Share2 } from 'lucide-react'
 
 import { CardAnunciante, CardPrecoAnuncio, CardInformacoesMaterial, CardDescricaoDetalhada, CardOutrosAnunciosVendedor } from '../components/cards/detalhesAnuncio'
-import { buscarAnuncio, iniciarPagamentoTeste } from '../services/userService.js'
+import { buscarAnuncio, iniciarPagamento } from '../services/userService.js'
 
 function textoPreco(anuncio) {
     const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -50,15 +50,15 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
         else demonstrar('Denúncia de anúncio')
     }
 
-    async function pagarTeste() {
+    async function pagar() {
         if (!usuario?.id) { onAbrirLogin(); return }
         if (pagamentoCarregando) return
         setPagamentoCarregando(true)
         setAviso('')
         try {
-            window.location.assign(await iniciarPagamentoTeste(anuncio.id))
+            window.location.assign(await iniciarPagamento(anuncio.id))
         } catch (error) {
-            setAviso(error.message || 'Não foi possível iniciar o pagamento de teste.')
+            setAviso(error.message || 'Não foi possível iniciar o pagamento.')
             setPagamentoCarregando(false)
         }
     }
@@ -203,7 +203,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                             anuncio={anuncio}
                             onConversar={onConversar}
                             onContraproposta={onContraproposta}
-                            onPagarTeste={pagarTeste}
+                            onPagar={pagar}
                             pagamentoCarregando={pagamentoCarregando}
                         />
                         <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={denunciar} onVerPerfil={() => onVerAnunciosVendedor(anuncio)} />

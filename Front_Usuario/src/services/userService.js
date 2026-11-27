@@ -207,8 +207,8 @@ export async function buscarAnuncio(id) {
     }
 }
 
-export async function iniciarPagamentoTeste(idAnuncio) {
-    const dados = await apiFetch('/pagamento/teste/preferencia', {
+export async function iniciarPagamento(idAnuncio) {
+    const dados = await apiFetch('/pagamento/preferencia', {
         method: 'POST',
         body: JSON.stringify({ id_anuncio: Number(idAnuncio) })
     })

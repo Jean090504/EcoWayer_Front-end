@@ -7,7 +7,7 @@ import ModalAdicionarCategoria from "../components/modal/modalAdicionarCategoria
 import { listarCategorias, excluirCategoria } from "../services/categoriaService.js"
 import ModalExcluirCategoria from "../components/modal/modalExcluirCategoria.jsx"
 
-const URL_IMAGENS = "http://localhost:8080"
+const URL_IMAGENS = (import.meta.env.VITE_API_URL || "http://localhost:8080").replace(/\/$/, "")
 
 // monta a URL da imagem sem gerar ".../undefined"
 function urlImagem(img) {

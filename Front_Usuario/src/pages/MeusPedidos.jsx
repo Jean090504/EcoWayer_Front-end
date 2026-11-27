@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../services/api.js'
-import { iniciarPagamentoTeste } from '../services/userService.js'
+import { iniciarPagamento } from '../services/userService.js'
 import CodigoEntregaQr from '../components/pedidos/CodigoEntregaQr.jsx'
 
 const estados = { pending: 'Aguardando pagamento', in_process: 'Em análise', authorized: 'Aguardando aprovação', approved: 'Pago', rejected: 'Recusado', cancelled: 'Cancelado', refunded: 'Estornado', charged_back: 'Contestado' }
@@ -54,7 +54,7 @@ export default function MeusPedidos({ usuario, onEntrar, onNavegar }) {
     async function pagar(id) {
         if (ocupado) return
         setOcupado(true); setErro('')
-        try { window.location.assign(await iniciarPagamentoTeste(id)) }
+        try { window.location.assign(await iniciarPagamento(id)) }
         catch (e) { setErro(e.message); setOcupado(false) }
     }
     async function conversar(id) {
@@ -101,11 +101,11 @@ export default function MeusPedidos({ usuario, onEntrar, onNavegar }) {
                 <p>Pagamento: {estados[p.status_pagamento] || 'Aguardando atualização'}</p>
                 <p>Entrega: {entregas[p.status_entrega] || p.status_entrega}</p>
                 {p.entregue_em && <p>Recebimento confirmado em {new Date(p.entregue_em).toLocaleString('pt-BR')}.</p>}
-                {p.problema && <p className="my-2 text-amber-800">Relato: {p.problema}. A confirmação está bloqueada. Na demonstração, a análise é manual e não gera reembolso automático.</p>}
+                {p.problema && <p className="my-2 text-amber-800">Relato: {p.problema}. A confirmação está bloqueada e a equipe analisará o caso. Nenhum reembolso é automático.</p>}
                 <div className="my-4 flex flex-wrap gap-3">
                     <button className="rounded-xl border px-4 py-2" disabled={ocupado} onClick={() => conversar(p.id)}>Combinar entrega no chat</button>
                     <button className={botao} disabled={ocupado} onClick={() => executar(p.id, 'atualizar')}>Consultar pagamento</button>
-                    {aba === 'comprador' && !['approved', 'refunded', 'charged_back'].includes(p.status_pagamento) && !p.entregue_em && <button className={botao} disabled={ocupado} onClick={() => pagar(p.id_anuncio)}>Continuar pagamento de teste</button>}
+                    {aba === 'comprador' && !['approved', 'refunded', 'charged_back'].includes(p.status_pagamento) && !p.entregue_em && <button className={botao} disabled={ocupado} onClick={() => pagar(p.id_anuncio)}>Continuar pagamento</button>}
                 </div>
                 {liberado && aba === 'comprador' && <div className="rounded-xl bg-purple-50 p-4">
                     <p>Informe o código ao vendedor somente após receber e conferir o produto.</p>
