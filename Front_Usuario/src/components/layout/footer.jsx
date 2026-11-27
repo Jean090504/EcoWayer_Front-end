@@ -1,4 +1,5 @@
 export default function Footer({ onNavegar }) {
+    const androidApkUrl = import.meta.env.VITE_ANDROID_APK_URL
     return <footer className="w-full bg-white text-gray-600">
         <div className="mx-auto grid w-full max-w-[1680px] gap-8 px-[clamp(16px,5vw,78px)] pb-8 pt-14 text-sm md:grid-cols-4">
             <div><h2 className="mb-4 text-xl font-bold text-green-700">Ecowayer</h2>
@@ -17,6 +18,7 @@ export default function Footer({ onNavegar }) {
                 <h3 className="mb-1 font-semibold text-gray-800">Conta e suporte</h3>
                 <button type="button" onClick={() => onNavegar?.('chat')} className="hover:text-green-700">Minhas conversas</button>
                 <button type="button" onClick={() => onNavegar?.('notificacoes')} className="hover:text-green-700">Notificações</button>
+                {androidApkUrl && <a href={androidApkUrl} download="ecowayer-tcc.apk" className="hover:text-green-700">Baixar app Android (TCC)</a>}
             </nav>
         </div>
         <div className="mx-auto max-w-[1680px] border-t border-gray-200 px-[clamp(16px,5vw,78px)] py-8 text-center text-xs">
