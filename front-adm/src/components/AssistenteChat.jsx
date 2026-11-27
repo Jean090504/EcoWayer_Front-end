@@ -24,17 +24,6 @@ export default function AssistenteChat() {
     return () => { ativo = false; };
   }, [aberto]);
 
-  async function obterContextoPainel(pergunta) {
-    if (!/ponto|pontua|últimos|ultimos|quantidade/i.test(pergunta)) return null;
-    const dados = await apiFetch("/pontos/dashboard?period=semanal&grafico=7d");
-    const evolucao = dados?.response?.dashboard?.evolucaoPontos || [];
-    const ultimosDias = evolucao.slice(-2);
-    return {
-      pontosUltimosDoisDias: ultimosDias.reduce((total, item) => total + Number(item.pontos || 0), 0),
-      detalhamentoUltimosDoisDias: ultimosDias.map((item) => ({ data: item.data, pontos: Number(item.pontos || 0) }))
-    };
-  }
-
   async function enviar(e) {
     e.preventDefault();
     const mensagem = texto.trim();
@@ -44,8 +33,7 @@ export default function AssistenteChat() {
     setMensagens(historico);
     setCarregando(true);
     try {
-      const contextoPainel = await obterContextoPainel(mensagem).catch(() => null);
-      const data = await apiFetch("/ia/assistant-chat", { method: "POST", body: JSON.stringify({ message: mensagem, history: mensagens.slice(-10), context: contextoPainel }) });
+      const data = await apiFetch("/ia/assistant-chat", { method: "POST", body: JSON.stringify({ message: mensagem, history: mensagens.slice(-10) }) });
       setMensagens((atual) => [...atual, { role: "model", text: data.resposta }]);
     } catch (error) {
       setMensagens((atual) => [...atual, { role: "model", text: error.message }]);
