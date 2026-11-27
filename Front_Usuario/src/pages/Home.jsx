@@ -11,8 +11,8 @@ export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, catego
     useEffect(() => {
         let ativo = true;
         let carregando = false;
-        async function atualizar() {
-            if (carregando || document.visibilityState === "hidden") return;
+        async function atualizar({ ignorarVisibilidade = false } = {}) {
+            if (carregando || (!ignorarVisibilidade && document.visibilityState === "hidden")) return;
             carregando = true;
             try {
                 const lista = await buscarAnuncios();
@@ -23,7 +23,7 @@ export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, catego
                 carregando = false;
             }
         }
-        atualizar();
+        atualizar({ ignorarVisibilidade: true });
         window.addEventListener("focus", atualizar);
         document.addEventListener("visibilitychange", atualizar);
         const intervalo = window.setInterval(atualizar, 30000);
