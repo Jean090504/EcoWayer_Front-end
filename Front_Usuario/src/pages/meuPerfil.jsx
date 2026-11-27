@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react"
+import { UserRound } from "lucide-react"
+import AcessoConta from "../components/ui/AcessoConta"
 
 import { DadosConta, Desempenho, AnunciosPublicados } from '../components/cards/perfil'
 
 import { buscarAnuncios, buscarPerfil } from "../services/userService.js"
 
-export default function Perfil({ onNavegar, onEditarAnuncio }) {
-    const sessao = JSON.parse(sessionStorage.getItem("ecowayer_usuario") || "null");
+export default function Perfil({ onNavegar, onEditarAnuncio, onAbrirLogin, usuario }) {
     const [dados, setDados] = useState(null);
     const [erro, setErro] = useState("");
     const [abaAtiva, setAbaAtiva] = useState("anuncios");
     const [ordenacao, setOrdenacao] = useState("recentes");
 
     useEffect(() => {
-        if (!sessao?.id) { setErro("Faça login para acessar seu perfil."); return; }
-        Promise.all([buscarPerfil(sessao.id), buscarAnuncios()])
+        if (!usuario?.id) return;
+        Promise.all([buscarPerfil(usuario.id), buscarAnuncios()])
             .then(([usuario, anuncios]) => {
-                const meus = anuncios.filter(anuncio => Number(anuncio.id_usuario) === Number(sessao.id)).map(anuncio => ({
+                const meus = anuncios.filter(anuncio => Number(anuncio.id_usuario) === Number(usuario.id)).map(anuncio => ({
                     ...anuncio,
                     titulo: anuncio.nome,
                     categoria: anuncio.categoria || "EcoWayer",
@@ -27,9 +28,10 @@ export default function Perfil({ onNavegar, onEditarAnuncio }) {
                 setDados({ usuario: { ...usuario, foto: usuario.imagem, localizacao: usuario.enderecos?.[0]?.cidade, membroDesde: usuario.data_cadastro, verificado: true }, desempenho: { saldoPontos: 0, pontosNoMes: 0, kgReciclados: 0, itensRegenerados: meus.length }, anuncios: meus });
             })
             .catch(error => setErro(error.message));
-    }, [sessao?.id]);
+    }, [usuario?.id]);
 
-    if (erro) return <p role="alert" className="p-10 text-red-600">{erro}</p>;
+    if (!usuario?.id) return <main className="flex min-h-[580px] flex-1 items-center justify-center bg-[#F8F7FE] px-5 py-12"><AcessoConta icone={UserRound} titulo="Seu espaço no EcoWayer" descricao="Entre na sua conta para ver seu perfil, acompanhar seus anúncios e conferir seu desempenho." onEntrar={onAbrirLogin} /></main>;
+    if (erro) return <main className="flex min-h-[420px] flex-1 items-center justify-center bg-[#F8F7FE] px-5 py-12"><div role="alert" className="rounded-2xl bg-white p-8 text-center text-red-700">Não foi possível carregar seu perfil. <button type="button" className="font-semibold underline" onClick={() => window.location.reload()}>Tentar novamente</button></div></main>;
     if (!dados) return <p role="status" className="p-10 text-gray-500">Carregando perfil...</p>;
 
     const anuncios = [...dados.anuncios].sort((a, b) => ordenacao === "antigos" ? a.id - b.id : b.id - a.id);

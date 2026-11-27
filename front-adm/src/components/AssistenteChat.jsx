@@ -45,7 +45,7 @@ export default function AssistenteChat() {
     setCarregando(true);
     try {
       const contextoPainel = await obterContextoPainel(mensagem).catch(() => null);
-      const data = await apiFetch("/ia/assistant-chat", { method: "POST", body: JSON.stringify({ message: mensagem, history: historico.slice(-10), audience: "admin", context: contextoPainel }) });
+      const data = await apiFetch("/ia/assistant-chat", { method: "POST", body: JSON.stringify({ message: mensagem, history: mensagens.slice(-10), context: contextoPainel }) });
       setMensagens((atual) => [...atual, { role: "model", text: data.resposta }]);
     } catch (error) {
       setMensagens((atual) => [...atual, { role: "model", text: error.message }]);

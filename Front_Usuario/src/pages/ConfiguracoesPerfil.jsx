@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { uploadFoto, validarFoto } from "../services/cloudinaryService.js";
-import { AlertTriangle, Save, UserRound, X } from "lucide-react";
+import { AlertTriangle, ExternalLink, FileText, Save, UserRound, X } from "lucide-react";
 import { buscarPerfil, atualizarPerfil, desativarConta, buscarCep } from "../services/userService.js";
 import { urlImagem } from "../services/api.js";
 
@@ -143,7 +143,27 @@ export default function ConfiguracoesPerfil({ usuario, onAtualizarUsuario, onNav
             <div className="grid gap-6 md:grid-cols-[300px_1fr]">
                 <section className="rounded-2xl bg-white p-6"><h2 className="mb-6 text-base font-bold text-[#303640]">Tema do Site</h2><fieldset className="space-y-4"><legend className="sr-only">Selecione o tema</legend>{[["claro", "Tema Claro"], ["escuro", "Tema Escuro"]].map(([valor, label]) => <label key={valor} className="flex cursor-pointer items-center justify-between rounded-xl bg-[#F8F7FD] px-4 py-3 text-sm text-[#724BC2]">{label}<input type="radio" name="tema" value={valor} checked={tema === valor} onChange={() => onAlterarTema(valor)} className="h-5 w-5 accent-[#724BC2]" /></label>)}</fieldset><p className="mt-4 text-xs text-gray-500">Sua preferência é aplicada ao site e salva neste navegador.</p></section>
                 <div className="flex flex-col gap-5">
-                    <details className="rounded-2xl bg-white p-5"><summary className="cursor-pointer rounded-xl bg-[#F8F7FD] p-4 text-sm font-semibold text-[#724BC2]">Termos e condições de uso da plataforma</summary><p className="p-4 text-sm text-gray-600">Os termos de uso ainda não foram disponibilizados nesta tela.</p></details>
+                    <details className="group rounded-2xl border border-[#EAE4F4] bg-white p-5 shadow-sm">
+                        <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl bg-[#F8F7FD] p-4 text-sm font-semibold text-[#724BC2] marker:hidden focus-visible:outline-2 focus-visible:outline-[#724BC2]">
+                            <FileText size={19} aria-hidden="true" />
+                            <span className="flex-1">Termos e condições de uso da plataforma</span>
+                            <span className="text-xs text-[#796D91] group-open:hidden">Ver resumo</span>
+                            <span className="hidden text-xs text-[#796D91] group-open:inline">Ocultar</span>
+                        </summary>
+                        <div className="space-y-4 px-1 pb-1 pt-5 text-sm leading-relaxed text-[#4E4A56]">
+                            <p>O EcoWayer conecta pessoas interessadas em reutilização e reciclagem. Para participar, mantenha seus dados verdadeiros e use a plataforma com responsabilidade.</p>
+                            <ul className="list-disc space-y-2 pl-5">
+                                <li>Você é responsável pelos anúncios, imagens, mensagens e negociações que publicar.</li>
+                                <li>Proteja suas credenciais e comunique qualquer uso indevido da sua conta.</li>
+                                <li>Conteúdos que violem os termos podem ser removidos, e contas podem ser bloqueadas em casos de abuso, fraude ou risco à comunidade.</li>
+                            </ul>
+                            <p className="text-xs text-[#796D91]">Resumo dos Termos de Serviço, atualizados em 16 de novembro de 2026. Consulte o documento completo para ler todas as condições.</p>
+                            <div className="flex flex-wrap gap-3 border-t border-[#EEE9F5] pt-4">
+                                <a href="/termos.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#724BC2] px-4 py-2.5 font-semibold text-white transition hover:bg-[#5D3B9D]">Ler termos completos <ExternalLink size={15} aria-hidden="true" /></a>
+                                <a href="/privacidade.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-[#DCD2EE] px-4 py-2.5 font-semibold text-[#724BC2] transition hover:bg-[#F8F7FD]">Política de privacidade <ExternalLink size={15} aria-hidden="true" /></a>
+                            </div>
+                        </div>
+                    </details>
                     <section className="rounded-2xl bg-white p-5"><div className="flex flex-col gap-5 rounded-xl bg-red-50 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="flex items-center gap-2 text-sm font-bold text-red-500"><AlertTriangle size={18} />Desativar conta</h2><p className="mt-2 max-w-md text-xs leading-relaxed text-red-400">Sua conta sera desativada. Para reativa-la, entre em contato com o suporte.</p></div><button type="button" onClick={() => setConfirmarDesativacao(true)} className="shrink-0 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white">Desativar Conta</button></div></section>
                 </div>
             </div>

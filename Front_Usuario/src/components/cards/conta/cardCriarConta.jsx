@@ -272,7 +272,7 @@ export default function CreateAccount({
         if (enviandoRef.current) return;
         setErro("");
 
-        if (!formulario.id_genero) { setErro("Selecione seu gênero para continuar."); return; }
+        if (!formulario.id_genero) { setErro("Selecione uma opção de sexo para continuar."); return; }
         // 1. As senhas precisam ser iguais
         const erroSenha = validarSenha(formulario.senha);
         if (erroSenha) { setErro(erroSenha); return; }
@@ -405,10 +405,10 @@ export default function CreateAccount({
                     </div>
 
                     <div>
-                        <label htmlFor="id_genero" className={labelClass}>Gênero</label>
+                        <label htmlFor="id_genero" className={labelClass}>Sexo</label>
                         <select id="id_genero" name="id_genero" value={formulario.id_genero || ""} onChange={atualizarCampo} required className={inputClass} disabled={!generos.length}>
                             <option value="">{generos.length ? 'Selecione' : 'Carregando opções...'}</option>
-                            {generos.map(item => <option key={item.id} value={item.id}>{item.nome}</option>)}
+                            {generos.filter(item => ['M', 'F', 'PNI'].includes(item.sigla)).map(item => <option key={item.id} value={item.id}>{item.sigla === 'PNI' ? 'Prefiro não dizer' : item.nome}</option>)}
                         </select>
                         {erroGeneros && <p role="alert" className="mt-2 text-xs text-red-600">{erroGeneros} <button type="button" onClick={() => { setErroGeneros(""); setTentativaGeneros(t => t + 1); }} className="underline">Tentar novamente</button></p>}
                     </div>

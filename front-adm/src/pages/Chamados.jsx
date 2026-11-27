@@ -2,15 +2,30 @@ import { useEffect, useMemo, useState } from "react"
 import CardChamado from "../components/cards/cardChamados.jsx"
 import InputBusca from "../components/ui/inputBusca.jsx"
 import ModalFiltro from "../components/modal/modalFiltro.jsx"
-import { listarAlertas } from "../services/alertasService.js"
+import { buscarAlerta, listarAlertas } from "../services/alertasService.js"
 
 export default function Chamados({ aoAbrir }) {
   const [alertas, setAlertas] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState("")
+  const [erroDetalhe, setErroDetalhe] = useState("")
   const [busca, setBusca] = useState("")
   const [filtro, setFiltro] = useState("")
   const [modalAberto, setModalAberto] = useState(false)
+  const [abrindoId, setAbrindoId] = useState(null)
+  const [tentativa, setTentativa] = useState(0)
+
+  async function abrirAlerta(alerta) {
+    if (abrindoId !== null) return
+    setAbrindoId(alerta.id)
+    setErroDetalhe("")
+    try {
+      const completo = await buscarAlerta(alerta.id)
+      if (!completo) throw new Error("Chamado não encontrado.")
+      aoAbrir(completo)
+    } catch (e) { setErroDetalhe(e.message || "Não foi possível abrir o chamado.") }
+    finally { setAbrindoId(null) }
+  }
 
   useEffect(() => {
     let ativo = true
@@ -19,7 +34,7 @@ export default function Chamados({ aoAbrir }) {
       .catch((e) => { if (ativo) setErro(e.message || "Não foi possível carregar os chamados.") })
       .finally(() => { if (ativo) setCarregando(false) })
     return () => { ativo = false }
-  }, [])
+  }, [tentativa])
 
   const chamados = useMemo(() => alertas.filter((alerta) => {
     if (String(alerta.status).toUpperCase() !== "PENDENTE") return false
@@ -38,7 +53,7 @@ export default function Chamados({ aoAbrir }) {
           <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-800 sm:text-4xl">Chamados</h1>
         </div>
         <div className="flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">
-          <span className="h-2 w-2 rounded-full bg-[#65BA69]" /> {chamados.length} pendente{chamados.length === 1 ? "" : "s"}
+          <span className="h-2 w-2 rounded-full bg-[#65BA69]" /> {carregando ? "Atualizando..." : erro ? "Fila indisponível" : `${chamados.length} pendente${chamados.length === 1 ? "" : "s"}`}
         </div>
       </header>
 
@@ -49,9 +64,10 @@ export default function Chamados({ aoAbrir }) {
         </div>
         <div className="mt-5 flex flex-col gap-3">
           {carregando && <p className="rounded-xl bg-slate-50 p-6 text-sm text-slate-500">Carregando chamados...</p>}
-          {erro && <p role="alert" className="rounded-xl border border-red-100 bg-red-50 p-6 text-sm text-red-700">{erro}</p>}
-          {!carregando && !erro && chamados.length === 0 && <p className="rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">Nenhum chamado pendente encontrado.</p>}
-          {chamados.map((alerta) => <CardChamado key={alerta.id} alerta={alerta} onClick={() => aoAbrir(alerta)} />)}
+          {erro && <div role="alert" className="rounded-xl border border-red-100 bg-red-50 p-6 text-sm text-red-700">{erro} <button type="button" onClick={() => { setErro(""); setAlertas([]); setCarregando(true); setTentativa(valor => valor + 1) }} className="ml-2 font-semibold underline">Tentar novamente</button></div>}
+          {erroDetalhe && <p role="alert" className="rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">{erroDetalhe}</p>}
+          {!carregando && !erro && chamados.length === 0 && <p className="rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">Nenhum chamado pendente. Novas denúncias vinculadas a mensagens ou anúncios aparecerão aqui.</p>}
+          {chamados.map((alerta) => <CardChamado key={alerta.id} alerta={alerta} carregando={abrindoId === alerta.id} onClick={() => abrirAlerta(alerta)} />)}
         </div>
       </section>
     </main>

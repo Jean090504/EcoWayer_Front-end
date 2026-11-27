@@ -4,6 +4,7 @@ import { Search, MapPin, Mail, Wallet, MessageSquare, ChevronDown, Bell, Award, 
 import ItemNavegacao from "../ui/itemNavegacao.jsx";
 import BotaoHeader from "../ui/botao.jsx";
 import perfil from "../../assets/icons/icones/foto.png";
+import ListaPesquisavel from "../ui/ListaPesquisavel.jsx";
 
 // ---------------------------------------------------------------------------
 //                              Constantes
@@ -45,7 +46,8 @@ export default function Header({
     onNavegar,
     onSair,
     busca = "",
-    onBuscar
+    onBuscar,
+    onLocalizacaoAlterada
 }) {
     // -----------------------------------------------------------------------
     //                         Estados: interface
@@ -170,15 +172,25 @@ export default function Header({
     // -----------------------------------------------------------------------
     //                                 Funções
     // -----------------------------------------------------------------------
-    function selecionarEstado(e) {
-        setUfSelecionada(e.target.value);
+    function selecionarEstado(id) {
+        setUfSelecionada(id);
         setCidadeSelecionada("");
+        const estado = estados.find(item => String(item.id) === String(id));
+        onLocalizacaoAlterada?.({ uf: estado?.sigla || "", cidade: "" });
+    }
+
+    function selecionarCidade(id) {
+        setCidadeSelecionada(id);
+        const cidade = cidades.find(item => String(item.id) === String(id));
+        const estado = estados.find(item => String(item.id) === String(ufSelecionada));
+        onLocalizacaoAlterada?.({ uf: estado?.sigla || "", cidade: cidade?.nome || "" });
     }
 
     function limparLocalizacao() {
         setUfSelecionada("");
         setCidadeSelecionada("");
         setCidades([]);
+        onLocalizacaoAlterada?.({ uf: "", cidade: "" });
     }
 
     // -----------------------------------------------------------------------
@@ -233,10 +245,10 @@ export default function Header({
 
                     {/* Menu suspenso de localização */}
                     {mostrarFiltro && (
-                        <div className="absolute right-0 top-full z-50 mt-2 w-[clamp(240px,18.7vw,300px)] rounded-xl border border-gray-200 bg-white p-[clamp(14px,1.17vw,20px)] shadow-lg">
+                        <div className="absolute right-0 top-full z-50 mt-3 w-[min(360px,calc(100vw-24px))] rounded-2xl border border-[#E7E0EE] bg-white p-5 shadow-[0_18px_50px_rgba(39,22,54,0.18)]">
 
                             <div className="mb-3 flex items-center justify-between">
-                                <h3 className={`${TEXTO_SM} font-semibold text-gray-800`}>
+                                <h3 className="text-base font-bold text-[#302838]">
                                     Filtrar localização
                                 </h3>
 
@@ -249,67 +261,15 @@ export default function Header({
                                 </BotaoHeader>
                             </div>
 
-                            {/* Seleção do estado */}
-                            <label className={`mb-1 block ${TEXTO_XS} font-semibold text-gray-600`}>
-                                Estado (UF)
-                            </label>
-
-                            <select
-                                value={ufSelecionada}
-                                onChange={selecionarEstado}
-                                disabled={carregandoEstados || erroEstados}
-                                className={`mb-4 h-[clamp(36px,2.93vw,46px)] w-full rounded-lg border border-gray-200 bg-white px-3 ${TEXTO_SM} text-gray-700 outline-none focus:border-[#4CAF50] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
-                            >
-                                <option value="">
-                                    {carregandoEstados
-                                        ? "Carregando estados..."
-                                        : erroEstados
-                                            ? "Erro ao carregar estados"
-                                            : "Selecione um estado"}
-                                </option>
-
-                                {estados.map((estado) => (
-                                    <option key={estado.id} value={estado.id}>
-                                        {estado.nome} ({estado.sigla})
-                                    </option>
-                                ))}
-                            </select>
-
-                            {/* Seleção da cidade */}
-                            <label className={`mb-1 block ${TEXTO_XS} font-semibold text-gray-600`}>
-                                Cidade
-                            </label>
-
-                            <select
-                                value={cidadeSelecionada}
-                                onChange={(e) => setCidadeSelecionada(e.target.value)}
-                                disabled={!ufSelecionada || carregandoCidades || erroCidades || cidades.length === 0}
-                                className={`h-[clamp(36px,2.93vw,46px)] w-full rounded-lg border border-gray-200 bg-white px-3 ${TEXTO_SM} text-gray-700 outline-none focus:border-[#4CAF50] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
-                            >
-                                <option value="">
-                                    {!ufSelecionada
-                                        ? "Selecione primeiro o estado"
-                                        : carregandoCidades
-                                            ? "Carregando cidades..."
-                                            : erroCidades
-                                                ? "Erro ao carregar cidades"
-                                                : cidades.length === 0
-                                                    ? "Nenhuma cidade disponível"
-                                                    : "Selecione uma cidade"}
-                                </option>
-
-                                {cidades.map((cidade) => (
-                                    <option key={cidade.id} value={cidade.id}>
-                                        {cidade.nome}
-                                    </option>
-                                ))}
-                            </select>
+                            <p className="mb-4 text-xs leading-relaxed text-[#796D85]">Busque um estado e, se quiser, escolha uma cidade para ver anúncios da região.</p>
+                            <ListaPesquisavel titulo="Estado (UF)" opcoes={estados.map(estado => ({ valor: estado.id, nome: `${estado.nome} (${estado.sigla})` }))} valor={ufSelecionada} onSelecionar={selecionarEstado} placeholder={carregandoEstados ? "Carregando estados..." : erroEstados ? "Não foi possível carregar" : "Pesquisar estado..."} desabilitado={carregandoEstados || erroEstados} />
+                            <div className="mt-4"><ListaPesquisavel titulo="Cidade" opcoes={cidades.map(cidade => ({ valor: cidade.id, nome: cidade.nome }))} valor={cidadeSelecionada} onSelecionar={selecionarCidade} placeholder={!ufSelecionada ? "Escolha um estado primeiro" : carregandoCidades ? "Carregando cidades..." : erroCidades ? "Não foi possível carregar" : "Pesquisar cidade..."} desabilitado={!ufSelecionada || carregandoCidades || erroCidades} /></div>
 
                             {/* Limpar filtros */}
                             <button
                                 type="button"
                                 onClick={limparLocalizacao}
-                                className={`mt-4 w-full rounded-lg py-2 ${TEXTO_XS} font-semibold text-[#4CAF50] transition hover:bg-green-50`}
+                                className="mt-5 w-full rounded-xl border border-[#DAD1E5] py-2.5 text-sm font-semibold text-[#5D3B9D] transition hover:bg-[#F5F0FB]"
                             >
                                 Limpar localização
                             </button>

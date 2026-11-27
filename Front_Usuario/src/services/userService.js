@@ -34,7 +34,7 @@ export async function loginGoogle(credential) {
 }
 
 export async function criarUsuario(dados) {
-    if (!Number.isSafeInteger(Number(dados.id_genero)) || Number(dados.id_genero) <= 0) throw new Error('Selecione seu gênero para continuar.')
+    if (!Number.isSafeInteger(Number(dados.id_genero)) || Number(dados.id_genero) <= 0) throw new Error('Selecione uma opção de sexo para continuar.')
     const payload = {
         nome: dados.nome,
         data_nascimento: dataParaApi(dados.nascimento),
@@ -42,11 +42,29 @@ export async function criarUsuario(dados) {
         email: dados.email,
         telefone: dados.telefone,
         senha: dados.senha,
+        desafio_email: dados.desafio_email,
+        desafio_telefone: dados.desafio_telefone,
         id_genero: Number(dados.id_genero),
         foto_url: dados.foto_url
     }
     const retorno = await apiFetch('/usuario', { method: 'POST', body: JSON.stringify(payload) })
     return resposta(retorno, 'usuario')
+}
+
+export async function iniciarVerificacao(tipo, destino, finalidade = 'cadastro') {
+    return apiFetch('/usuario/verificacao/iniciar', { method: 'POST', body: JSON.stringify({ tipo, destino, finalidade }) })
+}
+
+export async function confirmarVerificacao(desafio, codigo) {
+    return apiFetch('/usuario/verificacao/confirmar', { method: 'POST', body: JSON.stringify({ desafio, codigo }) })
+}
+
+export async function reenviarVerificacao(desafio) {
+    return apiFetch('/usuario/verificacao/reenviar', { method: 'POST', body: JSON.stringify({ desafio }) })
+}
+
+export async function recuperarSenha(desafio_email, nova_senha) {
+    return apiFetch('/usuario/recuperar-senha', { method: 'POST', body: JSON.stringify({ desafio_email, nova_senha }) })
 }
 
 export async function buscarGenerosCadastro() {
@@ -60,12 +78,12 @@ export async function buscarAnuncios() {
         .sort((a, b) => Number(b.id) - Number(a.id))
 }
 
-export async function buscarOutrosAnunciosVendedor(anuncio) {
+export async function buscarOutrosAnunciosVendedor(anuncio, incluirAtual = false) {
     const idVendedor = Number(anuncio.id_usuario ?? anuncio.vendedor?.id)
     if (!Number.isSafeInteger(idVendedor) || idVendedor <= 0) throw new Error('Vendedor não encontrado.')
     const anuncios = await buscarAnuncios()
     return anuncios.filter(item => Number(item.id_usuario) === idVendedor
-        && Number(item.id) !== Number(anuncio.id) && item.status === 'ativo')
+        && (incluirAtual || Number(item.id) !== Number(anuncio.id)) && item.status === 'ativo')
 }
 
 export async function listarPontosUsuario() {

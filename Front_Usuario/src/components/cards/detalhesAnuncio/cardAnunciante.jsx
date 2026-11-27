@@ -18,12 +18,13 @@ export default function CardAnunciante({ vendedor, onDenunciar, onVerPerfil }) {
     const totalAvaliacoes = vendedor.total_avaliacoes ?? vendedor.avaliacoes
     const tempoResposta = vendedor.tempo_resposta
     const entregas = vendedor.entregas_no_prazo
+    const fotoDisponivel = vendedor.foto && !vendedor.foto.includes('storage.ecowayer.test') && vendedor.foto !== fotoComErro
 
     return (
         <section className="flex flex-1 flex-col rounded-[26px] bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between gap-2">
                 <h2 className="text-sm font-semibold">Sobre o anunciante</h2>
-                {onVerPerfil && (
+                {onDenunciar && (
                     <button type="button" onClick={onDenunciar} className="text-[11px] font-medium text-[#E53935] hover:underline">
                         Denunciar Anúncio
                     </button>
@@ -31,8 +32,8 @@ export default function CardAnunciante({ vendedor, onDenunciar, onVerPerfil }) {
             </div>
 
             <div className="mt-6 flex items-center gap-4">
-                <div className="relative shrink-0 cursor-pointer" onClick={() => onVerPerfil(vendedor)}>
-                    {vendedor.foto && vendedor.foto !== fotoComErro ? (
+                <button type="button" aria-label={`Ver anúncios de ${vendedor.nome}`} className="relative shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-[#724BC2]" onClick={() => onVerPerfil?.(vendedor)}>
+                    {fotoDisponivel ? (
                         <img src={vendedor.foto} onError={() => setFotoComErro(vendedor.foto)} alt={vendedor.nome} className="h-16 w-16 rounded-full border-2 border-[#4CAF50] object-cover" />
                     ) : (
                         <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#4CAF50] bg-[#F1EBFF] text-xl font-bold text-[#724BC2]">
@@ -44,9 +45,9 @@ export default function CardAnunciante({ vendedor, onDenunciar, onVerPerfil }) {
                             <Check size={11} strokeWidth={3} />
                         </span>
                     )}
-                </div>
+                </button>
                 <div className="min-w-0">
-                    <p className="truncate text-lg font-semibold">{vendedor.nome}</p>
+                    <button type="button" onClick={() => onVerPerfil?.(vendedor)} className="truncate text-left text-lg font-semibold hover:text-[#724BC2] hover:underline">{vendedor.nome}</button>
                     {vendedor.verificado && (
                         <p className="flex items-center gap-1 text-[11px] font-medium text-[#4CAF50]">
                             <BadgeCheck size={12} />Vendedor Verificado EcoWayer

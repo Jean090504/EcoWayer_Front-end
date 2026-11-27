@@ -111,7 +111,6 @@ export default function DenunciarAnuncio({ anuncioId, anuncio, mensagem, erro: e
                 {!enviado && motivos?.length > 0 && (
                     <CardMotivoDenuncia
                         motivos={motivos}
-                        enviando={enviando}
                          erro={erroExterno || erroEnvio}
                          enviando={enviando || enviandoExterno}
                         onCancelar={voltar}

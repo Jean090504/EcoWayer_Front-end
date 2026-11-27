@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { loginGoogle, loginUsuario } from "../../../services/userService.js";
+import { loginGoogle, loginUsuario, iniciarVerificacao, confirmarVerificacao, reenviarVerificacao, recuperarSenha } from "../../../services/userService.js";
 
 // Estilo padrão dos campos de entrada
 const inputClass = "h-[48px] w-full border-0 border-b border-[#55B75D] bg-[#F8F8F8] pl-[48px] pr-[10px] text-[14px] text-[#444] outline-none transition focus:bg-[#F3F3F3] focus:border-[#7548C8]";
@@ -24,6 +24,35 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exig
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const [lembrar, setLembrar] = useState(true);
     const [erro, setErro] = useState("");
+    const [avisoRecuperacao, setAvisoRecuperacao] = useState('')
+    const [recuperacao, setRecuperacao] = useState('')
+    const [desafioEmail, setDesafioEmail] = useState('')
+    const [codigo, setCodigo] = useState('')
+    const [novaSenha, setNovaSenha] = useState('')
+    const [ocupado, setOcupado] = useState(false)
+
+    async function avancarRecuperacao(evento) {
+        evento.preventDefault()
+        setErro('')
+        setOcupado(true)
+        try {
+            if (recuperacao === 'email') {
+                const resposta = await iniciarVerificacao('email', email, 'recuperacao')
+                setDesafioEmail(resposta.desafio)
+                setRecuperacao('codigo')
+            } else if (recuperacao === 'codigo') {
+                await confirmarVerificacao(desafioEmail, codigo)
+                setRecuperacao('senha')
+            } else {
+                await recuperarSenha(desafioEmail, novaSenha)
+                setRecuperacao('')
+                setSenha('')
+                setCodigo('')
+                setAvisoRecuperacao('Senha alterada. Entre com a nova senha.')
+            }
+        } catch (falha) { setErro(falha.message || 'Não foi possível concluir a recuperação.') }
+        finally { setOcupado(false) }
+    }
 
     // Login com Google
     async function handleGoogleSuccess({ credential }) {
@@ -52,6 +81,22 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exig
         }
     }
 
+    if (recuperacao) return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+            <form onSubmit={avancarRecuperacao} className="w-full max-w-md space-y-4 rounded-2xl bg-white p-8 shadow-xl">
+                <h2 className="text-xl font-bold text-[#7548C8]">Recuperar senha</h2>
+                <p className="text-sm text-gray-600">{recuperacao === 'email' ? 'Informe seu e-mail para receber um código.' : recuperacao === 'codigo' ? 'Digite o código de seis dígitos enviado por e-mail.' : 'Crie sua nova senha.'}</p>
+                {recuperacao === 'email' && <input type="email" required autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="E-mail" className="w-full rounded-lg border p-3" />}
+                {recuperacao === 'codigo' && <input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required value={codigo} onChange={e => setCodigo(e.target.value.replace(/\D/g, ''))} placeholder="Código de seis dígitos" className="w-full rounded-lg border p-3" />}
+                {recuperacao === 'senha' && <input type="password" minLength={8} required autoComplete="new-password" value={novaSenha} onChange={e => setNovaSenha(e.target.value)} placeholder="Nova senha" className="w-full rounded-lg border p-3" />}
+                {erro && <p role="alert" className="text-sm text-red-600">{erro}</p>}
+                <button disabled={ocupado} type="submit" className="w-full rounded-lg bg-[#7548C8] p-3 text-white disabled:opacity-50">{ocupado ? 'Aguarde...' : 'Continuar'}</button>
+                {recuperacao === 'codigo' && <button type="button" disabled={ocupado} onClick={async () => { try { await reenviarVerificacao(desafioEmail); setErro('Código reenviado.') } catch (e) { setErro(e.message) } }} className="text-sm text-[#7548C8] underline">Reenviar código</button>}
+                <button type="button" onClick={() => { setRecuperacao(''); setErro('') }} className="block text-sm text-gray-600 underline">Voltar ao login</button>
+            </form>
+        </div>
+    )
+
     return (
 
         // Fundo desfocado
@@ -78,6 +123,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exig
                     </h2>
 
                     {aviso && <p role="status" className="mb-5 rounded-xl bg-green-50 p-3 text-sm text-green-800">{aviso}</p>}
+                    {avisoRecuperacao && <p role="status" className="mb-5 rounded-xl bg-green-50 p-3 text-sm text-green-800">{avisoRecuperacao}</p>}
                     <form onSubmit={handleSubmit} autoComplete="off">
 
                         {/* E-mail */}
@@ -192,6 +238,7 @@ export default function Login({ onClose, onAbrirCriarConta, onLoginSuccess, exig
 
                             <button
                                 type="button"
+                                onClick={() => { setErro(''); setRecuperacao('email') }}
                                 className="text-[15px] font-semibold text-[#7548C8] transition hover:underline"
                             >
                                 esqueci a senha

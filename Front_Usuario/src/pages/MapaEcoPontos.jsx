@@ -1,292 +1,90 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from 'react'
+import { MapPin, Navigation, RefreshCw, Search } from 'lucide-react'
+import { apiFetch } from '../services/api.js'
 
-import {
-    Bike,
-    Bookmark,
-    ChevronRight,
-    Layers,
-    LocateFixed,
-    MapPin,
-    Minus,
-    Navigation,
-    Plus,
-    Recycle,
-    Smartphone,
-    Star,
-} from "lucide-react";
-import HeaderMapa from "../components/layout/headerMapa.jsx";
-import ModalFiltroMapa, {FILTROS_PADRAO, contarFiltrosAtivos,} from "../components/modal/modalFiltroMapa.jsx";
+const valido = ponto => ponto && Number.isFinite(Number(ponto.latitude)) && Number.isFinite(Number(ponto.longitude))
+  && Math.abs(Number(ponto.latitude)) <= 90 && Math.abs(Number(ponto.longitude)) <= 180
+  && (Number(ponto.latitude) !== 0 || Number(ponto.longitude) !== 0)
 
-// ---- Dados de exemplo (trocar pela API / mock da tela depois) ----
-const PONTO_SELECIONADO = {
-    id: "EP-049",
-    nome: "EcoPonto Central Pinheiros",
-    aberto: true,
-    fechaAs: "18:00",
-    nota: 4.8,
-    avaliacoes: 142,
-    distanciaKm: 1.2,
-    minutosBike: 8,
-    endereco: "Rua Gilberto Sabino, 180 — Pinheiros",
-    complemento: "São Paulo - SP, 05425-020 - Acesso ao lado da Estação Pinheiros",
-    materiais: [
-        { rotulo: "Plásticos (PET, PEAD)", cor: "#10B981" },
-        { rotulo: "Papelão / Papel", cor: "#F59E0B" },
-        { rotulo: "Alumínio & Latas", cor: "#64748B" },
-        { rotulo: "Vidro", cor: "#06B6D4" },
-        { rotulo: "Eletrônicos Leves", cor: "#8B5CF6" },
-    ],
-};
+function enderecoTexto(ponto) {
+  const e = Array.isArray(ponto.endereco) ? ponto.endereco[0] : ponto.endereco
+  if (!e) return 'Endereço não informado'
+  return [[e.rua, e.numero].filter(Boolean).join(', '), e.bairro,
+    [e.cidade, e.sigla || e.estado].filter(Boolean).join(' - ')].filter(Boolean).join(' · ') || 'Endereço não informado'
+}
 
-const PONTOS_PROXIMOS = [
-    {
-        id: "EP-051",
-        nome: "Estação Ecológica Vila Madalena",
-        detalhe: "2.4 km • Aceita baterias, óleo vegetal",
-        Icone: Recycle,
-        corFundo: "bg-[#4DBB5A]",
-    },
-    {
-        id: "EP-063",
-        nome: "Ponto Verde Butantã",
-        detalhe: "3.1 km • Eletrônicos pesados, sucata",
-        Icone: Smartphone,
-        corFundo: "bg-[#724BC2]",
-    },
-];
-
-const LEGENDA_MAPA = [
-    { rotulo: "Ponto Municipal", cor: "#4DBB5A" },
-    { rotulo: "Coleta Especial", cor: "#724BC2" },
-    { rotulo: "Cooperativa Parceira", cor: "#64748B" },
-];
-
-function Estatistica({ icone, valor, rotulo, corValor = "text-[#3E4A3D]" }) {
-    return (
-        <div className="flex flex-col items-center gap-0.5 text-xs">
-            <span className={`flex items-center gap-1 font-medium ${corValor}`}>
-                {icone}
-                {valor}
-            </span>
-            <span className="text-[#555F6F]">{rotulo}</span>
-        </div>
-    );
+function urlMapa(ponto) {
+  const lat = Number(ponto.latitude), lon = Number(ponto.longitude), delta = 0.008
+  const query = new URLSearchParams({ bbox: `${lon - delta},${lat - delta},${lon + delta},${lat + delta}`,
+    layer: 'mapnik', marker: `${lat},${lon}` })
+  return `https://www.openstreetmap.org/export/embed.html?${query}`
 }
 
 export default function MapaEcoPontos() {
-    const [busca, setBusca] = useState("Pinheiros, São Paulo");
-    const [categoria, setCategoria] = useState("todos");
-    const [filtrosAbertos, setFiltrosAbertos] = useState(false);
-    const [filtros, setFiltros] = useState(FILTROS_PADRAO); // filtros já aplicados
-    const [salvo, setSalvo] = useState(false);
+  const [pontos, setPontos] = useState([])
+  const [selecionado, setSelecionado] = useState(null)
+  const [busca, setBusca] = useState('')
+  const [material, setMaterial] = useState('')
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
+  const [tentativa, setTentativa] = useState(0)
 
-    const ponto = PONTO_SELECIONADO;
+  useEffect(() => {
+    let ativo = true
+    apiFetch('/ponto_coleta').then(dados => {
+      if (!ativo) return
+      const lista = dados.response?.ponto_coleta
+      const recebidos = Array.isArray(lista) ? lista.filter(p => String(p.status).toLowerCase() === 'ativo') : []
+      setPontos(recebidos)
+      setSelecionado(atual => recebidos.find(p => p.id === atual)?.id ?? recebidos[0]?.id ?? null)
+      setErro('')
+    }).catch(error => { if (ativo) { setPontos([]); setErro(error.status === 404 ? '' : error.message) } })
+      .finally(() => { if (ativo) setCarregando(false) })
+    return () => { ativo = false }
+  }, [tentativa])
 
-    return (
-        <div className="bg-[#F2F4F6]">
-            {/* Pesquisa, filtros e categorias */}
-            <HeaderMapa
-                busca={busca}
-                onBuscaChange={setBusca}
-                categoriaAtiva={categoria}
-                onCategoriaChange={setCategoria}
-                raioKm={filtros.raioKm}
-                onRaioClick={() => setFiltrosAbertos(true)}
-                temFiltrosAtivos={contarFiltrosAtivos(filtros) > 0}
-                filtrosAbertos={filtrosAbertos}
-                onToggleFiltros={() => setFiltrosAbertos((v) => !v)}
-            />
+  const materiais = useMemo(() => [...new Set(pontos.flatMap(p =>
+    (Array.isArray(p.material_aceito) ? p.material_aceito : []).map(m => m.nome).filter(Boolean)))].sort(), [pontos])
+  const filtrados = useMemo(() => pontos.filter(p => {
+    const texto = `${p.nome} ${p.descricao || ''} ${enderecoTexto(p)}`.toLocaleLowerCase('pt-BR')
+    return texto.includes(busca.trim().toLocaleLowerCase('pt-BR')) &&
+      (!material || p.material_aceito?.some(item => item.nome === material))
+  }), [pontos, busca, material])
+  const ponto = filtrados.find(p => p.id === selecionado) || filtrados[0]
 
-            <main className="grid grid-cols-1 gap-[clamp(16px,1.6vw,24px)] px-[clamp(12px,5vw,110px)] py-[clamp(16px,1.6vw,24px)] lg:grid-cols-[minmax(0,2fr)_minmax(340px,1fr)]">
-                {/* ---------- MAPA ---------- */}
-                <section
-                    aria-label="Mapa de EcoPontos"
-                    className="relative h-[60vh] min-h-[420px] overflow-hidden rounded-2xl border border-[#724BC2]/50 bg-[#E9EEF2] lg:h-[calc(100vh-15rem)] lg:min-h-[520px] lg:max-h-[760px]"
-                >
-                    {/* TODO: renderizar aqui o mapa real (Google Maps / Leaflet).
-                        Os overlays abaixo ficam por cima dele (z-10). */}
-                    <div className="absolute inset-0" id="mapa-container" />
-
-                    {/* Badge superior */}
-                    <div className="absolute left-3.5 top-3.5 z-10 flex w-[clamp(240px,55%,386px)] items-center gap-3 justify-between rounded-xl bg-white/95 px-3.5 py-2.5 text-xs shadow-sm">
-                        <span className="flex items-center gap-2 font-medium text-[#191C1E]">
-                            <span className="h-2 w-2 rounded-full bg-[#4DBB5A]" />
-                            12 EcoPontos abertos nesta área
-                        </span>
-                        <span className="text-[#555F6F]">GPS Ativo</span>
-                    </div>
-
-                    {/* Legenda */}
-                    <ul className="absolute bottom-3.5 left-3.5 z-10 flex max-w-[calc(100%-4.5rem)] flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-white/95 px-3.5 py-2.5 text-xs text-[#191C1E] shadow-sm">
-                        {LEGENDA_MAPA.map((item) => (
-                            <li key={item.rotulo} className="flex items-center gap-2">
-                                <span
-                                    className="h-2.5 w-2.5 rounded-full"
-                                    style={{ backgroundColor: item.cor }}
-                                />
-                                {item.rotulo}
-                            </li>
-                        ))}
-                    </ul>
-
-                    {/* Controles do mapa */}
-                    <div className="absolute bottom-3.5 right-3.5 z-10 flex flex-col items-end gap-2">
-                        <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm">
-                            <button
-                                type="button"
-                                aria-label="Aproximar"
-                                className="flex h-9 w-9 items-center justify-center text-[#191C1E] hover:bg-gray-50"
-                            >
-                                <Plus className="h-4 w-4" />
-                            </button>
-                            <button
-                                type="button"
-                                aria-label="Afastar"
-                                className="flex h-9 w-9 items-center justify-center border-t border-gray-100 text-[#191C1E] hover:bg-gray-50"
-                            >
-                                <Minus className="h-4 w-4" />
-                            </button>
-                        </div>
-                        <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-sm">
-                            <button
-                                type="button"
-                                aria-label="Minha localização"
-                                className="flex h-9 w-9 items-center justify-center text-[#4DBB5A] hover:bg-gray-50"
-                            >
-                                <LocateFixed className="h-4 w-4" />
-                            </button>
-                            <button
-                                type="button"
-                                aria-label="Camadas do mapa"
-                                className="flex h-9 w-9 items-center justify-center border-t border-gray-100 text-[#191C1E] hover:bg-gray-50"
-                            >
-                                <Layers className="h-4 w-4" />
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                {/* ---------- PAINEL LATERAL ---------- */}
-                <aside className="flex flex-col gap-4">
-                    {/* Detalhe do ponto selecionado */}
-                    <article className="rounded-2xl bg-white p-4 shadow-sm sm:p-5">
-                        <div className="flex items-start justify-between gap-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                                {ponto.aberto && (
-                                    <span className="flex items-center gap-1.5 rounded-full bg-[#4DBB5A] px-2.5 py-0.5 text-[11px] font-medium text-white">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                                        Aberto agora • Fecha às {ponto.fechaAs}
-                                    </span>
-                                )}
-                                <span className="text-[11px] text-[#555F6F]">#{ponto.id}</span>
-                            </div>
-
-                            <button
-                                type="button"
-                                aria-label={salvo ? "Remover dos salvos" : "Salvar ponto"}
-                                aria-pressed={salvo}
-                                onClick={() => setSalvo((v) => !v)}
-                                className="text-[#191C1E] transition hover:text-[#724BC2]"
-                            >
-                                <Bookmark className="h-5 w-5" fill={salvo ? "currentColor" : "none"} />
-                            </button>
-                        </div>
-
-                        <h2 className="mt-3 text-lg font-semibold text-[#191C1E] sm:text-xl">{ponto.nome}</h2>
-
-                        <div className="mt-6 grid grid-cols-3">
-                            <Estatistica
-                                icone={<Star className="h-3 w-3 fill-[#724BC2] text-[#724BC2]" />}
-                                valor={ponto.nota}
-                                rotulo={`${ponto.avaliacoes} reviews`}
-                                corValor="text-[#6C46BE]"
-                            />
-                            <Estatistica
-                                icone={<Navigation className="h-3 w-3" />}
-                                valor={`${ponto.distanciaKm} km`}
-                                rotulo="Distância"
-                                corValor="text-[#4DBB5A]"
-                            />
-                            <Estatistica
-                                icone={<Bike className="h-3 w-3" />}
-                                valor={`${ponto.minutosBike} min`}
-                                rotulo="Tempo de bike"
-                                corValor="text-[#724BC2]"
-                            />
-                        </div>
-
-                        <div className="mt-8 flex gap-2.5">
-                            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#724BC2]" />
-                            <div className="text-xs text-[#555F6F]">
-                                <p className="text-sm font-medium text-[#724BC2]">{ponto.endereco}</p>
-                                <p className="mt-1">{ponto.complemento}</p>
-                            </div>
-                        </div>
-
-                        <h3 className="mt-8 text-sm font-semibold text-[#191C1E]">Materiais Aceitos</h3>
-                        <ul className="mt-3 flex flex-wrap gap-2">
-                            {ponto.materiais.map((m) => (
-                                <li
-                                    key={m.rotulo}
-                                    className="flex items-center gap-2 rounded-full bg-[#FAF8FF] px-3 py-1.5 text-xs text-[#191C1E]"
-                                >
-                                    <span
-                                        className="h-1.5 w-1.5 rounded-full"
-                                        style={{ backgroundColor: m.cor }}
-                                    />
-                                    {m.rotulo}
-                                </li>
-                            ))}
-                        </ul>
-                    </article>
-
-                    {/* Outros pontos próximos */}
-                    <section aria-label="Outros pontos próximos">
-                        <div className="mb-3 flex items-center justify-between px-1 text-xs">
-                            <h3 className="font-semibold text-[#191C1E]">Outros pontos próximos</h3>
-                            <button type="button" className="text-[#555F6F] hover:text-[#724BC2]">
-                                Ver todos (12)
-                            </button>
-                        </div>
-
-                        <ul className="flex flex-col gap-3">
-                            {PONTOS_PROXIMOS.map(({ id, nome, detalhe, Icone, corFundo }) => (
-                                <li key={id}>
-                                    <button
-                                        type="button"
-                                        className="flex w-full items-center gap-4 rounded-2xl bg-white p-3 text-left shadow-sm transition hover:shadow-md"
-                                    >
-                                        <span
-                                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white ${corFundo}`}
-                                        >
-                                            <Icone className="h-5 w-5" />
-                                        </span>
-                                        <span className="min-w-0 flex-1">
-                                            <span className="block truncate text-xs font-semibold text-[#191C1E]">
-                                                {nome}
-                                            </span>
-                                            <span className="block truncate text-xs text-[#555F6F]">
-                                                {detalhe}
-                                            </span>
-                                        </span>
-                                        <ChevronRight className="h-4 w-4 shrink-0 text-[#555F6F]" />
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
-                </aside>
-            </main>
-
-            {/* Painel de filtros (montado só quando aberto, então o rascunho sempre começa dos filtros aplicados) */}
-            {filtrosAbertos && (
-                <ModalFiltroMapa
-                    filtrosIniciais={filtros}
-                    totalPontos={12}
-                    onAplicar={setFiltros}
-                    onFechar={() => setFiltrosAbertos(false)}
-                />
-            )}
+  return <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 text-[#191C1E]">
+    <h1 className="text-3xl font-bold">EcoPontos</h1>
+    <p className="mt-2 text-sm text-gray-600">Consulte os pontos de coleta cadastrados e os materiais aceitos.</p>
+    <div className="mt-6 flex flex-wrap gap-3">
+      <label className="flex min-w-60 flex-1 items-center gap-2 rounded-xl border bg-white px-3"><Search size={18} />
+        <input aria-label="Buscar EcoPonto" value={busca} onChange={e => setBusca(e.target.value)} placeholder="Nome, bairro ou cidade" className="h-11 w-full outline-none" />
+      </label>
+      <select aria-label="Filtrar material" value={material} onChange={e => setMaterial(e.target.value)} className="h-11 rounded-xl border bg-white px-3">
+        <option value="">Todos os materiais</option>
+        {materiais.map(nome => <option key={nome} value={nome}>{nome}</option>)}
+      </select>
+    </div>
+    {erro && <div role="alert" className="mt-5 rounded-xl bg-red-50 p-4 text-red-800">{erro}
+      <button type="button" onClick={() => { setCarregando(true); setTentativa(n => n + 1) }} className="ml-3 inline-flex items-center gap-1 underline"><RefreshCw size={15} /> Tentar novamente</button>
+    </div>}
+    {carregando ? <p role="status" className="mt-6">Carregando EcoPontos…</p> : !erro && filtrados.length === 0 && <p className="mt-6">Nenhum EcoPonto encontrado.</p>}
+    {!carregando && filtrados.length > 0 && <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(280px,1fr)_minmax(0,1.5fr)]">
+      <section aria-label="Lista de EcoPontos" className="max-h-[620px] space-y-3 overflow-y-auto">
+        {filtrados.map(item => <button key={item.id} type="button" onClick={() => setSelecionado(item.id)}
+          aria-pressed={ponto?.id === item.id} className={`w-full rounded-xl border bg-white p-4 text-left shadow-sm ${ponto?.id === item.id ? 'border-[#724BC2]' : 'border-gray-200'}`}>
+          <strong className="block">{item.nome}</strong><span className="mt-1 block text-sm text-gray-600">{enderecoTexto(item)}</span>
+          <span className="mt-2 block text-xs text-green-700">{item.material_aceito?.map(m => m.nome).filter(Boolean).join(', ') || 'Materiais não informados'}</span>
+        </button>)}
+      </section>
+      <section aria-label="Localização do EcoPonto" className="overflow-hidden rounded-xl border bg-white shadow-sm">
+        {valido(ponto) ? <iframe key={ponto.id} title={`Mapa de ${ponto.nome}`} src={urlMapa(ponto)} loading="lazy" className="h-[380px] w-full border-0" />
+          : <div className="flex h-[380px] items-center justify-center p-6 text-center text-gray-600"><MapPin className="mr-2" /> Este ponto ainda não tem coordenadas no mapa.</div>}
+        <div className="p-4"><h2 className="font-semibold">{ponto.nome}</h2><p className="mt-1 text-sm text-gray-600">{enderecoTexto(ponto)}</p>
+          {ponto.descricao && <p className="mt-2 text-sm">{ponto.descricao}</p>}
+          {valido(ponto) && <a className="mt-4 inline-flex items-center gap-2 font-medium text-[#724BC2] underline" target="_blank" rel="noreferrer"
+            href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${ponto.latitude},${ponto.longitude}`)}`}><Navigation size={17} /> Traçar rota</a>}
         </div>
-    );
+      </section>
+    </div>}
+  </main>
 }

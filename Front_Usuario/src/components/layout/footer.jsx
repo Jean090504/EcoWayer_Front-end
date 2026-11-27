@@ -1,162 +1,26 @@
-export default function Footer() {
-    return (
-        <footer className="flex items-center w-full bg-white text-gray-600">
-
-            {/* Parte superior do footer */}
-            <div 
-                className="mx-auto w-full max-w-[1680px] px-[clamp(16px,5vw,78px)] pt-14 pb-8"
-            >
-
-                {/* Colunas de informações */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-
-                    {/* Coluna 1: EcoWayer */}
-                    <div>
-                        <h2 className="text-xl font-bold text-green-700 mb-4">
-                            Ecowayer
-                        </h2>
-
-                        <p className="text-sm leading-5">
-                            Plataforma de economia circular orientada a
-                            impacto positivo, compensação ecológica e
-                            rastreabilidade urbana.
-                        </p>
-                    </div>
-
-                    {/* Coluna 2: Ecossistema */}
-                    <div>
-                        <h3 className="text-sm font-semibold text-gray-800 mb-3">
-                            Ecossistema
-                        </h3>
-
-                        <ul className="flex flex-col gap-2 text-xs">
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Diretório de EcoPontos
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Calculadora de Carbono
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Calculadora de Pegada
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Clube de Recompensas
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Coluna 3: Transparência */}
-                    <div>
-                        <h3 className="text-sm font-semibold text-gray-800 mb-3">
-                            Transparência
-                        </h3>
-
-                        <ul className="flex flex-col gap-2 text-xs">
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Relatórios ESG
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Termos de Uso Circular
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Privacidade de Dados
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Auditoria de Resíduos
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Coluna 4: Suporte */}
-                    <div>
-                        <h3 className="text-sm font-semibold text-gray-800 mb-3">
-                            Suporte & Comunidade
-                        </h3>
-
-                        <ul className="flex flex-col gap-2 text-xs">
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Central de Ajuda
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Canal de Denúncias
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Parcerias Municipais
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="#" className="hover:text-green-700">
-                                    Status do Sistema
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                </div>
-
-                {/* Linha divisória */}
-                <div className="border-t border-gray-200 mt-8 pt-8">
-
-                    {/* Parte inferior do footer */}
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-xs">
-
-                        {/* Direitos autorais */}
-                        <p className="text-center">
-                            © 2026 Ecowayer Tecnologia Ambiental S.A.
-                            Todos os direitos reservados.
-                        </p>
-
-                        {/* Links legais */}
-                        <nav className="flex items-center gap-6  ">
-                            <a href="#" className="hover:text-green-700">
-                                Termos Gerais
-                            </a>
-
-                            <a href="#" className="hover:text-green-700">
-                                Privacidade
-                            </a>
-
-                            <a href="#" className="hover:text-green-700">
-                                Segurança
-                            </a>
-                        </nav>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </footer>
-    )
+export default function Footer({ onNavegar }) {
+    return <footer className="w-full bg-white text-gray-600">
+        <div className="mx-auto grid w-full max-w-[1680px] gap-8 px-[clamp(16px,5vw,78px)] pb-8 pt-14 text-sm md:grid-cols-4">
+            <div><h2 className="mb-4 text-xl font-bold text-green-700">Ecowayer</h2>
+                <p>Plataforma de economia circular e reciclagem urbana.</p></div>
+            <nav aria-label="Ecossistema" className="flex flex-col items-start gap-2">
+                <h3 className="mb-1 font-semibold text-gray-800">Ecossistema</h3>
+                <button type="button" onClick={() => onNavegar?.('ecopontos')} className="hover:text-green-700">Diretório de EcoPontos</button>
+                <button type="button" onClick={() => onNavegar?.('pontosBeneficios')} className="hover:text-green-700">Clube de Recompensas</button>
+            </nav>
+            <nav aria-label="Transparência" className="flex flex-col items-start gap-2">
+                <h3 className="mb-1 font-semibold text-gray-800">Transparência</h3>
+                <a href="/termos.html" className="hover:text-green-700">Termos de Uso Circular</a>
+                <a href="/privacidade.html" className="hover:text-green-700">Privacidade de Dados</a>
+            </nav>
+            <nav aria-label="Conta e suporte" className="flex flex-col items-start gap-2">
+                <h3 className="mb-1 font-semibold text-gray-800">Conta e suporte</h3>
+                <button type="button" onClick={() => onNavegar?.('chat')} className="hover:text-green-700">Minhas conversas</button>
+                <button type="button" onClick={() => onNavegar?.('notificacoes')} className="hover:text-green-700">Notificações</button>
+            </nav>
+        </div>
+        <div className="mx-auto max-w-[1680px] border-t border-gray-200 px-[clamp(16px,5vw,78px)] py-8 text-center text-xs">
+            © 2026 Ecowayer Tecnologia Ambiental S.A. Todos os direitos reservados.
+        </div>
+    </footer>
 }

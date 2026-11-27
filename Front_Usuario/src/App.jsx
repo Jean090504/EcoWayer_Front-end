@@ -8,6 +8,8 @@ import { FluxoCriarConta, FluxoDenunciarAnuncio } from './components/fluxos'
 import DenunciarAnuncio from './pages/DenunciarAnuncio.jsx'
 import AnunciosVendedor from './pages/AnunciosVendedor.jsx'
 import MeusPedidos from './pages/MeusPedidos.jsx'
+import MapaEcoPontos from './pages/MapaEcoPontos.jsx'
+import AssistenteChat from './components/AssistenteChat.jsx'
 
 import {
     Home,
@@ -22,8 +24,7 @@ import {
     Notificacoes,
     Chat,
     EditarAnuncio,
-    ConfirmacaoAnuncioAlterado,
-    SessaoEncerrada
+    ConfirmacaoAnuncioAlterado
 } from './pages'
 
 import { logoutUsuario } from "./services/userService.js"
@@ -35,6 +36,7 @@ export default function App() {
 
     const [categoria, setCategoria] = useState("tudo")
     const [busca, setBusca] = useState("")
+    const [localizacao, setLocalizacao] = useState({ uf: "", cidade: "" })
     const [favoritos, setFavoritos] = useState(() => {
         try {
             const salvos = JSON.parse(localStorage.getItem(CHAVE_FAVORITOS) || "[]")
@@ -70,7 +72,6 @@ export default function App() {
     const [abrirCadastro, setAbrirCadastro] = useState(false)
     const [cadastroConcluido, setCadastroConcluido] = useState(null)
     const [anuncioAlterado, setAnuncioAlterado] = useState(false)
-    const [sessaoExpirada, setSessaoExpirada] = useState(sessaoFoiEncerrada)
     const [encerrandoSessao, setEncerrandoSessao] = useState(false)
     const [avisoDetalhes, setAvisoDetalhes] = useState('')
 
@@ -84,7 +85,6 @@ export default function App() {
             setAnuncioAlterado(false)
             setAbrirCadastro(false)
             setAbrirLogin(false)
-            setSessaoExpirada(true)
             setEncerrandoSessao(true)
             setTelaAtiva("home")
             window.scrollTo(0, 0)
@@ -102,12 +102,10 @@ export default function App() {
         setUsuario(dadosUsuario)
         setAbrirLogin(false)
         setCadastroConcluido(null)
-        if (sessaoExpirada) setTelaAtiva("perfil")
-        setSessaoExpirada(false)
     }
 
     function navegar(tela) {
-        if (sessaoExpirada) { pedirLogin(); return }
+        if (!usuario && ["novoAnuncio", "editarAnuncio", "configuracoesPerfil", "denunciarMensagem"].includes(tela)) { pedirLogin(); return }
         if (tela === "chat") setAnuncioConversa(null)
         setTelaAtiva(tela)
         window.scrollTo(0, 0)
@@ -122,7 +120,6 @@ export default function App() {
         setAnuncioAlterado(false)
         setAbrirLogin(false)
         setAbrirCadastro(false)
-        setSessaoExpirada(false)
         setEncerrandoSessao(true)
         setTelaAtiva("home")
         window.scrollTo(0, 0)
@@ -152,12 +149,14 @@ export default function App() {
     }
 
     function abrirChat(anuncio) {
+        if (!usuario) { pedirLogin(); return }
         setAnuncioConversa(anuncio)
         setTelaAtiva("chat")
         window.scrollTo(0, 0)
     }
 
     function abrirContraproposta(anuncio) {
+        if (!usuario) { pedirLogin(); return }
         setAnuncioConversa({ ...anuncio, tipo_interacao: "contraproposta" })
         setTelaAtiva("chat")
         window.scrollTo(0, 0)
@@ -202,27 +201,29 @@ export default function App() {
             <Header
                 usuario={usuario}
                 onAbrirLogin={pedirLogin}
-                onAbrirCriarConta={() => sessaoExpirada ? pedirLogin() : setAbrirCadastro(true)}
+                onAbrirCriarConta={() => setAbrirCadastro(true)}
                 onAbrirNovoAnuncio={() => navegar("novoAnuncio")}
                 onNavegar={navegar}
                 onSair={sair}
                 busca={busca}
                 onBuscar={setBusca}
+                onLocalizacaoAlterada={setLocalizacao}
             />
 
             <main className="flex flex-1 flex-col">
-                {sessaoExpirada ? <SessaoEncerrada encerrando={encerrandoSessao} onEntrar={pedirLogin} /> : <>
                 {telaAtiva === "home" && (
                     <Home
                         onNavegar={navegar}
                         onAbrirAnuncio={abrirAnuncio}
                         categoria={categoria}
                         busca={busca}
+                        localizacao={localizacao}
                         onSelecionarCategoria={setCategoria}
                         favoritos={favoritos}
                         favoritar={favoritarAutenticado}
                     />
                 )}
+                {telaAtiva === "ecopontos" && <MapaEcoPontos />}
                 {telaAtiva === "detalhesAnuncio" && (
                     <DetalhesAnuncio
                         key={`${anuncioSelecionado?.id}-${anuncioSelecionado?.nome}`}
@@ -231,6 +232,8 @@ export default function App() {
                         onAbrirAnuncio={anuncio => abrirAnuncio(anuncio, veioDaListaVendedor)}
                         onConversar={abrirChat}
                         onContraproposta={abrirContraproposta}
+                        usuario={usuario}
+                        onAbrirLogin={pedirLogin}
                         onVerAnunciosVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : abrirAnunciosVendedor}
                         onVoltarAoVendedor={veioDaListaVendedor ? () => navegar("anunciosVendedor") : undefined}
                         favoritos={favoritos}
@@ -251,12 +254,12 @@ export default function App() {
                 {telaAtiva === "avaliacao" && <AvaliacaoAnuncio onNavegar={navegar} />}
                 {telaAtiva === "chat" && <Chat key={usuario?.id || 'visitante'} usuario={usuario} anuncio={anuncioConversa} onDenunciarMensagem={denunciarMensagem} onAbrirLogin={() => setAbrirLogin(true)} onNavegar={navegar} onAbrirAnuncio={abrirAnuncio} />}
                 {telaAtiva === "novoAnuncio" && <CriarNovoAnuncio onNavegar={navegar} />}
-                {telaAtiva === "minhaCarteira" && <MinhaCarteira onNavegar={navegar} />}
+                {telaAtiva === "minhaCarteira" && <MinhaCarteira onNavegar={navegar} onAbrirLogin={pedirLogin} usuario={usuario} />}
                 {telaAtiva === "pedidos" && <MeusPedidos key={usuario?.id || 'visitante'} usuario={usuario} onEntrar={pedirLogin} onNavegar={navegar} />}
                 {telaAtiva === "pontosBeneficios" && <PontosBeneficios />}
                 {telaAtiva === "insignias" && <Insignias />}
                 {telaAtiva === "notificacoes" && <Notificacoes />}
-                {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} />}
+                {telaAtiva === "perfil" && <TelaMeuPerfil onNavegar={navegar} onEditarAnuncio={editarAnuncio} onAbrirLogin={pedirLogin} usuario={usuario} />}
                 {telaAtiva === "configuracoesPerfil" && <ConfiguracoesPerfil tema={tema} onAlterarTema={alterarTema} usuario={usuario} onAtualizarUsuario={setUsuario} onNavegar={navegar} onContaDesativada={sair} />}
                 {telaAtiva === "editarAnuncio" && <EditarAnuncio key={anuncioSelecionado?.id} anuncioId={anuncioSelecionado?.id} onNavegar={navegar} onSalvo={concluirEdicao} />}
                 {telaAtiva === "denunciarAnuncio" && (   // NOVO
@@ -269,17 +272,16 @@ export default function App() {
                 {telaAtiva === "denunciarMensagem" && mensagemDenunciada && (
                     <DenunciarAnuncio mensagem={mensagemDenunciada} onNavegar={navegar} />
                 )}
-                </>}
             </main>
 
-            <Footer />
+            <Footer onNavegar={navegar} />
+            <AssistenteChat />
             {anuncioAlterado && <ConfirmacaoAnuncioAlterado onFechar={() => setAnuncioAlterado(false)} />}
 
             {abrirLogin && (
                 <Login
                     emailInicial={cadastroConcluido?.email || ""}
                     aviso={cadastroConcluido ? "Conta criada com sucesso. Faça login para continuar." : ""}
-                    exigirLogin={sessaoExpirada}
                     onClose={() => { setAbrirLogin(false); setCadastroConcluido(null) }}
                     onLoginSuccess={realizarLogin}
                     onAbrirCriarConta={() => {

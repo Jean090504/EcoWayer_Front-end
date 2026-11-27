@@ -4,7 +4,9 @@ import RankingPontos from "../components/dashboard/rankingPontos.jsx"
 import { apiFetch } from "../services/api.js"
 
 const vazio = {
-  usuariosAtivosHoje: 0,
+  usuariosAtivosTotal: 0,
+  usuariosInativosTotal: 0,
+  usuariosComAcessoPeriodo: 0,
   usuariosCadastrados: 0,
   usuariosTotal: 0,
   anunciosAtivos: 0,
@@ -115,7 +117,7 @@ export default function Dashboard() {
   }, [periodo, graficoPeriodo])
 
   const totalUsuarios = Math.max(Number(dados.usuariosTotal || dados.usuariosCadastrados || 0), 1)
-  const taxaAtivacao = Math.round((Number(dados.usuariosAtivosHoje || 0) / totalUsuarios) * 100)
+  const taxaAtivacao = Math.round((Number(dados.usuariosAtivosTotal || 0) / totalUsuarios) * 100)
   const periodoLabel = useMemo(() => periodos.find((item) => item.id === periodo)?.label || "Período", [periodo])
 
   return (
@@ -144,7 +146,7 @@ export default function Dashboard() {
         {erro && <p role="alert" className="mb-5 rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-700">{erro}</p>}
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <KpiCard titulo={`Usuários ativos · ${periodoLabel}`} valor={formatarNumero(dados.usuariosAtivosHoje)} variacao={dados.variacoes?.usuariosAtivosHoje} legenda="comparado ao período anterior" carregando={carregando} />
+          <KpiCard titulo="Contas ativas" valor={formatarNumero(dados.usuariosAtivosTotal)} legenda="status atual da conta" carregando={carregando} />
           <KpiCard titulo={`Novos usuários · ${periodoLabel}`} valor={formatarNumero(dados.usuariosCadastrados)} variacao={dados.variacoes?.usuariosCadastrados} legenda="cadastros no período selecionado" carregando={carregando} />
           <KpiCard titulo={`Anúncios publicados · ${periodoLabel}`} valor={formatarNumero(dados.anunciosAtivos)} variacao={dados.variacoes?.anunciosAtivos} legenda="publicados e ativos no período" carregando={carregando} />
           <KpiCard titulo={`Denúncias · ${periodoLabel}`} valor={formatarNumero(dados.denunciasNoMes)} variacao={dados.variacoes?.denunciasNoMes} legenda="acompanhe a moderação" carregando={carregando} />
@@ -155,6 +157,8 @@ export default function Dashboard() {
           <KpiCard titulo="Itens validados" valor={formatarNumero(metricas.itensValidados)} legenda="registros de sustentabilidade" carregando={carregando} />
           <KpiCard titulo="Regras ativas" valor={formatarNumero(metricas.regrasAtivas)} legenda="regras de pontuação" carregando={carregando} />
           <KpiCard titulo="Multiplicador" valor={`${metricas.taxaConversao}x`} legenda="conversão de pontos atual" carregando={carregando} />
+          <KpiCard titulo="Contas desativadas" valor={formatarNumero(dados.usuariosInativosTotal)} legenda="status atual da conta" carregando={carregando} />
+          <KpiCard titulo={`Acessaram · ${periodoLabel}`} valor={formatarNumero(dados.usuariosComAcessoPeriodo)} variacao={dados.variacoes?.usuariosComAcessoPeriodo} legenda="contas ativas com acesso no período" carregando={carregando} />
         </section>
 
         <section className="mt-6 grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1.65fr)_minmax(360px,0.9fr)]">
@@ -165,7 +169,7 @@ export default function Dashboard() {
         <section className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
           <article className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgba(31,41,55,0.05)]">
             <div className="mb-6"><p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Saúde da comunidade</p><h2 className="mt-1 text-xl font-bold text-slate-800">Engajamento dos usuários</h2></div>
-            <div className="space-y-5"><ProgressMetric label="Usuários ativos no período" value={dados.usuariosAtivosHoje} max={totalUsuarios} color="bg-emerald-500" /><ProgressMetric label="Base total de usuários" value={dados.usuariosTotal} max={Math.max(totalUsuarios, 1)} color="bg-violet-500" /><div className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 p-4"><span className="text-sm font-medium text-slate-500">Taxa de ativação</span><strong className="text-xl font-extrabold text-slate-800">{taxaAtivacao}%</strong></div></div>
+            <div className="space-y-5"><ProgressMetric label="Contas ativas" value={dados.usuariosAtivosTotal} max={totalUsuarios} color="bg-emerald-500" /><ProgressMetric label="Contas desativadas" value={dados.usuariosInativosTotal} max={totalUsuarios} color="bg-rose-500" /><ProgressMetric label="Base total de usuários" value={dados.usuariosTotal} max={totalUsuarios} color="bg-violet-500" /><div className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 p-4"><span className="text-sm font-medium text-slate-500">Contas ativas na base</span><strong className="text-xl font-extrabold text-slate-800">{taxaAtivacao}%</strong></div></div>
           </article>
           <article className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgba(31,41,55,0.05)]">
             <div className="mb-6"><p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Impacto EcoWayer</p><h2 className="mt-1 text-xl font-bold text-slate-800">Resumo de sustentabilidade</h2></div>

@@ -8,7 +8,7 @@ export function abrirEventosMensagens() {
     return new EventSource(`${API_BASE_URL}/mensagens/eventos`, { withCredentials: true })
 }
 
-export const urlImagem = valor => valor?.startsWith('/uploads/') ? `${API_URL}${valor}` : valor
+export const urlImagem = valor => /^\/(?:uploads|catalogo-demo)\//.test(valor || '') ? `${API_URL}${valor}` : valor
 
 export async function apiFetch(endpoint, options = {}) {
     const geracaoRequisicao = geracaoSessao()

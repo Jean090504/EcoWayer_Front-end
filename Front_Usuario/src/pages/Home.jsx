@@ -4,7 +4,7 @@ import { Categorias, Banner, DestaquesCategorias } from '../components/layout'
 
 import { buscarAnuncios } from "../services/userService.js"
 
-export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, categoria = "tudo", busca = "", onSelecionarCategoria }) {
+export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, categoria = "tudo", busca = "", localizacao = { uf: "", cidade: "" }, onSelecionarCategoria }) {
     const [anuncios, setAnuncios] = useState([]);
     const [erro, setErro] = useState("");
 
@@ -48,6 +48,8 @@ export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, catego
         const correspondeBusca = !termoBusca || [anuncio.nome, anuncio.descricao, anuncio.categoria, anuncio.modalidade_nome]
             .some(valor => String(valor || "").toLocaleLowerCase("pt-BR").includes(termoBusca));
         if (!correspondeBusca) return false;
+        if (localizacao.uf && String(anuncio.uf_exibicao || "").toLocaleLowerCase("pt-BR") !== localizacao.uf.toLocaleLowerCase("pt-BR")) return false;
+        if (localizacao.cidade && String(anuncio.cidade_exibicao || "").toLocaleLowerCase("pt-BR") !== localizacao.cidade.toLocaleLowerCase("pt-BR")) return false;
         if (categoria === "tudo") return true;
         if (categoria === "favoritos") return favoritos.includes(String(anuncio.id));
         return String(anuncio.id_categoria) === categoria;
@@ -70,9 +72,9 @@ export default function Home({ onAbrirAnuncio, favoritos = [], favoritar, catego
 
                 {erro && <p role="alert" className="w-full rounded-xl bg-red-50 p-4 text-red-600">{erro}</p>}
                 <div className="w-full min-w-0">
-                    {categoria !== "tudo" && !erro && filtrados.length === 0 ? (
+                    {!erro && filtrados.length === 0 && anuncios.length > 0 ? (
                         <p role="status" className="rounded-xl bg-gray-50 p-4 text-gray-600">
-                            {categoria === "favoritos" ? "Nenhum anúncio favoritado para exibir." : "Nenhum anúncio nesta categoria."}
+                            {categoria === "favoritos" && !busca && !localizacao.uf ? "Nenhum anúncio favoritado para exibir." : "Nenhum anúncio encontrado com os filtros selecionados. Tente outra busca ou localização."}
                         </p>
                     ) : (
                         <DestaquesCategorias

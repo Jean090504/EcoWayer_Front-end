@@ -1,4 +1,4 @@
-import { MessageSquare, RefreshCw } from 'lucide-react'
+import { MapPin, MessageSquare, RefreshCw } from 'lucide-react'
 
 function formatarDataPublicacao(valor) {
     const partes = String(valor || '').match(/^(\d{4})-(\d{2})-(\d{2})/)
@@ -31,17 +31,17 @@ function modalidadeDoAnuncio(anuncio) {
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
 
-    if (nome === 'doacao') return 3
-    if (nome === 'troca') return 2
-    if (nome === 'venda') return 1
+    if (nome === 'doacao') return 1
+    if (nome === 'troca') return 3
+    if (nome === 'venda') return 2
     return null
 }
 
 function textoPreco(anuncio) {
     const modalidade = modalidadeDoAnuncio(anuncio)
 
-    if (modalidade === 3) return 'Grátis (Doação)'
-    if (modalidade === 2) return 'Troca'
+    if (modalidade === 1) return 'Grátis (Doação)'
+    if (modalidade === 3) return 'Troca'
 
     const preco = Number(anuncio.preco)
     if (
@@ -56,7 +56,7 @@ function textoPreco(anuncio) {
 
 export default function CardPrecoAnuncio({ anuncio, onConversar, onContraproposta, onPagarTeste, pagamentoCarregando = false }) {
     const modalidade = modalidadeDoAnuncio(anuncio)
-    const ehDoacao = modalidade === 3
+    const ehDoacao = modalidade === 1
 
     return (
         <section className="rounded-[26px] bg-white p-6 px-9 shadow-sm">
@@ -68,6 +68,8 @@ export default function CardPrecoAnuncio({ anuncio, onConversar, onContrapropost
             </div>
 
             <h1 className="text-[22.5px] font-bold leading-[1.15] text-[#191C30] mb-6 mt-4 ">{anuncio.nome}</h1>
+            <p className="mb-4 text-2xl font-extrabold text-[#278247]">{textoPreco(anuncio)}</p>
+            {(anuncio.cidade_exibicao || anuncio.uf_exibicao) && <p className="mb-4 flex items-center gap-1.5 text-sm text-[#5F5968]"><MapPin size={16} aria-hidden="true" />{[anuncio.cidade_exibicao, anuncio.uf_exibicao].filter(Boolean).join(' - ')}</p>}
 
             {anuncio.troca?.trim() && (
                 <p className="mb-7 flex items-center gap-3 px-2 text-xs leading-relaxed">
@@ -77,7 +79,7 @@ export default function CardPrecoAnuncio({ anuncio, onConversar, onContrapropost
             )}
 
             <div className="space-y-4">
-                {import.meta.env.VITE_MP_TEST_MODE === '1' && modalidade === 1 && Number(anuncio.preco) > 0 && onPagarTeste && (
+                {import.meta.env.VITE_MP_TEST_MODE === '1' && modalidade === 2 && Number(anuncio.preco) > 0 && onPagarTeste && (
                     <button
                         type="button"
                         data-mp-checkout-cta="checkout-pro"

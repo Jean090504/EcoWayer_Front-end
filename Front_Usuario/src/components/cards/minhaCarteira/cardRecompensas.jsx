@@ -4,7 +4,7 @@ import CardRecompensa from "./cardRecompensa"
 export default function CardRecompensas({ recompensas = [], onResgatar }) {
 
   return (
-    <div className="flex flex-1 flex-col bg-white rounded-2xl p-6">
+    <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-[#EAE7EF] bg-white p-6 shadow-sm sm:p-7">
       <h2 className="text-[20px] font-semibold text-[#191C1E]">Recompensas em Destaque</h2>
 
       <div className="mt-5 flex flex-col gap-2">

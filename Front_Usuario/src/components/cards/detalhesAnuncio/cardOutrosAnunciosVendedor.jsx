@@ -7,6 +7,7 @@ export default function CardOutrosAnunciosVendedor({
     anuncio,
     favoritos,
     onVerTodos,
+    mostrarTodos = false,
     favoritar,
     onAbrirAnuncio
 }) {
@@ -16,13 +17,13 @@ export default function CardOutrosAnunciosVendedor({
 
     useEffect(() => {
         let ativo = true
-        buscarOutrosAnunciosVendedor(anuncio).then(dados => {
+        buscarOutrosAnunciosVendedor(anuncio, mostrarTodos).then(dados => {
             if (ativo) setItens(dados)
         }).catch(() => {
             if (ativo) setErro('Não foi possível carregar os anúncios do vendedor.')
         })
         return () => { ativo = false }
-    }, [anuncio, tentativa])
+    }, [anuncio, mostrarTodos, tentativa])
 
     const visiveis = onVerTodos ? itens?.slice(0, 4) : itens
     return (
@@ -52,7 +53,7 @@ export default function CardOutrosAnunciosVendedor({
             ) : itens === null ? (
                 <p role="status" className="text-sm text-gray-600">Carregando anúncios...</p>
             ) : itens.length === 0 && (
-                <p className="rounded-2xl bg-white p-5 text-sm text-gray-600">Este vendedor ainda não tem outros anúncios ativos.</p>
+                <p className="rounded-2xl bg-white p-5 text-sm text-gray-600">{mostrarTodos ? 'Este vendedor ainda não tem anúncios ativos.' : 'Este vendedor ainda não tem outros anúncios ativos.'}</p>
             )}
 
             <div className = "grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">

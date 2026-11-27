@@ -13,16 +13,7 @@ export default function CardAcumulado({ total, pontosMes }) {
       }
       rodape={
         <div className="flex items-center justify-between text-[12px] text-[#3E4A3D]">
-          <span>Frequência trimestral</span>
-          <svg width="96" height="24" viewBox="0 0 96 24" fill="none">
-            <polyline
-              points="0,20 20,22 45,12 60,16 96,6"
-              stroke="#4CAF50"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <span>Acumulado desde o seu cadastro</span>
         </div>
       }
     >

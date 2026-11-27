@@ -1,94 +1,48 @@
-import { useMemo, useRef } from "react"
-import { Heart } from "lucide-react"
+import { useState } from "react"
+import { Heart, ImageOff, MapPin } from "lucide-react"
 
-const MODALIDADES = [
-    { id: 1, titulo: "Mais recentes" },
-    { id: 2, titulo: "Mais recentes em Troca" },
-    { id: 3, titulo: "Mais recentes em Doação" }
-]
-
-function modalidadeDoAnuncio(anuncio) {
-    const id = Number(
-        anuncio.id_modalidade ??
-        anuncio.modalidade_id ??
-        anuncio.idModalidade
-    )
-    if (Number.isFinite(id) && id > 0) return id
-
-    const nome = String(anuncio.modalidade_nome || anuncio.modalidade || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-
-    if (nome === "doacao") return 3
-    if (nome === "troca") return 2
-    if (nome === "venda") return 1
-    return null
-}
-
-function formatarPreco(anuncio) {
-    const modalidade = modalidadeDoAnuncio(anuncio)
-
-    if (modalidade === 3) return "Doação"
-    if (modalidade === 2) return "Troca"
-
-    const preco = Number(anuncio.preco)
-    if (
-        anuncio.preco == null ||
-        String(anuncio.preco).trim() === "" ||
-        !Number.isFinite(preco) ||
-        preco <= 0
-    ) {
-        return anuncio.label_preco || "A combinar"
-    }
-
-    return preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+function preco(anuncio) {
+    const modalidade = String(anuncio.modalidade_nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    if (modalidade === 'doacao') return 'Doação'
+    if (modalidade === 'troca') return 'Troca'
+    const valor = Number(anuncio.preco)
+    return valor > 0 ? valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'A combinar'
 }
 
 function CardAnuncio({ anuncio, onAbrir, favoritado, onFavoritar }) {
-    return <article className="relative w-[clamp(160px,17vw,230px)] min-w-[clamp(160px,17vw,230px)] shrink-0 snap-start">
-        <button type="button" onClick={() => onAbrir?.(anuncio)} className="block w-full text-left">
-            <div className="h-[clamp(160px,17vw,230px)] overflow-hidden rounded-xl bg-gray-100">
-                <img src={anuncio.imagem || `https://placehold.co/400x400?text=${encodeURIComponent(anuncio.nome)}`} alt={anuncio.nome} loading="lazy" className="h-full w-full object-cover" />
-            </div>
-            <h3 className="mt-3 truncate text-sm font-semibold text-gray-800">{anuncio.nome}</h3>
-            <p className="truncate text-base font-bold text-[#4CAF50]">{formatarPreco(anuncio)}</p>
-            <p className="mt-1 text-[11px] text-gray-500">{anuncio.status || "ativo"}</p>
-        </button>
-        {onFavoritar && (
-            <button type="button"
-                onClick={() => onFavoritar(anuncio.id)}
-                aria-label={`${favoritado ? "Remover dos favoritos" : "Favoritar"}: ${anuncio.nome}`}
-                aria-pressed={favoritado}
-                className="absolute right-2 top-2 rounded-full bg-white/95 p-2 text-red-500 shadow-sm"
-            >
-                <Heart size={18} fill={favoritado ? "currentColor" : "none"} aria-hidden="true" />
+    const [imagemComErro, setImagemComErro] = useState(false)
+    const local = [anuncio.cidade_exibicao, anuncio.uf_exibicao].filter(Boolean).join(' - ')
+    return (
+        <article className="group relative min-w-0 overflow-hidden rounded-2xl border border-[#ECE8F1] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+            <button type="button" onClick={() => onAbrir?.(anuncio)} className="block w-full text-left focus-visible:outline-2 focus-visible:outline-[#724BC2]">
+                <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-[#F0EDF4]">
+                    {anuncio.imagem && !imagemComErro
+                        ? <img src={anuncio.imagem} alt={anuncio.nome} loading="lazy" onError={() => setImagemComErro(true)} className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" />
+                        : <span className="flex flex-col items-center gap-2 px-3 text-center text-xs font-medium text-[#746B7D]"><ImageOff size={30} aria-hidden="true" />Imagem indisponível</span>}
+                </div>
+                <div className="space-y-2 p-4">
+                    <p className="text-xs font-semibold text-[#6D6476]">{anuncio.categoria}{anuncio.condicao_nome ? ` · ${anuncio.condicao_nome}` : ''}</p>
+                    <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-bold leading-snug text-[#24202A]">{anuncio.nome}</h3>
+                    <p className="text-xl font-extrabold text-[#278247]">{preco(anuncio)}</p>
+                    {local && <p className="flex items-center gap-1.5 text-xs text-[#635C6B]"><MapPin size={14} aria-hidden="true" />{local}</p>}
+                    {anuncio.vendedor_nome && <p className="truncate border-t border-[#F0EDF4] pt-2 text-xs text-[#635C6B]">Por {anuncio.vendedor_nome}</p>}
+                </div>
             </button>
-        )}
-    </article>
-}
-
-function Carrossel({ titulo, anuncios, onAbrirAnuncio, favoritos, onFavoritar }) {
-    const ref = useRef(null)
-    return <section className="w-full py-4">
-        <div className="mb-3 flex items-center justify-between"><h2 className="text-xl font-semibold text-gray-800">{titulo}</h2><div className="flex gap-2"><button type="button" onClick={() => ref.current?.scrollBy({ left: -300, behavior: "smooth" })} className="rounded-full border px-3 py-1">‹</button><button type="button" onClick={() => ref.current?.scrollBy({ left: 300, behavior: "smooth" })} className="rounded-full border px-3 py-1">›</button></div></div>
-        <div ref={ref} className="flex gap-4 overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {anuncios.map(anuncio => (
-                <CardAnuncio key={anuncio.id} anuncio={anuncio} onAbrir={onAbrirAnuncio}
-                    favoritado={favoritos.includes(String(anuncio.id))} onFavoritar={onFavoritar} />
-            ))}
-        </div>
-    </section>
+            {onFavoritar && <button type="button" onClick={() => onFavoritar(anuncio.id)} aria-label={`${favoritado ? 'Remover dos favoritos' : 'Favoritar'}: ${anuncio.nome}`} aria-pressed={favoritado} className="absolute right-3 top-3 rounded-full bg-white/95 p-2.5 text-[#724BC2] shadow-sm focus-visible:outline-2 focus-visible:outline-[#724BC2]"><Heart size={19} fill={favoritado ? 'currentColor' : 'none'} aria-hidden="true" /></button>}
+        </article>
+    )
 }
 
 export default function AnunciosDestaquePorCategoria({ anuncios = [], onAbrirAnuncio, favoritos = [], onFavoritar, mostrarFavoritos }) {
-    const agrupados = useMemo(() => mostrarFavoritos
-        ? [{ id: "favoritos", titulo: "Favoritos", anuncios }]
-        : MODALIDADES.map(modalidade => ({ ...modalidade, anuncios: anuncios.filter(anuncio => modalidade.id === 1 || Number(anuncio.id_modalidade) === modalidade.id) })), [anuncios, mostrarFavoritos])
-    return <div className="flex w-full flex-col gap-6">
-        {agrupados.filter(grupo => grupo.anuncios.length > 0).map(grupo => (
-            <Carrossel key={grupo.id} titulo={grupo.titulo} anuncios={grupo.anuncios}
-                onAbrirAnuncio={onAbrirAnuncio} favoritos={favoritos} onFavoritar={onFavoritar} />
-        ))}
-    </div>
+    return (
+        <section className="w-full py-2" aria-label={mostrarFavoritos ? 'Anúncios favoritos' : 'Anúncios disponíveis'}>
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+                <div><p className="mb-1 text-sm font-semibold text-[#724BC2]">ECOMARKET</p><h2 className="text-2xl font-extrabold text-[#24202A] sm:text-3xl">{mostrarFavoritos ? 'Seus favoritos' : 'Encontre algo para dar nova vida'}</h2><p className="mt-2 text-sm text-[#635C6B]">Explore itens de pessoas em diferentes cidades.</p></div>
+                <span className="rounded-full bg-[#F1EBFC] px-4 py-2 text-sm font-semibold text-[#5D3B9D]">{anuncios.length} {anuncios.length === 1 ? 'anúncio' : 'anúncios'}</span>
+            </div>
+            <div className="grid grid-cols-1 gap-5 min-[430px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                {anuncios.map(anuncio => <CardAnuncio key={anuncio.id} anuncio={anuncio} onAbrir={onAbrirAnuncio} favoritado={favoritos.includes(String(anuncio.id))} onFavoritar={onFavoritar} />)}
+            </div>
+        </section>
+    )
 }

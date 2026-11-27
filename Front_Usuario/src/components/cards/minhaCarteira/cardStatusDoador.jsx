@@ -4,7 +4,7 @@ export default function CardStatusDoador({ atual, proximo }) {
   const meta = proximo?.meta == null ? null : Number(proximo.meta)
 
   return (
-    <section className="flex flex-col rounded-2xl bg-white p-6">
+    <section className="flex flex-col rounded-2xl border border-[#EAE7EF] bg-white p-6 shadow-sm sm:p-7">
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#724BC2]">
           <Star size={20} className="text-white" aria-hidden="true" />

@@ -10,7 +10,9 @@ const periodoOpcoes = [
 ]
 
 const vazio = {
-  usuariosAtivosHoje: 0,
+  usuariosAtivosTotal: 0,
+  usuariosInativosTotal: 0,
+  usuariosComAcessoPeriodo: 0,
   usuariosCadastrados: 0,
   usuariosTotal: 0,
   anunciosAtivos: 0,
@@ -99,7 +101,7 @@ export default function Home({ setAtiva }) {
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <CardResumo titulo="Pontos gerados" valor={formatarNumero(metricas.pontosGerados)} cor="destaque" carregando={carregando} />
-          <CardResumo titulo="Usuários ativos" valor={formatarNumero(dados.usuariosAtivosHoje)} cor="roxo" carregando={carregando} />
+          <CardResumo titulo="Contas ativas" valor={formatarNumero(dados.usuariosAtivosTotal)} cor="roxo" carregando={carregando} />
           <CardResumo titulo="Anúncios publicados" valor={formatarNumero(dados.anunciosAtivos)} cor="verde" carregando={carregando} />
           <CardResumo titulo="Itens validados" valor={formatarNumero(metricas.itensValidados)} cor="roxo" carregando={carregando} />
         </section>
@@ -117,6 +119,7 @@ export default function Home({ setAtiva }) {
               <Atalho titulo="Ver chamados" onClick={() => setAtiva("chamados")} />
               <Atalho titulo="Pontos de coleta" onClick={() => setAtiva("coleta")} />
               <Atalho titulo="Categorias" onClick={() => setAtiva("categorias")} />
+              <Atalho titulo="Gerenciar usuários" onClick={() => setAtiva("usuarios")} />
             </div>
           </article>
 
@@ -124,6 +127,8 @@ export default function Home({ setAtiva }) {
             <h2 className="mt-1 text-2xl font-bold text-slate-800">Visão operacional</h2>
             <div className="mt-5 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Usuários cadastrados</span><strong className="text-lg text-slate-800">{formatarNumero(dados.usuariosTotal)}</strong></div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Contas desativadas</span><strong className="text-lg text-slate-800">{formatarNumero(dados.usuariosInativosTotal)}</strong></div>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Novos cadastros · {periodoLabel}</span><strong className="text-lg text-slate-800">{formatarNumero(dados.usuariosCadastrados)}</strong></div>
               <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Denúncias no período</span><strong className="text-lg text-slate-800">{formatarNumero(dados.denunciasNoMes)}</strong></div>
               <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-base text-slate-500">Regras de pontuação</span><strong className="text-lg text-slate-800">{formatarNumero(metricas.regrasAtivas)} ativas</strong></div>
               <button type="button" onClick={() => setAtiva("dashboard")} className="group flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-bold text-[#7350B9] transition hover:border-[#65BA69] hover:bg-green-50">

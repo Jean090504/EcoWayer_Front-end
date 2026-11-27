@@ -10,6 +10,7 @@ import Pontos from "./pages/Pontos.jsx"
 import GiftCards from "./pages/GiftCards.jsx"
 import Resgates from "./pages/Resgates.jsx"
 import Dashboard from "./pages/Dashboard.jsx"
+import Usuarios from "./pages/Usuarios.jsx"
 import CategoriaIndividual from "./pages/CategoriaIndividual.jsx"
 import AssistenteChat from "./components/AssistenteChat.jsx"
 
@@ -65,6 +66,7 @@ export default function App() {
         {ativa === "giftcards" && <GiftCards />}
         {ativa === "resgates" && <Resgates />}
         {ativa === "dashboard" && <Dashboard />}
+        {ativa === "usuarios" && <Usuarios />}
       </div>
 
       {mostrarCard && (

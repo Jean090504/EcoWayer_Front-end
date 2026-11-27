@@ -1,6 +1,6 @@
 export default function CardBase({ titulo, valor, destaque, children, rodape }) {
   return (
-    <div className="flex flex-1 flex-col bg-white rounded-2xl p-6">
+    <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-[#EAE7EF] bg-white p-6 shadow-sm sm:p-7">
       <div className="flex items-start justify-between">
         <p className="text-[12px] font-semibold text-[#191C1E]">{titulo}</p>
         {destaque}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../services/api.js'
 import { iniciarPagamentoTeste } from '../services/userService.js'
+import CodigoEntregaQr from '../components/pedidos/CodigoEntregaQr.jsx'
 
 const estados = { pending: 'Aguardando pagamento', in_process: 'Em análise', authorized: 'Aguardando aprovação', approved: 'Pago', rejected: 'Recusado', cancelled: 'Cancelado', refunded: 'Estornado', charged_back: 'Contestado' }
 const entregas = { aguardando_pagamento: 'Aguardando pagamento', aguardando_entrega: 'Combine a entrega pelo chat', entregue: 'Entregue', problema: 'Problema relatado — entrega bloqueada' }
@@ -77,6 +78,7 @@ export default function MeusPedidos({ usuario, onEntrar, onNavegar }) {
     const lista = pedidos.filter(p => p.papel === aba)
     return <section className="mx-auto w-[90%] max-w-4xl py-10">
         <h1 className="text-2xl font-bold">Meus pedidos</h1>
+        <p className="my-2 text-gray-600">Compras e vendas feitas pelo site ou pelo aplicativo aparecem nesta mesma lista.</p>
         <p className="my-3 rounded-xl bg-amber-50 p-3 text-amber-900">Ambiente de teste do TCC. Use somente contas e cartões de teste. Não há repasse financeiro ao vendedor.</p>
         <div className="my-5 flex flex-wrap gap-3">
             <button className={botao} aria-pressed={aba === 'comprador'} onClick={() => setAba('comprador')}>Minhas compras</button>
@@ -108,6 +110,7 @@ export default function MeusPedidos({ usuario, onEntrar, onNavegar }) {
                 {liberado && aba === 'comprador' && <div className="rounded-xl bg-purple-50 p-4">
                     <p>Informe o código ao vendedor somente após receber e conferir o produto.</p>
                     {valido && <p role="status" className="my-3 text-3xl font-bold tracking-widest">{codigo.codigo}</p>}
+                    {valido && <CodigoEntregaQr pedidoId={p.id} codigo={codigo.codigo} />}
                     {valido && <p>Expira às {new Date(codigo.expira_em).toLocaleTimeString('pt-BR')}.</p>}
                     {!valido && codigoAtivo && <p>Já existe um código ativo. Se você fechou a tela, aguarde até {new Date(p.codigo_expira_em).toLocaleTimeString('pt-BR')} para gerar outro.</p>}
                     <button className={`${botao} mt-3`} disabled={ocupado || !!codigoAtivo} onClick={() => executar(p.id, 'codigo')}>Gerar código de recebimento</button>

@@ -2,7 +2,7 @@ import IconChamado from "../../assets/icons/ui/chamado-ia-icon.png"
 import IconDenuncia from "../../assets/icons/ui/denuncia-icon.png"
 import { textosVinculadosAoAlerta } from "../../services/alertasService.js"
 
-export default function CardChamado({ alerta, onClick }) {
+export default function CardChamado({ alerta, onClick, carregando = false }) {
   const denuncia = alerta.denuncia?.[0]
   const anuncio = alerta.anuncio?.[0]
   const mensagens = textosVinculadosAoAlerta(alerta)
@@ -32,6 +32,6 @@ export default function CardChamado({ alerta, onClick }) {
       )}
       <p className="mt-2 truncate text-xs text-slate-500">{referencias.join(" · ")}</p>
     </div>
-    <button type="button" onClick={onClick} className={`shrink-0 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition focus-visible:outline-2 focus-visible:outline-offset-2 ${denuncia ? "bg-[#65BA69] hover:bg-[#51a856] focus-visible:outline-[#65BA69]" : "bg-[#7350B9] hover:bg-[#6140a5] focus-visible:outline-[#7350B9]"}`}>Verificar chamado</button>
+    <button type="button" onClick={onClick} disabled={carregando} className={`shrink-0 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 ${denuncia ? "bg-[#65BA69] hover:bg-[#51a856] focus-visible:outline-[#65BA69]" : "bg-[#7350B9] hover:bg-[#6140a5] focus-visible:outline-[#7350B9]"}`}>{carregando ? "Abrindo..." : "Verificar chamado"}</button>
   </article>
 }

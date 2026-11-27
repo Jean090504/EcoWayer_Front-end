@@ -13,7 +13,7 @@ function textoPreco(anuncio) {
     return preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
-export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onVerAnunciosVendedor, onVoltarAoVendedor, favoritos, favoritar, onConversar, onContraproposta, onDenunciar, avisoInicial = '' }) {
+export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrirAnuncio, onVerAnunciosVendedor, onVoltarAoVendedor, favoritos, favoritar, onConversar, onContraproposta, onDenunciar, onAbrirLogin, usuario, avisoInicial = '' }) {
     const [anuncio, setAnuncio] = useState(null)
     const [fotoAtiva, setFotoAtiva] = useState(0)
     const [erro, setErro] = useState('')
@@ -51,6 +51,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
     }
 
     async function pagarTeste() {
+        if (!usuario?.id) { onAbrirLogin(); return }
         if (pagamentoCarregando) return
         setPagamentoCarregando(true)
         setAviso('')
@@ -205,7 +206,7 @@ export default function DetalhesAnuncio({ anuncioSelecionado, onNavegar, onAbrir
                             onPagarTeste={pagarTeste}
                             pagamentoCarregando={pagamentoCarregando}
                         />
-                        <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={denunciar} onVerPerfil={() => onNavegar('perfil')} />
+                        <CardAnunciante vendedor={anuncio.vendedor} onDenunciar={denunciar} onVerPerfil={() => onVerAnunciosVendedor(anuncio)} />
                     </div>
                 </div>
 

@@ -10,12 +10,17 @@ export function textosVinculadosAoAlerta(alerta) {
 
 export async function listarAlertas() {
   try {
-    const data = await apiFetch('/alertas')
+    const data = await apiFetch('/alertas/fila')
     return data?.response?.alertas || []
   } catch (error) {
     if (/404/.test(error.message)) return []
     throw error
   }
+}
+
+export async function buscarAlerta(id) {
+  const data = await apiFetch(`/alertas/${encodeURIComponent(id)}`)
+  return data?.response?.alerta
 }
 
 export async function atualizarAlerta(id, dados) {

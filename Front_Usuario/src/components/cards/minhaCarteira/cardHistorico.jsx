@@ -38,7 +38,7 @@ export default function CardHistorico({ transacoes = [] }) {
   }
 
   return (
-    <div className="flex w-full flex-col rounded-2xl bg-white p-6">
+    <div className="flex min-w-0 w-full flex-col rounded-2xl border border-[#EAE7EF] bg-white p-6 shadow-sm sm:p-7">
       {/* Topo */}
       <div className="flex items-start justify-between">
         <h2 className="text-[24px] font-semibold text-[#191C1E]">Histórico de Transações</h2>
@@ -73,7 +73,7 @@ export default function CardHistorico({ transacoes = [] }) {
       </div>
 
       {/* Lista: altura mínima fixa pra não pular entre páginas */}
-      <div className="mt-5 flex min-h-[448px] flex-col gap-3">
+      <div className="mt-5 flex min-h-[260px] flex-col gap-3">
         {visiveis.length === 0 && (
           <p className="py-8 text-center text-[13px] text-[#3E4A3D]">
             Nenhuma transação encontrada.

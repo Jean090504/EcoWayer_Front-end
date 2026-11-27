@@ -88,6 +88,14 @@ export default function Sidebar({ ativa, setAtiva, aoClicarSair }){
         texto = "Dashboard"
         onClick = {() => setAtiva("dashboard")}
       />
+      <BotaoMenu
+        ativo={ativa === "usuarios"}
+        imagem={dashboardIcon}
+        larguraImagem="22px"
+        alturaImagem="22px"
+        texto="Usuários"
+        onClick={() => setAtiva("usuarios")}
+      />
       </nav>
 
       <div className="ml-auto pl-2 md:mt-auto md:w-full md:px-3 md:pt-6">
